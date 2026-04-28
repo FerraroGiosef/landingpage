@@ -1,12 +1,13 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
+import { Compass, Search, Users, User } from 'lucide-react';
 
 const NAV = [
-  { icon: '⊞', label: 'Explore', href: '/app' },
-  { icon: '🔍', label: 'Search', href: '/app/search' },
-  { icon: '👥', label: 'Group', href: '/app/group' },
-  { icon: '◯', label: 'Profile', href: '/app/profile' },
+  { Icon: Compass, label: 'Explore', href: '/app' },
+  { Icon: Search, label: 'Search', href: '/app/search' },
+  { Icon: Users, label: 'Group', href: '/app/group' },
+  { Icon: User, label: 'Profile', href: '/app/profile' },
 ];
 
 export default function AppBottomNav() {
@@ -36,6 +37,7 @@ export default function AppBottomNav() {
     >
       {NAV.map((item) => {
         const active = isActive(item.href);
+        const Icon = item.Icon;
         return (
           <button
             key={item.href}
@@ -56,7 +58,7 @@ export default function AppBottomNav() {
             {active && (
               <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#1A1614', borderRadius: '0 0 4px 4px' }} />
             )}
-            <span style={{ fontSize: 18, color: active ? '#1A1614' : '#C4B9A8' }}>{item.icon}</span>
+            <Icon size={18} color={active ? '#1A1614' : '#C4B9A8'} strokeWidth={active ? 2.25 : 1.75} />
             <span style={{ fontSize: 10, color: active ? '#1A1614' : '#8B7E71', fontWeight: active ? 500 : 400 }}>{item.label}</span>
           </button>
         );

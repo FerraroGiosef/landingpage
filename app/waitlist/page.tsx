@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { analytics } from '@/lib/analytics';
@@ -13,6 +13,14 @@ const FILTER_OPTIONS: { filter: string; label: string; icon: string }[] = [
 ];
 
 export default function WaitlistPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: 180, background: '#1A1614' }} />}>
+      <WaitlistContent />
+    </Suspense>
+  );
+}
+
+function WaitlistContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isRestaurant = searchParams.get('type') === 'restaurant';
@@ -45,14 +53,16 @@ export default function WaitlistPage() {
     setError('');
     setLoading(true);
     try {
-      await supabase.from('waitlist').insert({
-        email: email.trim().toLowerCase(),
-        dietary_filters: isRestaurant
-          ? ['restaurant', restaurantName.trim(), cuisine.trim()].filter(Boolean)
-          : filters,
-        consent_given: true,
-        consent_timestamp: new Date().toISOString(),
-      });
+      if (supabase) {
+        await supabase.from('waitlist').insert({
+          email: email.trim().toLowerCase(),
+          dietary_filters: isRestaurant
+            ? ['restaurant', restaurantName.trim(), cuisine.trim()].filter(Boolean)
+            : filters,
+          consent_given: true,
+          consent_timestamp: new Date().toISOString(),
+        });
+      }
       analytics.waitlistJoined(isRestaurant ? ['restaurant'] : filters);
       if (isRestaurant) {
         setSubmitted(true);
@@ -83,7 +93,7 @@ export default function WaitlistPage() {
       <div
         style={{
           minHeight: 180,
-          background: 'linear-gradient(135deg, #1A2E1A, #2A4A30, #3D6845)',
+          background: 'linear-gradient(135deg, #1A1614, #2B2420, #3A302A)',
           padding: '32px 20px 24px',
           position: 'relative',
           overflow: 'hidden',
@@ -97,11 +107,11 @@ export default function WaitlistPage() {
             width: 140,
             height: 140,
             borderRadius: '50%',
-            background: 'rgba(168,216,176,0.06)',
+            background: 'rgba(200,85,58,0.08)',
             pointerEvents: 'none',
           }}
         />
-        <div style={{ fontSize: 9, fontWeight: 700, color: '#A8D8B0', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: '#C8553A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
           {isRestaurant ? 'For restaurants' : 'Coming everywhere'}
         </div>
         <div style={{ fontSize: 26, fontWeight: 800, color: '#E8EAE5', letterSpacing: '-0.4px', lineHeight: 1.2, marginBottom: 8 }}>
@@ -118,7 +128,7 @@ export default function WaitlistPage() {
         {isRestaurant && (
           <>
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', display: 'block', marginBottom: 6 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#8B7E71', display: 'block', marginBottom: 6 }}>
                 Restaurant name
               </label>
               <input
@@ -129,24 +139,24 @@ export default function WaitlistPage() {
                 style={{
                   width: '100%',
                   background: '#FFFFFF',
-                  border: '1.5px solid #D4D8D0',
+                  border: '1.5px solid #C4B9A8',
                   borderRadius: 12,
                   padding: '12px 14px',
                   fontSize: 13,
-                  color: '#1E2220',
+                  color: '#1A1614',
                   outline: 'none',
                   fontFamily: 'inherit',
                   boxSizing: 'border-box',
                 }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#A8D8B0')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = '#D4D8D0')}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#C8553A')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#C4B9A8')}
               />
             </div>
           </>
         )}
 
         <div style={{ marginBottom: 14 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', display: 'block', marginBottom: 6 }}>
+          <label style={{ fontSize: 11, fontWeight: 700, color: '#8B7E71', display: 'block', marginBottom: 6 }}>
             Email address
           </label>
           <input
@@ -157,23 +167,23 @@ export default function WaitlistPage() {
             style={{
               width: '100%',
               background: '#FFFFFF',
-              border: '1.5px solid #D4D8D0',
+              border: '1.5px solid #C4B9A8',
               borderRadius: 12,
               padding: '12px 14px',
               fontSize: 13,
-              color: '#1E2220',
+              color: '#1A1614',
               outline: 'none',
               fontFamily: 'inherit',
               boxSizing: 'border-box',
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = '#A8D8B0')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = '#D4D8D0')}
+            onFocus={(e) => (e.currentTarget.style.borderColor = '#C8553A')}
+            onBlur={(e) => (e.currentTarget.style.borderColor = '#C4B9A8')}
           />
         </div>
 
         {isRestaurant ? (
           <div style={{ marginBottom: 16 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', display: 'block', marginBottom: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: '#8B7E71', display: 'block', marginBottom: 6 }}>
               Cuisine type
             </label>
             <select
@@ -182,11 +192,11 @@ export default function WaitlistPage() {
               style={{
                 width: '100%',
                 background: '#FFFFFF',
-                border: '1.5px solid #D4D8D0',
+                border: '1.5px solid #C4B9A8',
                 borderRadius: 12,
                 padding: '12px 14px',
                 fontSize: 13,
-                color: '#1E2220',
+                color: '#1A1614',
                 outline: 'none',
                 fontFamily: 'inherit',
                 boxSizing: 'border-box',
@@ -205,7 +215,7 @@ export default function WaitlistPage() {
           </div>
         ) : (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', marginBottom: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#8B7E71', marginBottom: 8 }}>
               What works for you? (optional)
             </div>
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
@@ -216,9 +226,9 @@ export default function WaitlistPage() {
                     key={opt.filter}
                     onClick={() => toggleFilter(opt.filter)}
                     style={{
-                      background: active ? '#2D3530' : '#F0EFED',
-                      color: active ? '#A8D8B0' : '#4A5248',
-                      border: `1px solid ${active ? '#A8D8B0' : '#D4D8D0'}`,
+                      background: active ? '#1A1614' : '#F5F0E8',
+                      color: active ? '#FDFBF7' : '#8B7E71',
+                      border: `1px solid ${active ? '#1A1614' : '#C4B9A8'}`,
                       borderRadius: 100,
                       padding: '7px 14px',
                       fontSize: 11,
@@ -249,8 +259,8 @@ export default function WaitlistPage() {
               width: 18,
               height: 18,
               borderRadius: 5,
-              border: `2px solid ${consent ? '#A8D8B0' : '#D4D8D0'}`,
-              background: consent ? '#A8D8B0' : 'transparent',
+              border: `2px solid ${consent ? '#C8553A' : '#C4B9A8'}`,
+              background: consent ? '#C8553A' : 'transparent',
               flexShrink: 0,
               marginTop: 1,
               display: 'flex',
@@ -259,9 +269,9 @@ export default function WaitlistPage() {
               cursor: 'pointer',
             }}
           >
-            {consent && <span style={{ fontSize: 11, fontWeight: 800, color: '#1E2220' }}>✓</span>}
+            {consent && <span style={{ fontSize: 11, fontWeight: 800, color: '#FDFBF7' }}>✓</span>}
           </div>
-          <span style={{ fontSize: 11, color: '#4A5248', lineHeight: 1.5 }}>
+          <span style={{ fontSize: 11, color: '#8B7E71', lineHeight: 1.5 }}>
             I agree to receive updates about PlateMatch and confirm I am over 13. You can unsubscribe at any time.
           </span>
         </label>
@@ -275,8 +285,8 @@ export default function WaitlistPage() {
           disabled={loading}
           style={{
             width: '100%',
-            background: loading ? '#8A9890' : '#2D3530',
-            color: '#A8D8B0',
+            background: loading ? '#8B7E71' : '#1A1614',
+            color: '#FDFBF7',
             border: 'none',
             borderRadius: 14,
             padding: '15px 20px',
@@ -289,7 +299,7 @@ export default function WaitlistPage() {
           {loading ? 'Joining…' : isRestaurant ? 'Request early access' : 'Join the waitlist →'}
         </button>
 
-        <div style={{ textAlign: 'center', fontSize: 10, color: '#8A9890', lineHeight: 1.6 }}>
+        <div style={{ textAlign: 'center', fontSize: 10, color: '#8B7E71', lineHeight: 1.6 }}>
           UK GDPR compliant · ICO registered · Never shared
         </div>
       </div>

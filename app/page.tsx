@@ -80,11 +80,13 @@ export default function LandingPage() {
     setError('');
     setLoading(true);
     try {
-      await supabase.from('waitlist').upsert({
-        email: email.trim().toLowerCase(),
-        consent_given: true,
-        consent_timestamp: new Date().toISOString(),
-      });
+      if (supabase) {
+        await supabase.from('waitlist').upsert({
+          email: email.trim().toLowerCase(),
+          consent_given: true,
+          consent_timestamp: new Date().toISOString(),
+        });
+      }
       analytics.waitlistJoined([]);
       setSubmitted(true);
     } catch {
@@ -272,7 +274,7 @@ export default function LandingPage() {
             <Link href="/waitlist?type=restaurant" style={{ background: '#C8553A', color: '#FDFBF7', padding: '12px 24px', borderRadius: 10, fontSize: 13, textDecoration: 'none', fontFamily: 'inherit' }}>
               Register your restaurant →
             </Link>
-            <button style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => scrollTo('how-it-works')} style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
               See how it works
             </button>
             <span style={{ fontSize: 12, color: '#6B6760', width: '100%' }}>From £29/month · Free onboarding for early partners</span>
