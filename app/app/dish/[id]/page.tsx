@@ -1,0 +1,174 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+import { getDishById, getRestaurantById } from '@/lib/data/restaurants';
+import { getAllergenSummary, getDishTags, filterMatchesDish, UK_ALLERGENS } from '@/lib/scoring';
+
+export default function DishDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [imgError, setImgError] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+  useEffect(() => {
+    const filtersParam = searchParams.get('filters') || '';
+    if (filtersParam) {
+      setActiveFilters(filtersParam.split(',').filter(Boolean));
+    } else {
+      const saved = sessionStorage.getItem('pm_filters');
+      if (saved) { try { setActiveFilters(JSON.parse(saved)); } catch {} }
+    }
+  }, [searchParams]);
+
+  const dish = getDishById(Number(params.id));
+  if (!dish) return <div style={{ padding: 32, textAlign: 'center', color: '#8B7E71' }}>Dish not found.</div>;
+
+  const restaurant = getRestaurantById(dish.restaurantId);
+  const { contains, traces } = getAllergenSummary(dish.allergens);
+  const tags = getDishTags(dish);
+  const isCompatible = filterMatchesDish(dish, activeFilters);
+  const hasFilters = activeFilters.length > 0;
+
+  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  return (
+    <div style={{ fontFamily: 'Inter, -apple-system, sans-serif', paddingBottom: 80 }}>
+      {/* Hero */}
+      <div style={{ position: 'relative', height: 200 }}>
+        {dish.image && !imgError ? (
+          <Image src={dish.image} alt={dish.name} fill style={{ objectFit: 'cover' }} onError={() => setImgError(true)} sizes="430px" />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2D3530, #1A1614)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>🍽️</div>
+        )}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(26,22,20,0.7) 100%)' }} />
+        <button onClick={() => router.back()} style={{ position: 'absolute', top: 16, left: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#FDFBF7' }}>←</button>
+        <button style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: '#FDFBF7' }}>🤍</button>
+        {hasFilters && isCompatible && (
+          <div style={{ position: 'absolute', bottom: 12, left: 14, background: '#639922', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#FFFFFF', fontWeight: 500 }}>
+            ✓ Matches your filter
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: '16px 16px 24px' }}>
+        {/* Dish name + restaurant + price */}
+        <div style={{ marginBottom: 16 }}>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 400, color: '#1A1614', margin: '0 0 4px', letterSpacing: '-0.3px' }}>{dish.name}</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <span style={{ fontSize: 13, color: '#8B7E71' }}>{restaurant?.name}</span>
+            <span style={{ color: '#C4B9A8', fontSize: 11 }}>·</span>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#C8553A', fontWeight: 400 }}>{dish.price}</span>
+          </div>
+
+          {/* Active filter box */}
+          {hasFilters && (
+            <div style={{ background: '#1A1614', borderRadius: 12, padding: '12px 14px', marginBottom: 16 }}>
+              <div className="label-upper" style={{ color: '#8B7E71', marginBottom: 4 }}>Your active filter</div>
+              <div style={{ fontSize: 13, color: '#FDFBF7', marginBottom: 6 }}>{activeFilters.join(' · ')}</div>
+              <div style={{ fontSize: 12, color: isCompatible ? '#639922' : '#EF9F27' }}>
+                {isCompatible ? '✓ This dish matches all your requirements' : '⚠ This dish may not match all your requirements'}
+              </div>
+            </div>
+          )}
+
+          <p style={{ fontSize: 14, color: '#8B7E71', lineHeight: 1.65, margin: 0 }}>{dish.description}</p>
+        </div>
+
+        {/* Nutrition */}
+        {dish.kcal && (
+          <div style={{ background: '#F5F0E8', borderRadius: 12, padding: '16px', marginBottom: 20 }}>
+            <div className="label-upper" style={{ color: '#8B7E71', marginBottom: 12 }}>Nutritional information</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+              {[
+                { val: dish.kcal, label: 'kcal' },
+                { val: dish.protein ? `${dish.protein}g` : '–', label: 'protein' },
+                { val: dish.carbs ? `${dish.carbs}g` : '–', label: 'carbs' },
+                { val: dish.fat ? `${dish.fat}g` : '–', label: 'fat' },
+              ].map((n) => (
+                <div key={n.label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 16, fontWeight: 500, color: '#1A1614' }}>{n.val}</div>
+                  <div style={{ fontSize: 10, color: '#8B7E71', marginTop: 2 }}>{n.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Dietary tags */}
+        <div style={{ marginBottom: 20 }}>
+          <div className="label-upper" style={{ color: '#8B7E71', marginBottom: 10 }}>Dietary information</div>
+          <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+            {[
+              { key: 'vegan', label: 'Vegan', active: dish.isVegan },
+              { key: 'vegetarian', label: 'Vegetarian', active: dish.isVegetarian },
+              { key: 'gf', label: 'GF', active: dish.allergens.gluten === 'no' },
+              { key: 'nut-free', label: 'Nut-free', active: dish.allergens.peanuts === 'no' && dish.allergens.treeNuts === 'no' },
+              { key: 'dairy-free', label: 'Dairy-free', active: dish.allergens.milk === 'no' },
+            ].map((tag) => (
+              <span
+                key={tag.key}
+                style={{
+                  background: tag.active ? '#1A1614' : 'transparent',
+                  color: tag.active ? '#FDFBF7' : '#8B7E71',
+                  border: `0.5px solid ${tag.active ? '#1A1614' : '#C4B9A8'}`,
+                  borderRadius: 100,
+                  padding: '5px 12px',
+                  fontSize: 12,
+                }}
+              >
+                {tag.label}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Allergen section */}
+        <div style={{ marginBottom: 20 }}>
+          <div className="label-upper" style={{ color: '#8B7E71', marginBottom: 12 }}>Allergen information</div>
+
+          {contains.length === 0 && traces.length === 0 ? (
+            <div style={{ background: '#EDF6E2', border: '0.5px solid rgba(99,153,34,0.3)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#3A6B0A', fontWeight: 500 }}>
+              No regulated allergens detected
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {contains.map((a) => (
+                <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#E24B4A', flexShrink: 0 }} />
+                  <span style={{ flex: 1, fontSize: 14, color: '#1A1614' }}>{a}</span>
+                  <span style={{ background: '#FCEBEB', color: '#A32D2D', borderRadius: 100, padding: '3px 10px', fontSize: 11 }}>Contains</span>
+                </div>
+              ))}
+              {traces.map((a) => (
+                <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF9F27', flexShrink: 0 }} />
+                  <span style={{ flex: 1, fontSize: 14, color: '#1A1614' }}>{a}</span>
+                  <span style={{ background: '#FAEEDA', color: '#854F0B', borderRadius: 100, padding: '3px 10px', fontSize: 11 }}>May contain traces</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Legal disclaimer */}
+        <div style={{ background: '#F5F0E8', borderRadius: 10, padding: '12px 14px', fontSize: 11, color: '#8B7E71', lineHeight: 1.6, border: '0.5px solid #C4B9A8' }}>
+          <strong style={{ color: '#1A1614', fontWeight: 500 }}>Information declared by {restaurant?.name} · Last updated {restaurant?.lastUpdated ?? today}</strong>
+          <br />
+          Always confirm with restaurant staff before ordering. PlateMatch presents allergen information as declared by the restaurant. We cannot guarantee accuracy.
+        </div>
+      </div>
+
+      {/* Bottom action bar */}
+      <div style={{ position: 'fixed', bottom: 68, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, background: '#FDFBF7', borderTop: '0.5px solid #C4B9A8', padding: '12px 16px', display: 'flex', gap: 10, boxSizing: 'border-box' }}>
+        <button style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+          Book a table
+        </button>
+        <button style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+          Ask the restaurant
+        </button>
+      </div>
+    </div>
+  );
+}

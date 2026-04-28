@@ -1,0 +1,165 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
+import { filterMatchesDish, getCompatibleCount } from '@/lib/scoring';
+import { analytics } from '@/lib/analytics';
+
+interface Profile {
+  id: string;
+  name: string;
+  filters: string[];
+}
+
+const ALLERGEN_PILLS = [
+  { key: 'gluten', label: 'Gluten-free' },
+  { key: 'milk', label: 'Dairy-free' },
+  { key: 'peanuts', label: 'Peanut-free' },
+  { key: 'treeNuts', label: 'Nut-free' },
+  { key: 'vegan', label: 'Vegan' },
+  { key: 'vegetarian', label: 'Vegetarian' },
+];
+
+export default function GroupPage() {
+  const router = useRouter();
+  const [profiles, setProfiles] = useState<Profile[]>([
+    { id: '1', name: 'You', filters: [] },
+    { id: '2', name: 'Guest 2', filters: [] },
+  ]);
+  const [showResults, setShowResults] = useState(false);
+
+  function addProfile() {
+    if (profiles.length >= 6) return;
+    setProfiles((prev) => [...prev, { id: Date.now().toString(), name: `Guest ${prev.length + 1}`, filters: [] }]);
+  }
+
+  function removeProfile(id: string) {
+    if (profiles.length <= 2) return;
+    setProfiles((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  function toggleFilter(profileId: string, filter: string) {
+    setProfiles((prev) => prev.map((p) => {
+      if (p.id !== profileId) return p;
+      return { ...p, filters: p.filters.includes(filter) ? p.filters.filter((f) => f !== filter) : [...p.filters, filter] };
+    }));
+  }
+
+  function updateName(profileId: string, name: string) {
+    setProfiles((prev) => prev.map((p) => p.id === profileId ? { ...p, name } : p));
+  }
+
+  const combinedFilters = Array.from(new Set(profiles.flatMap((p) => p.filters)));
+
+  const rankedRestaurants = restaurants
+    .map((r) => {
+      const dishes = getDishesByRestaurant(r.id);
+      const perPerson = profiles.map((p) => ({
+        name: p.name,
+        count: getCompatibleCount(dishes, p.filters),
+      }));
+      const minCount = Math.min(...perPerson.map((p) => p.count));
+      return { ...r, perPerson, minCount };
+    })
+    .sort((a, b) => b.minCount - a.minCount);
+
+  if (showResults) {
+    return (
+      <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
+        <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', background: '#FDFBF7', position: 'sticky', top: 0, zIndex: 50 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <button onClick={() => setShowResults(false)} style={{ width: 36, height: 36, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}>←</button>
+            <div>
+              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 400, color: '#1A1614', margin: 0 }}>Dine together</h1>
+              <p style={{ fontSize: 11, color: '#8B7E71', margin: '2px 0 0' }}>Restaurants where everyone can eat</p>
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {rankedRestaurants.map((r) => (
+            <button
+              key={r.id}
+              onClick={() => router.push(`/app/restaurant/${r.slug}?filters=${combinedFilters.join(',')}`)}
+              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, padding: '16px', width: '100%', textAlign: 'left', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div>
+                  <div style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#1A1614', marginBottom: 2 }}>{r.name}</div>
+                  <div style={{ fontSize: 11, color: '#8B7E71' }}>{r.cuisine} · {r.location}</div>
+                </div>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid #C8553A', background: 'rgba(200,85,58,0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#1A1614', lineHeight: 1 }}>{r.minCount}</span>
+                  <span style={{ fontSize: 6.5, color: '#8B7E71', lineHeight: 1 }}>min</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {r.perPerson.map((p) => (
+                  <span key={p.name} style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '3px 10px', fontSize: 11, color: '#8B7E71' }}>
+                    {p.name}: {p.count} dishes
+                  </span>
+                ))}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
+      <div style={{ padding: '20px 16px 0' }}>
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 400, color: '#1A1614', margin: '0 0 4px', letterSpacing: '-0.3px' }}>Dine together</h1>
+        <p style={{ fontSize: 13, color: '#8B7E71', margin: '0 0 20px' }}>Add each person&apos;s dietary needs to find a restaurant where everyone can eat.</p>
+      </div>
+
+      <div style={{ padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {profiles.map((profile, idx) => (
+          <div key={profile.id} style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 500, color: '#8B7E71', flexShrink: 0 }}>
+                {profile.name.charAt(0)}
+              </div>
+              <input
+                value={profile.name}
+                onChange={(e) => updateName(profile.id, e.target.value)}
+                style={{ flex: 1, background: 'none', border: 'none', fontSize: 14, fontWeight: 500, color: '#1A1614', outline: 'none', fontFamily: 'inherit' }}
+              />
+              {idx >= 2 && (
+                <button onClick={() => removeProfile(profile.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C4B9A8', fontSize: 16 }}>×</button>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {ALLERGEN_PILLS.map((pill) => {
+                const active = profile.filters.includes(pill.key);
+                return (
+                  <button
+                    key={pill.key}
+                    onClick={() => toggleFilter(profile.id, pill.key)}
+                    style={{ background: active ? '#1A1614' : 'transparent', color: active ? '#FDFBF7' : '#8B7E71', border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`, borderRadius: 100, padding: '5px 10px', fontSize: 11, cursor: 'pointer' }}
+                  >
+                    {pill.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        {profiles.length < 6 && (
+          <button onClick={addProfile} style={{ background: 'transparent', border: '0.5px dashed #C4B9A8', borderRadius: 14, padding: '14px', color: '#8B7E71', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            + Add person
+          </button>
+        )}
+
+        <button
+          onClick={() => { analytics.groupMatchStarted(profiles.length); setShowResults(true); }}
+          style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 12, padding: '15px', fontSize: 13, cursor: 'pointer', marginTop: 4 }}
+        >
+          Find restaurants for everyone →
+        </button>
+      </div>
+    </div>
+  );
+}
