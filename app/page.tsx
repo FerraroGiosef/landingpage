@@ -44,18 +44,10 @@ const RESTAURANT_FEATURES = [
   },
 ];
 
-const MOCK_CARDS = [
-  { name: "L'Artigiano del Gusto", cuisine: 'Italian · Shoreditch', score: 9, total: 28, tag: 'GF options', gradient: 'linear-gradient(135deg, #6B5E52, #3A302A)' },
-  { name: 'Bella Cucina Verde', cuisine: 'Vegetarian · Camden', score: 14, total: 35, tag: 'Vegan · GF', gradient: 'linear-gradient(135deg, #7A6E62, #4A3F38)' },
-  { name: 'Verde & Grano', cuisine: 'Farm-to-Table · Notting Hill', score: 11, total: 30, tag: 'Dairy-free', gradient: 'linear-gradient(135deg, #5A6E5A, #3A4A3A)' },
-];
-
-const CUISINE_BADGES = [
-  { code: 'IT', label: 'Italian', selected: true },
-  { code: 'JP', label: 'Japanese', selected: false },
-  { code: 'IN', label: 'Indian', selected: false },
-  { code: 'TH', label: 'Thai', selected: false },
-  { code: 'GR', label: 'Greek', selected: false },
+const MOCK_DISHES = [
+  { name: 'Risotto ai Funghi', price: '£16.50' },
+  { name: 'Sorbetto al Limone', price: '£6.00' },
+  { name: 'Insalata Verde', price: '£6.50' },
 ];
 
 const FEATURES = [
@@ -139,7 +131,7 @@ export default function LandingPage() {
 
             {/* Headline */}
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 30, fontWeight: 400, color: '#FDFBF7', lineHeight: 1.2, marginBottom: 16, letterSpacing: '-0.5px' }}>
-              Dining out should never<br />feel like a risk.
+              Every restaurant. Matched to you.
             </h1>
 
             {/* Paragraph */}
@@ -277,7 +269,7 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link href="/admin" style={{ background: '#C8553A', color: '#FDFBF7', padding: '12px 24px', borderRadius: 10, fontSize: 13, textDecoration: 'none', fontFamily: 'inherit' }}>
+            <Link href="/waitlist?type=restaurant" style={{ background: '#C8553A', color: '#FDFBF7', padding: '12px 24px', borderRadius: 10, fontSize: 13, textDecoration: 'none', fontFamily: 'inherit' }}>
               Register your restaurant →
             </Link>
             <button style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -327,7 +319,7 @@ export default function LandingPage() {
               { label: 'Cookie Policy', href: '/cookies' },
               { label: 'Terms', href: '/terms' },
               { label: 'Consumer App', href: '/app' },
-              { label: 'For Restaurants', href: '/admin' },
+              { label: 'For Restaurants', href: '/waitlist?type=restaurant' },
             ].map((l) => (
               <Link key={l.href} href={l.href} style={{ fontSize: 11, color: 'rgba(253,251,247,0.35)', textDecoration: 'none' }}>
                 {l.label}
@@ -365,58 +357,47 @@ function PhoneMockup() {
       <div style={{ background: '#FDFBF7', borderRadius: 14, padding: '10px 10px 8px', marginBottom: 8 }}>
         <div style={{ fontFamily: 'Georgia, serif', fontSize: 11, color: '#1A1614', marginBottom: 2, fontWeight: 400 }}>Good evening</div>
         <div style={{ fontSize: 9, color: '#8B7E71', marginBottom: 8 }}>Find restaurants that match your needs</div>
-        {/* search bar */}
-        <div style={{ background: '#F5F0E8', borderRadius: 8, height: 26, display: 'flex', alignItems: 'center', paddingLeft: 8, gap: 6, marginBottom: 8 }}>
-          <span style={{ fontSize: 9, color: '#C4B9A8' }}>🔍</span>
-          <span style={{ fontSize: 9, color: '#C4B9A8' }}>Search restaurants…</span>
-        </div>
-
-        {/* cuisine badges */}
-        <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between' }}>
-          {CUISINE_BADGES.map((badge) => (
-            <div key={badge.code} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <div
-                style={{
-                  width: 26,
-                  height: 26,
-                  borderRadius: 7,
-                  background: badge.selected ? '#1A1614' : '#F5F0E8',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 8,
-                  fontWeight: 500,
-                  color: badge.selected ? '#FDFBF7' : '#8B7E71',
-                }}
-              >
-                {badge.code}
-              </div>
-              <span style={{ fontSize: 6.5, color: '#8B7E71', textAlign: 'center', whiteSpace: 'nowrap' }}>{badge.label}</span>
-            </div>
+        <div style={{ display: 'flex', gap: 5 }}>
+          {['Gluten-free', 'Vegan'].map((filter) => (
+            <span key={filter} style={{ background: '#1A1614', color: '#FDFBF7', borderRadius: 100, padding: '4px 8px', fontSize: 7.5, fontWeight: 500 }}>
+              {filter}
+            </span>
           ))}
         </div>
       </div>
 
-      {/* restaurant cards */}
-      {MOCK_CARDS.map((card) => (
-        <div key={card.name} style={{ background: '#FDFBF7', borderRadius: 10, overflow: 'hidden', marginBottom: 6, border: '0.5px solid #C4B9A8' }}>
-          <div style={{ height: 42, background: card.gradient, position: 'relative' }}>
-            {/* stronger gradient overlay at bottom for text legibility */}
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)' }} />
-            <div style={{ position: 'absolute', bottom: 4, left: 6, right: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <span style={{ fontFamily: 'Georgia, serif', fontSize: 8, color: '#FDFBF7', fontWeight: 400 }}>{card.name}</span>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: '1.5px solid #C8553A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ fontSize: 7, color: '#FDFBF7', fontFamily: 'Georgia, serif', lineHeight: 1 }}>{card.score}</span>
-                <span style={{ fontSize: 4.5, color: '#C4B9A8', lineHeight: 1 }}>dishes</span>
-              </div>
+      {/* restaurant card */}
+      <div style={{ background: '#FDFBF7', borderRadius: 10, overflow: 'hidden', marginBottom: 6, border: '0.5px solid #C4B9A8' }}>
+        <div style={{ height: 48, background: 'linear-gradient(135deg, #6B5E52, #3A302A)', position: 'relative' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 25%, rgba(0,0,0,0.58) 100%)' }} />
+          <div style={{ position: 'absolute', bottom: 5, left: 7, right: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 5 }}>
+            <div>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: 8.5, color: '#FDFBF7', fontWeight: 400, marginBottom: 2 }}>L&apos;Artigiano del Gusto</div>
+              <div style={{ fontSize: 6.5, color: 'rgba(253,251,247,0.75)' }}>6 dishes match your filters</div>
+            </div>
+            <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: '1.5px solid #C8553A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 8, color: '#FDFBF7', fontFamily: 'Georgia, serif', lineHeight: 1 }}>6</span>
             </div>
           </div>
-          <div style={{ padding: '5px 6px' }}>
-            <div style={{ fontSize: 7, color: '#8B7E71', marginBottom: 3 }}>{card.cuisine}</div>
-            <span style={{ fontSize: 6.5, background: '#F5F0E8', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '1.5px 5px' }}>{card.tag}</span>
-          </div>
         </div>
-      ))}
+        <div style={{ padding: '6px' }}>
+          {MOCK_DISHES.map((dish) => (
+            <div key={dish.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, padding: '5px 0', borderBottom: dish.name === 'Insalata Verde' ? 'none' : '0.5px solid #E7DED1' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 7.5, color: '#1A1614', fontWeight: 500, marginBottom: 3 }}>{dish.name}</div>
+                <div style={{ display: 'flex', gap: 3 }}>
+                  {['GF', 'Vegan'].map((tag) => (
+                    <span key={tag} style={{ background: '#EDF6E2', color: '#3A6B0A', borderRadius: 100, padding: '1px 4px', fontSize: 6 }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <span style={{ fontFamily: 'Georgia, serif', fontSize: 7.5, color: '#1A1614', flexShrink: 0 }}>{dish.price}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* disclaimer */}
       <div style={{ textAlign: 'center', marginTop: 4 }}>

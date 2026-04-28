@@ -4,21 +4,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
-import { getCompatibleCount, filterMatchesDish } from '@/lib/scoring';
+import { getCompatibleCount } from '@/lib/scoring';
 import { analytics } from '@/lib/analytics';
 import type { DishAllergens } from '@/lib/types';
 
 const CUISINES = [
-  { emoji: '🇮🇹', label: 'Italian' },
-  { emoji: '🇯🇵', label: 'Japanese' },
-  { emoji: '🇮🇳', label: 'Indian' },
-  { emoji: '🇹🇭', label: 'Thai' },
-  { emoji: '🇬🇷', label: 'Greek' },
-  { emoji: '🇲🇽', label: 'Mexican' },
-  { emoji: '🇨🇳', label: 'Chinese' },
-  { emoji: '🇫🇷', label: 'French' },
-  { emoji: '🇱🇧', label: 'Lebanese' },
-  { emoji: '🇬🇧', label: 'British' },
+  { code: 'IT', label: 'Italian' },
+  { code: 'JP', label: 'Japanese' },
+  { code: 'IN', label: 'Indian' },
+  { code: 'TH', label: 'Thai' },
+  { code: 'GR', label: 'Greek' },
+  { code: 'MX', label: 'Mexican' },
+  { code: 'CN', label: 'Chinese' },
+  { code: 'FR', label: 'French' },
+  { code: 'LB', label: 'Lebanese' },
+  { code: 'GB', label: 'British' },
 ];
 
 const FILTER_CHIPS = ['All', 'Open now', 'Top rated', 'Nearest', 'Group match'];
@@ -155,7 +155,16 @@ export default function AppHomePage() {
                 cursor: 'pointer',
               }}
             >
-              <span style={{ fontSize: 20 }}>{c.emoji}</span>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: active ? '#1A1614' : '#F5F0E8',
+                border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, fontWeight: 500,
+                color: active ? '#FDFBF7' : '#8B7E71',
+              }}>
+                {c.code}
+              </div>
               <span style={{ fontSize: 9.5, color: active ? '#FDFBF7' : '#8B7E71', fontWeight: 400 }}>{c.label}</span>
             </button>
           );

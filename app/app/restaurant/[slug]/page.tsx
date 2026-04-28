@@ -8,6 +8,8 @@ import { filterMatchesDish, getAllergenSummary, getDishTags } from '@/lib/scorin
 import { analytics } from '@/lib/analytics';
 import type { Dish } from '@/lib/types';
 
+type DishWithWarnings = Dish & { traceWarnings: string[] };
+
 export default function RestaurantDetailPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -29,8 +31,12 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   if (!restaurant) return <div style={{ padding: 32, textAlign: 'center', color: '#8B7E71' }}>Restaurant not found.</div>;
 
   const allDishes = getDishesByRestaurant(restaurant.id);
-  const compatible = allDishes.filter((d) => filterMatchesDish(d, activeFilters));
-  const displayDishes = activeTab === 'compatible' ? compatible : allDishes;
+  const compatibleDishes = allDishes.filter((d) => filterMatchesDish(d, activeFilters).compatible);
+  const dishesWithWarnings: DishWithWarnings[] = compatibleDishes.map((d) => ({
+    ...d,
+    traceWarnings: filterMatchesDish(d, activeFilters).traceWarnings,
+  }));
+  const displayDishes: (Dish | DishWithWarnings)[] = activeTab === 'compatible' ? dishesWithWarnings : allDishes;
 
   const starters = displayDishes.filter((d) => d.category === 'starter');
   const mains = displayDishes.filter((d) => d.category === 'main');
@@ -66,7 +72,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
 
         {/* Ring */}
         <div style={{ position: 'absolute', bottom: 12, right: 14, width: 56, height: 56, borderRadius: '50%', background: 'rgba(26,22,20,0.7)', border: '2.5px solid #C8553A', backdropFilter: 'blur(4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#FDFBF7', lineHeight: 1 }}>{compatible.length}</span>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#FDFBF7', lineHeight: 1 }}>{compatibleDishes.length}</span>
           <span style={{ fontSize: 6, color: '#C4B9A8', lineHeight: 1.2 }}>of {allDishes.length}</span>
         </div>
       </div>
@@ -96,7 +102,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       {/* Tab toggle */}
       <div style={{ display: 'flex', background: '#FFFFFF', borderBottom: '0.5px solid #C4B9A8' }}>
         {[
-          { key: 'compatible', label: `Compatible dishes (${compatible.length})` },
+          { key: 'compatible', label: `Compatible dishes (${compatibleDishes.length})` },
           { key: 'full', label: `Full menu (${allDishes.length})` },
         ].map((tab) => (
           <button
@@ -159,11 +165,12 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   );
 }
 
-function DishRow({ dish, activeFilters, onClick }: { dish: Dish; activeFilters: string[]; onClick: () => void }) {
+function DishRow({ dish, activeFilters, onClick }: { dish: Dish | DishWithWarnings; activeFilters: string[]; onClick: () => void }) {
   const [imgError, setImgError] = useState(false);
   const { contains, traces } = getAllergenSummary(dish.allergens);
   const tags = getDishTags(dish);
-  const isCompatible = filterMatchesDish(dish, activeFilters);
+  const match = filterMatchesDish(dish, activeFilters);
+  const traceWarnings = 'traceWarnings' in dish ? dish.traceWarnings : match.traceWarnings;
 
   return (
     <button
@@ -193,6 +200,9 @@ function DishRow({ dish, activeFilters, onClick }: { dish: Dish; activeFilters: 
           ))}
           {traces.slice(0, 2).map((a) => (
             <span key={a} style={{ background: '#FAEEDA', color: '#854F0B', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>Traces: {a}</span>
+          ))}
+          {traceWarnings.map((a) => (
+            <span key={`warning-${a}`} style={{ background: '#FAEEDA', color: '#854F0B', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>May contain: {a}</span>
           ))}
           {tags.map((t) => (
             <span key={t} style={{ background: '#EDF6E2', color: '#3A6B0A', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>{t}</span>

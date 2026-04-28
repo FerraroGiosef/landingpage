@@ -28,7 +28,7 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
   const restaurant = getRestaurantById(dish.restaurantId);
   const { contains, traces } = getAllergenSummary(dish.allergens);
   const tags = getDishTags(dish);
-  const isCompatible = filterMatchesDish(dish, activeFilters);
+  const { compatible: isCompatible, traceWarnings } = filterMatchesDish(dish, activeFilters);
   const hasFilters = activeFilters.length > 0;
 
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -70,6 +70,11 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
               <div style={{ fontSize: 12, color: isCompatible ? '#639922' : '#EF9F27' }}>
                 {isCompatible ? '✓ This dish matches all your requirements' : '⚠ This dish may not match all your requirements'}
               </div>
+              {traceWarnings.length > 0 && (
+                <div style={{ fontSize: 11, color: '#EF9F27', marginTop: 4 }}>
+                  May contain traces of {traceWarnings.join(', ')}
+                </div>
+              )}
             </div>
           )}
 

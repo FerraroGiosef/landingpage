@@ -1,4 +1,4 @@
-import { Dish, DishAllergens, AllergenStatus } from './types';
+import { Dish, DishAllergens } from './types';
 
 export const UK_ALLERGENS: { key: keyof DishAllergens; name: string; emoji: string }[] = [
   { key: 'gluten', name: 'Gluten', emoji: '🌾' },
@@ -17,21 +17,67 @@ export const UK_ALLERGENS: { key: keyof DishAllergens; name: string; emoji: stri
   { key: 'molluscs', name: 'Molluscs', emoji: '🐚' },
 ];
 
-export function filterMatchesDish(dish: Dish, activeFilters: string[]): boolean {
-  if (activeFilters.length === 0) return true;
+export function filterMatchesDish(
+  dish: Dish,
+  activeFilters: string[]
+): { compatible: boolean; traceWarnings: string[] } {
+  if (activeFilters.length === 0) return { compatible: true, traceWarnings: [] };
+
+  const traceWarnings: string[] = [];
+  const allergenKeys = Object.keys(dish.allergens) as (keyof DishAllergens)[];
 
   for (const filter of activeFilters) {
-    if (filter === 'vegan' && !dish.isVegan) return false;
-    if (filter === 'vegetarian' && !dish.isVegetarian) return false;
-    if (filter === 'gf' && (dish.allergens.gluten === 'contains' || dish.allergens.gluten === 'traces')) return false;
-    if (filter === 'nut-free' && (dish.allergens.peanuts === 'contains' || dish.allergens.treeNuts === 'contains')) return false;
-    if (filter === 'dairy-free' && dish.allergens.milk === 'contains') return false;
+    // Dietary preference filters
+    if (filter === 'vegan') {
+      if (!dish.isVegan) return { compatible: false, traceWarnings: [] };
+      continue;
+    }
+    if (filter === 'vegetarian') {
+      if (!dish.isVegetarian) return { compatible: false, traceWarnings: [] };
+      continue;
+    }
+
+    // Compound dietary filters (these check multiple allergens)
+    if (filter === 'gf') {
+      if (dish.allergens.gluten === 'contains' || dish.allergens.gluten === 'traces') {
+        return { compatible: false, traceWarnings: [] };
+      }
+      continue;
+    }
+    if (filter === 'nut-free') {
+      if (dish.allergens.peanuts === 'contains' || dish.allergens.treeNuts === 'contains') {
+        return { compatible: false, traceWarnings: [] };
+      }
+      if (dish.allergens.peanuts === 'traces') traceWarnings.push('Peanuts');
+      if (dish.allergens.treeNuts === 'traces') traceWarnings.push('Tree nuts');
+      continue;
+    }
+    if (filter === 'dairy-free') {
+      if (dish.allergens.milk === 'contains') {
+        return { compatible: false, traceWarnings: [] };
+      }
+      if (dish.allergens.milk === 'traces') traceWarnings.push('Milk');
+      continue;
+    }
+
+    // Individual allergen filters (gluten, milk, eggs, peanuts, treeNuts, fish, etc.)
+    if (allergenKeys.includes(filter as keyof DishAllergens)) {
+      const status = dish.allergens[filter as keyof DishAllergens];
+      if (status === 'contains') {
+        return { compatible: false, traceWarnings: [] };
+      }
+      if (status === 'traces') {
+        const allergenName = UK_ALLERGENS.find((a) => a.key === filter)?.name || filter;
+        traceWarnings.push(allergenName);
+      }
+    }
   }
-  return true;
+
+  return { compatible: true, traceWarnings };
 }
 
 export function getCompatibleCount(dishes: Dish[], activeFilters: string[]): number {
-  return dishes.filter((d) => filterMatchesDish(d, activeFilters)).length;
+  return dishes.filter((d) => filterMatchesDish(d, activeFilters).compatible).length;
 }
 
 export function getDishTags(dish: Dish): string[] {

@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getDishTags } from '@/lib/scoring';
+import type { Dish, DishAllergens } from '@/lib/types';
 
 type AllergenStatus = 'no' | 'traces' | 'contains';
 
 interface AllergenRow {
-  key: string;
+  key: keyof DishAllergens;
   name: string;
   inChart: boolean;
   status: AllergenStatus;
@@ -30,23 +32,28 @@ const INITIAL_ALLERGENS: AllergenRow[] = [
 ];
 
 const DISH = {
+  id: 1,
+  restaurantId: 1,
   name: 'Risotto ai Funghi Selvatici',
   description: 'Creamy Arborio rice with wild mushrooms, white wine, and Parmesan',
   price: '£16.50',
+  category: 'main' as const,
 };
 
-function getPreviewTags(allergens: AllergenRow[]): string[] {
-  const tags: string[] = [];
-  const containsAny = allergens.filter((a) => a.status === 'contains').map((a) => a.name);
-  const tracesAny = allergens.filter((a) => a.status === 'traces').map((a) => a.name);
-  const noMeat = !containsAny.includes('Fish') && !containsAny.includes('Crustaceans') && !containsAny.includes('Molluscs');
-  const noAnimal = noMeat && !containsAny.includes('Milk') && !containsAny.includes('Eggs');
-  if (noAnimal) tags.push('Vegan');
-  else if (noMeat && !containsAny.includes('Fish')) tags.push('Vegetarian');
-  if (!containsAny.includes('Milk') && !tracesAny.includes('Milk')) tags.push('Dairy-free');
-  if (!containsAny.includes('Gluten') && !tracesAny.includes('Gluten')) tags.push('Gluten-free');
-  if (!containsAny.includes('Peanuts') && !tracesAny.includes('Peanuts') && !containsAny.includes('Tree nuts') && !tracesAny.includes('Tree nuts')) tags.push('Nut-free');
-  return tags;
+function rowsToAllergens(allergens: AllergenRow[]): DishAllergens {
+  return allergens.reduce(
+    (acc, allergen) => ({ ...acc, [allergen.key]: allergen.status }),
+    {} as DishAllergens
+  );
+}
+
+function buildPreviewDish(allergens: AllergenRow[], isVegan: boolean, isVegetarian: boolean): Dish {
+  return {
+    ...DISH,
+    allergens: rowsToAllergens(allergens),
+    isVegan,
+    isVegetarian: isVegan || isVegetarian,
+  };
 }
 
 function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange: (v: AllergenStatus) => void }) {
@@ -92,13 +99,20 @@ function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange
 export default function AdminDishPage() {
   const router = useRouter();
   const [allergens, setAllergens] = useState<AllergenRow[]>(INITIAL_ALLERGENS);
+  const [isVegan, setIsVegan] = useState(true);
+  const [isVegetarian, setIsVegetarian] = useState(true);
   const [saved, setSaved] = useState(false);
 
   function updateStatus(key: string, status: AllergenStatus) {
     setAllergens((prev) => prev.map((a) => (a.key === key ? { ...a, status } : a)));
   }
 
-  const previewTags = getPreviewTags(allergens);
+  const previewDish = buildPreviewDish(allergens, isVegan, isVegetarian);
+  const previewTags = getDishTags(previewDish);
+  const veganConflictAllergens = [
+    previewDish.allergens.milk === 'contains' ? 'milk' : null,
+    previewDish.allergens.eggs === 'contains' ? 'eggs' : null,
+  ].filter(Boolean);
 
   if (saved) {
     return (
@@ -189,6 +203,43 @@ export default function AdminDishPage() {
             </div>
           ))}
         </div>
+
+        {/* Dietary suitability */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dietary suitability</div>
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10, cursor: 'pointer' }}>
+            <span>
+              <span style={{ display: 'block', fontSize: 13, color: '#1A1614', fontWeight: 500 }}>Vegan</span>
+              <span style={{ display: 'block', fontSize: 10, color: '#8B7E71', marginTop: 2 }}>Suitable for vegan diners</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={isVegan}
+              onChange={(e) => {
+                setIsVegan(e.target.checked);
+                if (e.target.checked) setIsVegetarian(true);
+              }}
+            />
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer' }}>
+            <span>
+              <span style={{ display: 'block', fontSize: 13, color: '#1A1614', fontWeight: 500 }}>Vegetarian</span>
+              <span style={{ display: 'block', fontSize: 10, color: '#8B7E71', marginTop: 2 }}>Suitable for vegetarian diners</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={isVegetarian || isVegan}
+              disabled={isVegan}
+              onChange={(e) => setIsVegetarian(e.target.checked)}
+            />
+          </label>
+        </div>
+
+        {isVegan && veganConflictAllergens.length > 0 && (
+          <div style={{ background: '#FAEEDA', border: '0.5px solid rgba(239,159,39,0.45)', borderRadius: 12, padding: '12px 14px', color: '#854F0B', fontSize: 12, lineHeight: 1.5, marginBottom: 20 }}>
+            This dish contains {veganConflictAllergens.join('/')} — please confirm it&apos;s suitable for vegans
+          </div>
+        )}
 
         {/* Preview tags */}
         <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 20 }}>

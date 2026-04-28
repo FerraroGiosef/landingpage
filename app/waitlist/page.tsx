@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { analytics } from '@/lib/analytics';
 
@@ -14,9 +14,14 @@ const FILTER_OPTIONS: { filter: string; label: string; icon: string }[] = [
 
 export default function WaitlistPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isRestaurant = searchParams.get('type') === 'restaurant';
   const [email, setEmail] = useState('');
+  const [restaurantName, setRestaurantName] = useState('');
+  const [cuisine, setCuisine] = useState('');
   const [filters, setFilters] = useState<string[]>([]);
   const [consent, setConsent] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -25,6 +30,10 @@ export default function WaitlistPage() {
   }
 
   async function handleSubmit() {
+    if (isRestaurant && !restaurantName.trim()) {
+      setError('Please enter your restaurant name.');
+      return;
+    }
     if (!email.trim() || !email.includes('@')) {
       setError('Please enter a valid email address.');
       return;
@@ -38,17 +47,35 @@ export default function WaitlistPage() {
     try {
       await supabase.from('waitlist').insert({
         email: email.trim().toLowerCase(),
-        dietary_filters: filters,
+        dietary_filters: isRestaurant
+          ? ['restaurant', restaurantName.trim(), cuisine.trim()].filter(Boolean)
+          : filters,
         consent_given: true,
         consent_timestamp: new Date().toISOString(),
       });
-      analytics.waitlistJoined(filters);
+      analytics.waitlistJoined(isRestaurant ? ['restaurant'] : filters);
+      if (isRestaurant) {
+        setSubmitted(true);
+        return;
+      }
       router.push('/waitlist/success');
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
+  }
+
+  if (isRestaurant && submitted) {
+    return (
+      <div style={{ padding: '40px 20px', fontFamily: 'Inter, -apple-system, sans-serif', textAlign: 'center' }}>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF6E2', color: '#639922', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', fontSize: 22 }}>✓</div>
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 400, color: '#1A1614', margin: '0 0 10px' }}>Thank you!</h1>
+        <p style={{ fontSize: 14, color: '#8B7E71', lineHeight: 1.6, margin: '0 auto', maxWidth: 320 }}>
+          We&apos;ll contact you within 24 hours to set up your menu together.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -75,17 +102,49 @@ export default function WaitlistPage() {
           }}
         />
         <div style={{ fontSize: 9, fontWeight: 700, color: '#A8D8B0', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-          Coming everywhere
+          {isRestaurant ? 'For restaurants' : 'Coming everywhere'}
         </div>
         <div style={{ fontSize: 26, fontWeight: 800, color: '#E8EAE5', letterSpacing: '-0.4px', lineHeight: 1.2, marginBottom: 8 }}>
-          Eat freely.{'\n'}Everywhere.
+          {isRestaurant ? <>Let diners find{'\n'}what works.</> : <>Eat freely.{'\n'}Everywhere.</>}
         </div>
         <div style={{ fontSize: 11, color: 'rgba(232,234,229,0.65)', lineHeight: 1.5 }}>
-          2,400+ people waiting for PlateMatch to expand.{'\n'}Join them and be first to know.
+          {isRestaurant
+            ? <>Request early access and we&apos;ll help set up{'\n'}your allergen-aware menu.</>
+            : <>2,400+ people waiting for PlateMatch to expand.{'\n'}Join them and be first to know.</>}
         </div>
       </div>
 
       <div style={{ padding: '20px 16px' }}>
+        {isRestaurant && (
+          <>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', display: 'block', marginBottom: 6 }}>
+                Restaurant name
+              </label>
+              <input
+                type="text"
+                value={restaurantName}
+                onChange={(e) => setRestaurantName(e.target.value)}
+                placeholder="L'Artigiano del Gusto"
+                style={{
+                  width: '100%',
+                  background: '#FFFFFF',
+                  border: '1.5px solid #D4D8D0',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  fontSize: 13,
+                  color: '#1E2220',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#A8D8B0')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#D4D8D0')}
+              />
+            </div>
+          </>
+        )}
+
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', display: 'block', marginBottom: 6 }}>
             Email address
@@ -112,34 +171,68 @@ export default function WaitlistPage() {
           />
         </div>
 
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', marginBottom: 8 }}>
-            What works for you? (optional)
+        {isRestaurant ? (
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', display: 'block', marginBottom: 6 }}>
+              Cuisine type
+            </label>
+            <select
+              value={cuisine}
+              onChange={(e) => setCuisine(e.target.value)}
+              style={{
+                width: '100%',
+                background: '#FFFFFF',
+                border: '1.5px solid #D4D8D0',
+                borderRadius: 12,
+                padding: '12px 14px',
+                fontSize: 13,
+                color: '#1E2220',
+                outline: 'none',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box',
+              }}
+            >
+              <option value="">Select a cuisine</option>
+              <option value="Italian">Italian</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Indian">Indian</option>
+              <option value="Thai">Thai</option>
+              <option value="Greek">Greek</option>
+              <option value="Mexican">Mexican</option>
+              <option value="British">British</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
-          <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
-            {FILTER_OPTIONS.map((opt) => {
-              const active = filters.includes(opt.filter);
-              return (
-                <button
-                  key={opt.filter}
-                  onClick={() => toggleFilter(opt.filter)}
-                  style={{
-                    background: active ? '#2D3530' : '#F0EFED',
-                    color: active ? '#A8D8B0' : '#4A5248',
-                    border: `1px solid ${active ? '#A8D8B0' : '#D4D8D0'}`,
-                    borderRadius: 100,
-                    padding: '7px 14px',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {opt.icon} {opt.label}
-                </button>
-              );
-            })}
+        ) : (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#4A5248', marginBottom: 8 }}>
+              What works for you? (optional)
+            </div>
+            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+              {FILTER_OPTIONS.map((opt) => {
+                const active = filters.includes(opt.filter);
+                return (
+                  <button
+                    key={opt.filter}
+                    onClick={() => toggleFilter(opt.filter)}
+                    style={{
+                      background: active ? '#2D3530' : '#F0EFED',
+                      color: active ? '#A8D8B0' : '#4A5248',
+                      border: `1px solid ${active ? '#A8D8B0' : '#D4D8D0'}`,
+                      borderRadius: 100,
+                      padding: '7px 14px',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {opt.icon} {opt.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         <label
           style={{
@@ -193,7 +286,7 @@ export default function WaitlistPage() {
             marginBottom: 12,
           }}
         >
-          {loading ? 'Joining…' : 'Join the waitlist →'}
+          {loading ? 'Joining…' : isRestaurant ? 'Request early access' : 'Join the waitlist →'}
         </button>
 
         <div style={{ textAlign: 'center', fontSize: 10, color: '#8A9890', lineHeight: 1.6 }}>
