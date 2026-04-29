@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* PlateMatch Warm Neutral Palette */
+  --espresso: #1A1614;
+  --stone: #8B7E71;
+  --sandstone: #C4B9A8;
+  --linen: #F5F0E8;
+  --parchment: #FDFBF7;
+  --terracotta: #C8553A;
+
+  /* Functional allergen colors */
+  --allergen-red: #E24B4A;
+  --allergen-amber: #EF9F27;
+  --allergen-green: #639922;
+
+  /* Shadcn compatible vars */
+  --background: 43 30% 98%;
+  --foreground: 20 9% 9%;
+  --card: 40 30% 95%;
+  --card-foreground: 20 9% 9%;
+  --popover: 43 30% 98%;
+  --popover-foreground: 20 9% 9%;
+  --primary: 20 9% 9%;
+  --primary-foreground: 43 30% 98%;
+  --secondary: 37 22% 93%;
+  --secondary-foreground: 20 9% 9%;
+  --muted: 37 22% 93%;
+  --muted-foreground: 30 10% 50%;
+  --accent: 37 22% 93%;
+  --accent-foreground: 20 9% 9%;
+  --destructive: 8 59% 50%;
+  --destructive-foreground: 43 30% 98%;
+  --border: 33 18% 78%;
+  --input: 33 18% 78%;
+  --ring: 20 9% 9%;
+  --radius: 0.625rem;
+  --chart-1: 8 59% 50%;
+  --chart-2: 30 10% 50%;
+  --chart-3: 20 9% 9%;
+  --chart-4: 37 22% 93%;
+  --chart-5: 83 49% 35%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background-color: var(--parchment);
+    color: var(--espresso);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  .font-sans {
+    font-family: Inter, -apple-system, sans-serif;
+  }
+  .text-espresso { color: var(--espresso); }
+  .text-stone { color: var(--stone); }
+  .text-sandstone { color: var(--sandstone); }
+  .text-terracotta { color: var(--terracotta); }
+  .text-parchment { color: var(--parchment); }
+  .bg-espresso { background-color: var(--espresso); }
+  .bg-linen { background-color: var(--linen); }
+  .bg-parchment { background-color: var(--parchment); }
+  .bg-terracotta { background-color: var(--terracotta); }
+  .bg-sandstone { background-color: var(--sandstone); }
+  .border-sandstone { border-color: var(--sandstone); }
+  .border-espresso { border-color: var(--espresso); }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .page-max {
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  .dish-gradient {
+    background: linear-gradient(to bottom, transparent 40%, rgba(26,22,20,0.7) 100%);
+  }
+
+  .label-upper {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: Inter, -apple-system, sans-serif;
+  }
+}
