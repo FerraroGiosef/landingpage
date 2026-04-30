@@ -92,7 +92,15 @@ export default function GroupPage() {
             <button
               key={r.id}
               onClick={() => router.push(`/app/restaurant/${r.slug}?filters=${combinedFilters.join(',')}`)}
-              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, padding: '16px', width: '100%', textAlign: 'left', cursor: 'pointer' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,22,20,0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, padding: '16px', width: '100%', textAlign: 'left', cursor: 'pointer', transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <div>
@@ -120,9 +128,33 @@ export default function GroupPage() {
 
   return (
     <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
-      <div style={{ padding: '20px 16px 0' }}>
-        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 400, color: '#1A1614', margin: '0 0 4px', letterSpacing: '-0.3px' }}>Dine together</h1>
-        <p style={{ fontSize: 13, color: '#8B7E71', margin: '0 0 20px' }}>Add each person&apos;s dietary needs to find a restaurant where everyone can eat.</p>
+      <div style={{ padding: '16px 16px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <button
+            onClick={() => router.push('/app')}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: '#F5F0E8',
+              border: '0.5px solid #C4B9A8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: 16,
+              color: '#1A1614',
+              flexShrink: 0,
+              transition: 'all 0.15s ease',
+            }}
+          >
+            ←
+          </button>
+          <div>
+            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 400, color: '#1A1614', margin: '0 0 4px', letterSpacing: '-0.3px' }}>Dine together</h1>
+            <p style={{ fontSize: 13, color: '#8B7E71', margin: 0 }}>Add each person&apos;s dietary needs to find a restaurant where everyone can eat.</p>
+          </div>
+        </div>
       </div>
 
       <div style={{ padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -148,7 +180,7 @@ export default function GroupPage() {
                   <button
                     key={pill.key}
                     onClick={() => toggleFilter(profile.id, pill.key)}
-                    style={{ background: active ? '#1A1614' : 'transparent', color: active ? '#FDFBF7' : '#8B7E71', border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`, borderRadius: 100, padding: '5px 10px', fontSize: 11, cursor: 'pointer' }}
+                    style={{ background: active ? '#1A1614' : 'transparent', color: active ? '#FDFBF7' : '#8B7E71', border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`, borderRadius: 100, padding: '5px 10px', fontSize: 11, cursor: 'pointer', transition: 'all 0.15s ease' }}
                   >
                     {pill.label}
                   </button>
@@ -159,14 +191,14 @@ export default function GroupPage() {
         ))}
 
         {profiles.length < 6 && (
-          <button onClick={addProfile} style={{ background: 'transparent', border: '0.5px dashed #C4B9A8', borderRadius: 14, padding: '14px', color: '#8B7E71', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <button onClick={addProfile} style={{ background: 'transparent', border: '0.5px dashed #C4B9A8', borderRadius: 14, padding: '14px', color: '#8B7E71', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.15s ease' }}>
             + Add person
           </button>
         )}
 
         <button
           onClick={() => { analytics.groupMatchStarted(profiles.length); setShowResults(true); }}
-          style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 12, padding: '15px', fontSize: 13, cursor: 'pointer', marginTop: 4 }}
+          style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 12, padding: '15px', fontSize: 13, cursor: 'pointer', marginTop: 4, transition: 'all 0.15s ease' }}
         >
           Find restaurants for everyone →
         </button>

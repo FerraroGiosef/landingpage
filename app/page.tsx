@@ -8,7 +8,7 @@ import { analytics } from '@/lib/analytics';
 const STATS = [
   { value: '2M+', label: 'People in UK with food allergies' },
   { value: '3.6×', label: 'More engagement on filtered menus' },
-  { value: '90s', label: 'To find what you can eat' },
+  { value: 'Set once', label: 'Eat everywhere' },
 ];
 
 const HOW_IT_WORKS = [
@@ -107,13 +107,13 @@ export default function LandingPage() {
       <nav style={{ background: '#0F0E0C', borderBottom: '0.5px solid rgba(196,185,168,0.15)', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
         <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#FDFBF7', letterSpacing: '-0.3px' }}>PlateMatch</span>
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-          <button onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit' }}>
+          <button onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
             How it works
           </button>
-          <button onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit' }}>
+          <button onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
             For restaurants
           </button>
-          <button onClick={() => scrollTo('waitlist-form')} style={{ background: '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 100, padding: '8px 18px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button onClick={() => scrollTo('waitlist-form')} style={{ background: '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 100, padding: '8px 18px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
             Join waitlist
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function LandingPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    style={{ background: loading ? '#8B7E71' : '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                    style={{ background: loading ? '#8B7E71' : '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'all 0.15s ease' }}
                   >
                     {loading ? 'Joining…' : 'Join waitlist'}
                   </button>
@@ -204,9 +204,9 @@ export default function LandingPage() {
             )}
 
             {/* Stats */}
-            <div style={{ display: 'flex', gap: 32, marginTop: 40, paddingTop: 32, borderTop: '0.5px solid rgba(196,185,168,0.12)', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 24, marginTop: 40, paddingTop: 32, borderTop: '0.5px solid rgba(196,185,168,0.12)', flexWrap: 'wrap' }}>
               {STATS.map((s) => (
-                <div key={s.value}>
+                <div key={s.value} style={{ minWidth: 120, flex: '1 1 120px' }}>
                   <div style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: '#FDFBF7', fontWeight: 400 }}>{s.value}</div>
                   <div style={{ fontSize: 11, color: '#6B6760', marginTop: 2 }}>{s.label}</div>
                 </div>
@@ -271,10 +271,10 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link href="/waitlist?type=restaurant" style={{ background: '#C8553A', color: '#FDFBF7', padding: '12px 24px', borderRadius: 10, fontSize: 13, textDecoration: 'none', fontFamily: 'inherit' }}>
+            <Link href="/waitlist?type=restaurant" style={{ background: '#C8553A', color: '#FDFBF7', padding: '12px 24px', borderRadius: 10, fontSize: 13, textDecoration: 'none', fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
               Register your restaurant →
             </Link>
-            <button onClick={() => scrollTo('how-it-works')} style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => scrollTo('how-it-works')} style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
               See how it works
             </button>
             <span style={{ fontSize: 12, color: '#6B6760', width: '100%' }}>From £29/month · Free onboarding for early partners</span>
