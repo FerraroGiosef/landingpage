@@ -77,6 +77,17 @@ export default function GroupPage() {
           </div>
         </div>
         <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {rankedRestaurants.every((r) => r.minCount === 0) && (
+            <div style={{ padding: '32px 20px', textAlign: 'center' }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>🍽️</div>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#1A1614', marginBottom: 6 }}>
+                No perfect match yet
+              </div>
+              <div style={{ fontSize: 13, color: '#8B7E71', lineHeight: 1.6 }}>
+                No restaurant has compatible dishes for everyone. Try adjusting some filters.
+              </div>
+            </div>
+          )}
           {rankedRestaurants.map((r) => (
             <button
               key={r.id}

@@ -37,6 +37,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
     traceWarnings: filterMatchesDish(d, activeFilters).traceWarnings,
   }));
   const displayDishes: (Dish | DishWithWarnings)[] = activeTab === 'compatible' ? dishesWithWarnings : allDishes;
+  const isFromGroup = searchParams.has('filters');
 
   const starters = displayDishes.filter((d) => d.category === 'starter');
   const mains = displayDishes.filter((d) => d.category === 'main');
@@ -50,7 +51,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         {!imgError ? (
           <Image src={restaurant.heroImage} alt={restaurant.name} fill style={{ objectFit: 'cover' }} onError={() => setImgError(true)} sizes="430px" />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2D3530, #1A1614)' }} />
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #4A3F38, #1A1614)' }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(26,22,20,0.78) 100%)' }} />
 
@@ -82,7 +83,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         <div style={{ display: 'flex', gap: 16, justifyContent: 'space-around' }}>
           {[
             { value: `★ ${restaurant.rating}`, label: 'Rating' },
-            { value: restaurant.isOpen ? '● Open' : '○ Closed', label: 'Status', color: restaurant.isOpen ? '#639922' : '#8B7E71' },
+            { value: restaurant.isOpen ? '● Open' : '○ Closed', label: 'Status', color: restaurant.isOpen ? '#7EA884' : '#8B7E71' },
             { value: restaurant.cuisine, label: 'Cuisine' },
             { value: restaurant.distance, label: 'Distance' },
           ].map((item) => (
@@ -98,6 +99,15 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 16px', fontSize: 11, color: '#8B7E71' }}>
         Allergen information declared by restaurant · Last updated {restaurant.lastUpdated} · Always confirm with staff before ordering
       </div>
+      <div style={{ padding: '0 20px 8px', fontSize: 11, color: '#8B7E71', lineHeight: 1.55, background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8' }}>
+        Dishes marked &quot;May contain&quot; indicate possible cross-contamination during preparation. Always inform staff about severe allergies.
+      </div>
+
+      {isFromGroup && (
+        <div style={{ padding: '8px 20px', background: '#F5F0E8', fontSize: 11, color: '#8B7E71', borderBottom: '0.5px solid #C4B9A8' }}>
+          Showing dishes compatible with everyone in your group
+        </div>
+      )}
 
       {/* Tab toggle */}
       <div style={{ display: 'flex', background: '#FFFFFF', borderBottom: '0.5px solid #C4B9A8' }}>
@@ -117,6 +127,34 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
 
       {/* Dish list by category */}
       <div style={{ padding: '16px 16px 24px' }}>
+        {activeTab === 'compatible' && compatibleDishes.length === 0 && activeFilters.length > 0 && (
+          <div style={{
+            padding: '32px 20px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>🍽️</div>
+            <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#1A1614', marginBottom: 6 }}>
+              No compatible dishes found
+            </div>
+            <div style={{ fontSize: 13, color: '#8B7E71', lineHeight: 1.6, maxWidth: 280, margin: '0 auto 16px' }}>
+              None of the dishes at this restaurant match all your current filters. Try removing a filter or check the full menu.
+            </div>
+            <button
+              onClick={() => setActiveTab('full')}
+              style={{
+                background: '#1A1614',
+                color: '#FDFBF7',
+                border: 'none',
+                borderRadius: 10,
+                padding: '12px 20px',
+                fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              View full menu
+            </button>
+          </div>
+        )}
         {[
           { label: 'Starters', dishes: starters },
           { label: 'Mains', dishes: mains },
@@ -141,7 +179,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
           </div>
         ))}
 
-        {displayDishes.length === 0 && (
+        {displayDishes.length === 0 && !(activeTab === 'compatible' && compatibleDishes.length === 0 && activeFilters.length > 0) && (
           <div style={{ textAlign: 'center', padding: '32px 0', color: '#8B7E71', fontSize: 13 }}>
             No dishes match your current filters.<br />
             <button onClick={() => setActiveTab('full')} style={{ marginTop: 8, color: '#C8553A', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}>View full menu</button>
@@ -196,16 +234,16 @@ function DishRow({ dish, activeFilters, onClick }: { dish: Dish | DishWithWarnin
         {/* Allergen chips */}
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 6 }}>
           {contains.slice(0, 3).map((a) => (
-            <span key={a} style={{ background: '#FCEBEB', color: '#A32D2D', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>Contains: {a}</span>
+            <span key={a} style={{ background: '#F9EFEA', color: '#8A4A32', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>Contains: {a}</span>
           ))}
           {traces.slice(0, 2).map((a) => (
-            <span key={a} style={{ background: '#FAEEDA', color: '#854F0B', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>Traces: {a}</span>
+            <span key={a} style={{ background: '#F8F2E6', color: '#7A6432', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>Traces: {a}</span>
           ))}
           {traceWarnings.map((a) => (
-            <span key={`warning-${a}`} style={{ background: '#FAEEDA', color: '#854F0B', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>May contain: {a}</span>
+            <span key={`warning-${a}`} style={{ background: '#F8F2E6', color: '#7A6432', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>May contain: {a}</span>
           ))}
           {tags.map((t) => (
-            <span key={t} style={{ background: '#EDF6E2', color: '#3A6B0A', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>{t}</span>
+            <span key={t} style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>{t}</span>
           ))}
         </div>
 

@@ -79,7 +79,7 @@ function WaitlistContent() {
   if (isRestaurant && submitted) {
     return (
       <div style={{ padding: '40px 20px', fontFamily: 'Inter, -apple-system, sans-serif', textAlign: 'center' }}>
-        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF6E2', color: '#639922', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', fontSize: 22 }}>✓</div>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF4EE', color: '#7EA884', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', fontSize: 22 }}>✓</div>
         <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 400, color: '#1A1614', margin: '0 0 10px' }}>Thank you!</h1>
         <p style={{ fontSize: 14, color: '#8B7E71', lineHeight: 1.6, margin: '0 auto', maxWidth: 320 }}>
           We&apos;ll contact you within 24 hours to set up your menu together.

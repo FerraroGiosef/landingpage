@@ -253,7 +253,7 @@ function RestaurantCard({
             sizes="(max-width: 430px) 100vw"
           />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2D3530, #1A1614)' }} />
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #4A3F38, #1A1614)' }} />
         )}
         {/* gradient overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(26,22,20,0.75) 100%)' }} />
@@ -281,7 +281,7 @@ function RestaurantCard({
           <span style={{ fontSize: 11, color: '#C4B9A8' }}>·</span>
           <span style={{ fontSize: 12, color: '#8B7E71' }}>{restaurant.distance}</span>
           <span style={{ fontSize: 11, color: '#C4B9A8' }}>·</span>
-          <span style={{ fontSize: 12, color: restaurant.isOpen ? '#639922' : '#8B7E71' }}>{restaurant.isOpen ? 'Open' : 'Closed'}</span>
+          <span style={{ fontSize: 12, color: restaurant.isOpen ? '#7EA884' : '#8B7E71' }}>{restaurant.isOpen ? 'Open' : 'Closed'}</span>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
           {tags.map((tag) => (

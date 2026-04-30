@@ -1,51 +1,23 @@
-'use client';
-
-import Link from 'next/link';
-
-const SECTIONS = [
-  {
-    title: '1. What cookies are',
-    body: 'Cookies are small text files stored on your device. They help websites remember basic information and keep essential features working.',
-  },
-  {
-    title: '2. What PlateMatch uses',
-    body: 'PlateMatch uses only essential cookies and local browser storage required for site functionality, such as remembering temporary dietary filters during a browsing session.',
-  },
-  {
-    title: '3. No tracking cookies',
-    body: 'We do not use advertising cookies, behavioural tracking cookies, or third-party marketing pixels.',
-  },
-  {
-    title: '4. Managing cookies',
-    body: 'You can block or delete cookies in your browser settings. Some essential site features may stop working if browser storage is disabled.',
-  },
-  {
-    title: '5. Contact',
-    body: 'Questions about cookies or privacy can be sent to privacy@platematch.app.',
-  },
-];
-
 export default function CookiesPage() {
   return (
-    <main style={{ background: '#FDFBF7', minHeight: '100vh', padding: '40px 20px', fontFamily: 'Inter, -apple-system, sans-serif' }}>
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <Link href="/" style={{ color: '#8B7E71', fontSize: 13, textDecoration: 'none' }}>← Back to PlateMatch</Link>
-        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 30, fontWeight: 400, color: '#1A1614', margin: '24px 0 8px' }}>
-          Cookie Policy
-        </h1>
-        <p style={{ fontSize: 13, color: '#8B7E71', margin: '0 0 28px' }}>Last updated: 28 April 2026</p>
+    <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px', fontFamily: 'Inter, -apple-system, sans-serif', color: '#1A1614' }}>
+      <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 400, marginBottom: 8 }}>Cookie Policy</h1>
+      <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 24 }}>Last updated: April 2026</p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {SECTIONS.map((section) => (
-            <section key={section.title} style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, padding: '18px 20px' }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', margin: '0 0 8px' }}>
-                {section.title}
-              </h2>
-              <p style={{ fontSize: 13, color: '#8B7E71', lineHeight: 1.7, margin: 0 }}>{section.body}</p>
-            </section>
-          ))}
-        </div>
+      <div style={{ fontSize: 14, lineHeight: 1.8, color: '#3A3530' }}>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, marginTop: 24, marginBottom: 8 }}>Cookies we use</h2>
+        <p>PlateMatch uses only essential cookies required for the site to function correctly. These include session cookies and preference cookies (such as your selected allergen filters stored in your browser&apos;s sessionStorage).</p>
+
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, marginTop: 24, marginBottom: 8 }}>What we do not use</h2>
+        <p>We do not use third-party tracking cookies, advertising cookies, or analytics cookies that track individual users across websites. We do not share cookie data with any third parties.</p>
+
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, marginTop: 24, marginBottom: 8 }}>Managing cookies</h2>
+        <p>You can control and delete cookies through your browser settings. Disabling cookies may affect the functionality of the allergen filter feature.</p>
       </div>
-    </main>
+
+      <div style={{ marginTop: 32, paddingTop: 16, borderTop: '0.5px solid #C4B9A8', fontSize: 12, color: '#8B7E71' }}>
+        PlateMatch Ltd · London, UK · privacy@platematch.app
+      </div>
+    </div>
   );
 }

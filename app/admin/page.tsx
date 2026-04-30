@@ -89,6 +89,23 @@ function AdminDashboardContent() {
       </div>
 
       <div style={{ padding: '16px' }}>
+        {/* Demo Mode Banner — remove when Supabase is connected */}
+        <div style={{
+          margin: '0 0 12px',
+          padding: '10px 14px',
+          background: '#FEF3C7',
+          border: '0.5px solid #F59E0B',
+          borderRadius: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span style={{ fontSize: 14 }}>&#9888;&#65039;</span>
+          <span style={{ fontSize: 12, color: '#92400E', lineHeight: 1.5 }}>
+            You&apos;re viewing demo data. Real restaurant menus will appear here once onboarded.
+          </span>
+        </div>
+
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 16 }}>
           {[
@@ -114,9 +131,9 @@ function AdminDashboardContent() {
         </div>
 
         {/* Verification status */}
-        <div style={{ background: '#EDF6E2', border: '0.5px solid rgba(99,153,34,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: '#639922' }}>✓</span>
-          <span style={{ fontSize: 12, color: '#3A6B0A' }}>All 28 dishes verified · Last updated 12 Apr 2026</span>
+        <div style={{ background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: '#7EA884' }}>✓</span>
+          <span style={{ fontSize: 12, color: '#456B4B' }}>All 28 dishes verified · Last updated 12 Apr 2026</span>
         </div>
 
         {/* Dishes */}
@@ -127,7 +144,7 @@ function AdminDashboardContent() {
               <Link
                 key={dish.id}
                 href={`/admin/dish/${dish.id}`}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', textDecoration: 'none', borderLeft: dish.verified ? undefined : '2px solid #EF9F27' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', textDecoration: 'none', borderLeft: dish.verified ? undefined : '2px solid #C2A46E' }}
               >
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F5F0E8', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -137,7 +154,7 @@ function AdminDashboardContent() {
                       const isContains = a.startsWith('Contains:');
                       const isTraces = a.startsWith('Traces:');
                       return (
-                        <span key={a} style={{ background: isContains ? '#FCEBEB' : isTraces ? '#FAEEDA' : '#EDF6E2', color: isContains ? '#A32D2D' : isTraces ? '#854F0B' : '#3A6B0A', borderRadius: 100, padding: '2px 7px', fontSize: 9.5 }}>
+                        <span key={a} style={{ background: isContains ? '#F9EFEA' : isTraces ? '#F8F2E6' : '#EDF4EE', color: isContains ? '#8A4A32' : isTraces ? '#7A6432' : '#456B4B', borderRadius: 100, padding: '2px 7px', fontSize: 9.5 }}>
                           {a}
                         </span>
                       );

@@ -12,9 +12,9 @@
   --terracotta: #C8553A;
 
   /* Functional allergen colors */
-  --allergen-red: #E24B4A;
-  --allergen-amber: #EF9F27;
-  --allergen-green: #639922;
+  --allergen-red: #C67A5C;
+  --allergen-amber: #C2A46E;
+  --allergen-green: #7EA884;
 
   /* Shadcn compatible vars */
   --background: 43 30% 98%;
