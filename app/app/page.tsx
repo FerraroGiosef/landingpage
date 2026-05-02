@@ -237,9 +237,17 @@ function RestaurantCard({
   if (restaurant.isOpen) tags.push('Open');
 
   return (
-    <button
+    <div
       onClick={onClick}
-      style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', padding: 0 }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,22,20,0.08)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+      style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', padding: 0, transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
     >
       {/* Hero */}
       <div style={{ position: 'relative', height: 160 }}>
@@ -293,24 +301,24 @@ function RestaurantCard({
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={(e) => { e.stopPropagation(); }}
-            style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer' }}
+            style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Book
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); }}
-            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer' }}
+            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Ask
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onClick(); }}
-            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer' }}
+            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Menu
           </button>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
