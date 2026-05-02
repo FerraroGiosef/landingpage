@@ -22,7 +22,7 @@ export default function WaitlistSuccessPage() {
         style={{
           fontSize: 22,
           fontWeight: 800,
-          color: '#1E2220',
+          color: '#1A1614',
           letterSpacing: '-0.4px',
           marginBottom: 12,
           lineHeight: 1.2,
@@ -33,7 +33,7 @@ export default function WaitlistSuccessPage() {
       <div
         style={{
           fontSize: 12,
-          color: '#4A5248',
+          color: '#8B7E71',
           lineHeight: 1.6,
           maxWidth: 280,
           marginBottom: 28,
@@ -44,13 +44,13 @@ export default function WaitlistSuccessPage() {
 
       <div
         style={{
-          background: 'rgba(45,96,69,0.08)',
-          border: '1px solid rgba(45,96,69,0.2)',
+          background: 'rgba(200,85,58,0.08)',
+          border: '1px solid rgba(200,85,58,0.2)',
           borderRadius: 12,
           padding: '12px 20px',
           marginBottom: 28,
           fontSize: 11,
-          color: '#2D6045',
+          color: '#C8553A',
           fontWeight: 600,
         }}
       >
@@ -60,8 +60,8 @@ export default function WaitlistSuccessPage() {
       <button
         onClick={() => router.push('/')}
         style={{
-          background: '#A8D8B0',
-          color: '#1E2220',
+          background: '#1A1614',
+          color: '#FDFBF7',
           border: 'none',
           borderRadius: 14,
           padding: '14px 28px',

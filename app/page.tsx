@@ -80,11 +80,13 @@ export default function LandingPage() {
     setError('');
     setLoading(true);
     try {
-      await supabase.from('waitlist').upsert({
-        email: email.trim().toLowerCase(),
-        consent_given: true,
-        consent_timestamp: new Date().toISOString(),
-      });
+      if (supabase) {
+        await supabase.from('waitlist').upsert({
+          email: email.trim().toLowerCase(),
+          consent_given: true,
+          consent_timestamp: new Date().toISOString(),
+        });
+      }
       analytics.waitlistJoined([]);
       setSubmitted(true);
     } catch {
@@ -140,8 +142,8 @@ export default function LandingPage() {
             </p>
 
             {submitted ? (
-              <div style={{ background: 'rgba(99,153,34,0.12)', border: '0.5px solid rgba(99,153,34,0.3)', borderRadius: 12, padding: '20px 24px' }}>
-                <div style={{ fontSize: 16, color: '#639922', fontFamily: 'Georgia, serif', marginBottom: 4 }}>You&apos;re on the list.</div>
+              <div style={{ background: 'rgba(126,168,132,0.12)', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 12, padding: '20px 24px' }}>
+                <div style={{ fontSize: 16, color: '#7EA884', fontFamily: 'Georgia, serif', marginBottom: 4 }}>You&apos;re on the list.</div>
                 <p style={{ fontSize: 12, color: '#A09A8F', margin: 0 }}>We&apos;ll be in touch when PlateMatch opens in your area.</p>
               </div>
             ) : (
@@ -191,7 +193,7 @@ export default function LandingPage() {
                   {FEATURES.map((f) => (
                     <div key={f.title} style={{ flex: '1 1 100px', minWidth: 80 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-                        <span style={{ fontSize: 10, color: '#639922' }}>✓</span>
+                        <span style={{ fontSize: 10, color: '#7EA884' }}>✓</span>
                         <span style={{ fontSize: 12, fontWeight: 500, color: '#F5F0E8' }}>{f.title}</span>
                       </div>
                       <div style={{ fontSize: 10, color: '#6B6760', lineHeight: 1.45 }}>{f.sub}</div>
@@ -272,7 +274,7 @@ export default function LandingPage() {
             <Link href="/waitlist?type=restaurant" style={{ background: '#C8553A', color: '#FDFBF7', padding: '12px 24px', borderRadius: 10, fontSize: 13, textDecoration: 'none', fontFamily: 'inherit' }}>
               Register your restaurant →
             </Link>
-            <button style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => scrollTo('how-it-works')} style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
               See how it works
             </button>
             <span style={{ fontSize: 12, color: '#6B6760', width: '100%' }}>From £29/month · Free onboarding for early partners</span>
@@ -296,7 +298,7 @@ export default function LandingPage() {
               'Data stored securely in UK/EEA on encrypted servers',
             ].map((item) => (
               <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#8B7E71' }}>
-                <span style={{ color: '#639922', flexShrink: 0 }}>✓</span>
+                <span style={{ color: '#7EA884', flexShrink: 0 }}>✓</span>
                 {item}
               </li>
             ))}
@@ -387,7 +389,7 @@ function PhoneMockup() {
                 <div style={{ fontSize: 7.5, color: '#1A1614', fontWeight: 500, marginBottom: 3 }}>{dish.name}</div>
                 <div style={{ display: 'flex', gap: 3 }}>
                   {['GF', 'Vegan'].map((tag) => (
-                    <span key={tag} style={{ background: '#EDF6E2', color: '#3A6B0A', borderRadius: 100, padding: '1px 4px', fontSize: 6 }}>
+                    <span key={tag} style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '1px 4px', fontSize: 6 }}>
                       {tag}
                     </span>
                   ))}

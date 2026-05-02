@@ -4,8 +4,8 @@
   "description": "Verified dish-by-dish allergen data from restaurants near you.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1E2220",
-  "theme_color": "#1E2220",
+  "background_color": "#1A1614",
+  "theme_color": "#1A1614",
   "orientation": "portrait",
   "icons": [
     {

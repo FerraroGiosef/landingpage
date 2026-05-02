@@ -101,8 +101,8 @@ export default function SettingsPage() {
           onClick={handleSave}
           style={{
             width: '100%',
-            background: saved ? '#EDF6E2' : '#1A1614',
-            color: saved ? '#3A6B0A' : '#FDFBF7',
+            background: saved ? '#EDF4EE' : '#1A1614',
+            color: saved ? '#456B4B' : '#FDFBF7',
             border: 'none',
             borderRadius: 10,
             padding: '14px',

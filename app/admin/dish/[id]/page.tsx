@@ -67,8 +67,8 @@ function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange
       {options.map((opt) => {
         const active = value === opt.val;
         let activeColor = '#1A1614';
-        if (active && opt.val === 'traces') activeColor = '#854F0B';
-        if (active && opt.val === 'contains') activeColor = '#A32D2D';
+        if (active && opt.val === 'traces') activeColor = '#7A6432';
+        if (active && opt.val === 'contains') activeColor = '#8A4A32';
         return (
           <button
             key={opt.val}
@@ -117,7 +117,7 @@ export default function AdminDishPage() {
   if (saved) {
     return (
       <div style={{ fontFamily: 'Inter, -apple-system, sans-serif', padding: '40px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF6E2', border: '0.5px solid rgba(99,153,34,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 16, color: '#639922' }}>✓</div>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 16, color: '#7EA884' }}>✓</div>
         <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 400, color: '#1A1614', marginBottom: 8 }}>Dish confirmed</h1>
         <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 24, lineHeight: 1.65, maxWidth: 280 }}>
           Allergen data for <em>{DISH.name}</em> has been saved and will appear for diners immediately.
@@ -175,21 +175,21 @@ export default function AdminDishPage() {
                 border: '0.5px solid #C4B9A8',
                 borderRadius: 12,
                 padding: '12px',
-                borderLeft: allergen.status === 'contains' ? '2px solid #D94F4F' : allergen.status === 'traces' ? '2px solid #EF9F27' : undefined,
+                borderLeft: allergen.status === 'contains' ? '2px solid #C67A5C' : allergen.status === 'traces' ? '2px solid #C2A46E' : undefined,
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div>
                   <div style={{ fontSize: 13, color: '#1A1614', fontWeight: 500 }}>{allergen.name}</div>
-                  <div style={{ fontSize: 10, color: allergen.inChart ? '#639922' : '#C4B9A8', marginTop: 2 }}>
+                  <div style={{ fontSize: 10, color: allergen.inChart ? '#7EA884' : '#C4B9A8', marginTop: 2 }}>
                     {allergen.inChart ? 'Found in your chart' : 'Not in chart'}
                   </div>
                 </div>
                 {allergen.status !== 'no' && (
                   <span
                     style={{
-                      background: allergen.status === 'contains' ? '#FCEBEB' : '#FAEEDA',
-                      color: allergen.status === 'contains' ? '#A32D2D' : '#854F0B',
+                      background: allergen.status === 'contains' ? '#F9EFEA' : '#F8F2E6',
+                      color: allergen.status === 'contains' ? '#8A4A32' : '#7A6432',
                       borderRadius: 100,
                       padding: '2px 8px',
                       fontSize: 10,
@@ -236,7 +236,7 @@ export default function AdminDishPage() {
         </div>
 
         {isVegan && veganConflictAllergens.length > 0 && (
-          <div style={{ background: '#FAEEDA', border: '0.5px solid rgba(239,159,39,0.45)', borderRadius: 12, padding: '12px 14px', color: '#854F0B', fontSize: 12, lineHeight: 1.5, marginBottom: 20 }}>
+          <div style={{ background: '#F8F2E6', border: '0.5px solid rgba(194,164,110,0.45)', borderRadius: 12, padding: '12px 14px', color: '#7A6432', fontSize: 12, lineHeight: 1.5, marginBottom: 20 }}>
             This dish contains {veganConflictAllergens.join('/')} — please confirm it&apos;s suitable for vegans
           </div>
         )}
@@ -249,7 +249,7 @@ export default function AdminDishPage() {
               {previewTags.map((tag) => (
                 <span
                   key={tag}
-                  style={{ background: '#EDF6E2', color: '#3A6B0A', borderRadius: 100, padding: '4px 10px', fontSize: 11, fontWeight: 500 }}
+                  style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '4px 10px', fontSize: 11, fontWeight: 500 }}
                 >
                   {tag}
                 </span>

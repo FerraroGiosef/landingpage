@@ -40,13 +40,13 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
         {dish.image && !imgError ? (
           <Image src={dish.image} alt={dish.name} fill style={{ objectFit: 'cover' }} onError={() => setImgError(true)} sizes="430px" />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2D3530, #1A1614)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>🍽️</div>
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #4A3F38, #1A1614)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>🍽️</div>
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(26,22,20,0.7) 100%)' }} />
         <button onClick={() => router.back()} style={{ position: 'absolute', top: 16, left: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#FDFBF7' }}>←</button>
         <button style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: '#FDFBF7' }}>🤍</button>
         {hasFilters && isCompatible && (
-          <div style={{ position: 'absolute', bottom: 12, left: 14, background: '#639922', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#FFFFFF', fontWeight: 500 }}>
+          <div style={{ position: 'absolute', bottom: 12, left: 14, background: '#7EA884', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#FFFFFF', fontWeight: 500 }}>
             ✓ Matches your filter
           </div>
         )}
@@ -67,11 +67,11 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
             <div style={{ background: '#1A1614', borderRadius: 12, padding: '12px 14px', marginBottom: 16 }}>
               <div className="label-upper" style={{ color: '#8B7E71', marginBottom: 4 }}>Your active filter</div>
               <div style={{ fontSize: 13, color: '#FDFBF7', marginBottom: 6 }}>{activeFilters.join(' · ')}</div>
-              <div style={{ fontSize: 12, color: isCompatible ? '#639922' : '#EF9F27' }}>
+              <div style={{ fontSize: 12, color: isCompatible ? '#7EA884' : '#C2A46E' }}>
                 {isCompatible ? '✓ This dish matches all your requirements' : '⚠ This dish may not match all your requirements'}
               </div>
               {traceWarnings.length > 0 && (
-                <div style={{ fontSize: 11, color: '#EF9F27', marginTop: 4 }}>
+                <div style={{ fontSize: 11, color: '#C2A46E', marginTop: 4 }}>
                   May contain traces of {traceWarnings.join(', ')}
                 </div>
               )}
@@ -134,23 +134,23 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
           <div className="label-upper" style={{ color: '#8B7E71', marginBottom: 12 }}>Allergen information</div>
 
           {contains.length === 0 && traces.length === 0 ? (
-            <div style={{ background: '#EDF6E2', border: '0.5px solid rgba(99,153,34,0.3)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#3A6B0A', fontWeight: 500 }}>
+            <div style={{ background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#456B4B', fontWeight: 500 }}>
               No regulated allergens detected
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {contains.map((a) => (
                 <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#E24B4A', flexShrink: 0 }} />
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#C67A5C', flexShrink: 0 }} />
                   <span style={{ flex: 1, fontSize: 14, color: '#1A1614' }}>{a}</span>
-                  <span style={{ background: '#FCEBEB', color: '#A32D2D', borderRadius: 100, padding: '3px 10px', fontSize: 11 }}>Contains</span>
+                  <span style={{ background: '#F9EFEA', color: '#8A4A32', borderRadius: 100, padding: '3px 10px', fontSize: 11 }}>Contains</span>
                 </div>
               ))}
               {traces.map((a) => (
                 <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF9F27', flexShrink: 0 }} />
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#C2A46E', flexShrink: 0 }} />
                   <span style={{ flex: 1, fontSize: 14, color: '#1A1614' }}>{a}</span>
-                  <span style={{ background: '#FAEEDA', color: '#854F0B', borderRadius: 100, padding: '3px 10px', fontSize: 11 }}>May contain traces</span>
+                  <span style={{ background: '#F8F2E6', color: '#7A6432', borderRadius: 100, padding: '3px 10px', fontSize: 11 }}>May contain traces</span>
                 </div>
               ))}
             </div>
@@ -163,6 +163,23 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
           <br />
           Always confirm with restaurant staff before ordering. PlateMatch presents allergen information as declared by the restaurant. We cannot guarantee accuracy.
         </div>
+
+        {traces.length > 0 && (
+          <div style={{
+            marginTop: 12,
+            padding: '10px 14px',
+            background: '#F8F2E6',
+            borderRadius: 10,
+            border: '0.5px solid #C2A46E',
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 500, color: '#7A6432', marginBottom: 3 }}>
+              Cross-contamination notice
+            </div>
+            <div style={{ fontSize: 11, color: '#7A6432', lineHeight: 1.55 }}>
+              This dish may have been prepared in a kitchen that also handles {traces.join(', ')}. If you have a severe allergy, please inform the restaurant staff before ordering.
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom action bar */}

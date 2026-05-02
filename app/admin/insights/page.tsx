@@ -50,7 +50,7 @@ export default function InsightsPage() {
             <div key={stat.label} style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px 10px', textAlign: 'center' }}>
               <div style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#1A1614', marginBottom: 2 }}>{stat.value}</div>
               <div style={{ fontSize: 9.5, color: '#8B7E71', marginBottom: 4 }}>{stat.label}</div>
-              <div style={{ fontSize: 9.5, color: '#3A6B0A', background: '#EDF6E2', borderRadius: 100, padding: '1px 6px', display: 'inline-block' }}>{stat.change}</div>
+              <div style={{ fontSize: 9.5, color: '#456B4B', background: '#EDF4EE', borderRadius: 100, padding: '1px 6px', display: 'inline-block' }}>{stat.change}</div>
             </div>
           ))}
         </div>
@@ -92,7 +92,7 @@ export default function InsightsPage() {
                   <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{dish.name}</div>
                   <div style={{ display: 'flex', gap: 5 }}>
                     {dish.tags.map((tag) => (
-                      <span key={tag} style={{ background: '#EDF6E2', color: '#3A6B0A', borderRadius: 100, padding: '1px 7px', fontSize: 9.5 }}>{tag}</span>
+                      <span key={tag} style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '1px 7px', fontSize: 9.5 }}>{tag}</span>
                     ))}
                   </div>
                 </div>

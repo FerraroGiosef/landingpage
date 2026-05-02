@@ -131,7 +131,7 @@ export default function MenuImportPage() {
         <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {PROCESSING_STEPS.map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: s.done && progress > 30 ? '#EDF6E2' : '#F5F0E8', border: `0.5px solid ${s.done && progress > 30 ? '#639922' : '#C4B9A8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 10, color: '#639922' }}>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: s.done && progress > 30 ? '#EDF4EE' : '#F5F0E8', border: `0.5px solid ${s.done && progress > 30 ? '#7EA884' : '#C4B9A8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 10, color: '#7EA884' }}>
                 {s.done && progress > 30 ? '✓' : progress < 90 && i === 2 ? '…' : ''}
               </div>
               <span style={{ fontSize: 12, color: s.done && progress > 30 ? '#1A1614' : '#8B7E71' }}>{s.msg}</span>
@@ -157,13 +157,13 @@ export default function MenuImportPage() {
           </div>
           {/* Stats */}
           <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-            <div style={{ flex: 1, background: '#EDF6E2', border: '0.5px solid rgba(99,153,34,0.3)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
-              <div style={{ fontSize: 16, fontWeight: 500, color: '#3A6B0A' }}>{matched}</div>
-              <div style={{ fontSize: 9.5, color: '#639922' }}>Matched</div>
+            <div style={{ flex: 1, background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
+              <div style={{ fontSize: 16, fontWeight: 500, color: '#456B4B' }}>{matched}</div>
+              <div style={{ fontSize: 9.5, color: '#7EA884' }}>Matched</div>
             </div>
-            <div style={{ flex: 1, background: '#FAEEDA', border: '0.5px solid rgba(239,159,39,0.3)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
-              <div style={{ fontSize: 16, fontWeight: 500, color: '#854F0B' }}>{needsReview}</div>
-              <div style={{ fontSize: 9.5, color: '#EF9F27' }}>Review needed</div>
+            <div style={{ flex: 1, background: '#F8F2E6', border: '0.5px solid rgba(194,164,110,0.3)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
+              <div style={{ fontSize: 16, fontWeight: 500, color: '#7A6432' }}>{needsReview}</div>
+              <div style={{ fontSize: 9.5, color: '#C2A46E' }}>Review needed</div>
             </div>
           </div>
         </div>
@@ -172,13 +172,13 @@ export default function MenuImportPage() {
           {MOCK_DISHES.map((dish) => (
             <div
               key={dish.id}
-              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', borderLeft: dish.status === 'review' ? '2px solid #EF9F27' : undefined }}
+              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', borderLeft: dish.status === 'review' ? '2px solid #C2A46E' : undefined }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614' }}>{dish.name}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontFamily: 'Georgia, serif', fontSize: 12, color: '#8B7E71' }}>{dish.price}</span>
-                  <span style={{ background: dish.status === 'matched' ? '#EDF6E2' : '#FAEEDA', color: dish.status === 'matched' ? '#3A6B0A' : '#854F0B', borderRadius: 100, padding: '2px 8px', fontSize: 10 }}>
+                  <span style={{ background: dish.status === 'matched' ? '#EDF4EE' : '#F8F2E6', color: dish.status === 'matched' ? '#456B4B' : '#7A6432', borderRadius: 100, padding: '2px 8px', fontSize: 10 }}>
                     {dish.status === 'matched' ? 'matched' : 'review'}
                   </span>
                 </div>
@@ -208,7 +208,7 @@ export default function MenuImportPage() {
   // Published
   return (
     <div style={{ fontFamily: 'Inter, -apple-system, sans-serif', padding: '40px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-      <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF6E2', border: '0.5px solid rgba(99,153,34,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 16 }}>✓</div>
+      <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 16 }}>✓</div>
       <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 400, color: '#1A1614', marginBottom: 8, letterSpacing: '-0.3px' }}>Menu is live</h1>
       <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 24, lineHeight: 1.65, maxWidth: 280 }}>
         Your menu is now visible to diners. 28 dishes published, 25 auto-matched, 3 manually added.
@@ -243,7 +243,7 @@ function UploadZone({ title, subtitle, file, onFileSelect, inputRef, accept }: {
   return (
     <div
       onClick={() => inputRef.current?.click()}
-      style={{ border: `0.5px dashed ${file ? '#639922' : '#C4B9A8'}`, borderRadius: 14, padding: '24px 20px', cursor: 'pointer', background: file ? '#EDF6E2' : '#FFFFFF', textAlign: 'center', transition: 'background 0.2s' }}
+      style={{ border: `0.5px dashed ${file ? '#7EA884' : '#C4B9A8'}`, borderRadius: 14, padding: '24px 20px', cursor: 'pointer', background: file ? '#EDF4EE' : '#FFFFFF', textAlign: 'center', transition: 'background 0.2s' }}
     >
       <input ref={inputRef} type="file" accept={accept} style={{ display: 'none' }} onChange={(e) => { if (e.target.files?.[0]) onFileSelect(e.target.files[0]); }} />
       <div style={{ fontSize: 28, marginBottom: 8 }}>{file ? '✓' : '⬆'}</div>
