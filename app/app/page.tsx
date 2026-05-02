@@ -237,7 +237,7 @@ function RestaurantCard({
   if (restaurant.isOpen) tags.push('Open');
 
   return (
-    <button
+    <div
       onClick={onClick}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-2px)';
@@ -319,6 +319,6 @@ function RestaurantCard({
           </button>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
