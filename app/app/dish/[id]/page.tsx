@@ -11,6 +11,8 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();
   const [imgError, setImgError] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [showAskModal, setShowAskModal] = useState(false);
+  const [showBookModal, setShowBookModal] = useState(false);
 
   useEffect(() => {
     const filtersParam = searchParams.get('filters') || '';
@@ -184,11 +186,97 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
 
       {/* Bottom action bar */}
       <div style={{ position: 'fixed', bottom: 68, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, background: '#FDFBF7', borderTop: '0.5px solid #C4B9A8', padding: '12px 16px', display: 'flex', gap: 10, boxSizing: 'border-box' }}>
-        <button style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+        <button onClick={() => setShowBookModal(true)} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
           Book a table
         </button>
-        <button style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+        <button onClick={() => setShowAskModal(true)} style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
           Ask the restaurant
+        </button>
+      </div>
+
+      {showAskModal && (
+        <AskRestaurantModal
+          restaurantName={restaurant?.name || 'the restaurant'}
+          activeFilters={activeFilters}
+          onClose={() => setShowAskModal(false)}
+        />
+      )}
+      {showBookModal && (
+        <BookTableModal onClose={() => setShowBookModal(false)} />
+      )}
+    </div>
+  );
+}
+
+function AskRestaurantModal({
+  restaurantName,
+  activeFilters,
+  onClose,
+}: {
+  restaurantName: string;
+  activeFilters: string[];
+  onClose: () => void;
+}) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
+      <div style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480, maxHeight: '70vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 16px' }} />
+        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', marginBottom: 4 }}>Ask {restaurantName}</h3>
+        <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 16 }}>Send a message about your dietary requirements before visiting.</p>
+
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ fontSize: 11, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }}>Your message</label>
+          <textarea
+            defaultValue={`Hi, I'm planning to visit your restaurant. I have the following dietary requirements: ${activeFilters.join(', ')}. Could you confirm which dishes are suitable for me? Thank you.`}
+            style={{ width: '100%', minHeight: 100, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, color: '#1A1614', fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <button
+          onClick={() => { onClose(); alert('Message sent! (Demo mode — in production this sends via email or WhatsApp)'); }}
+          style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
+        >
+          Send message
+        </button>
+        <button
+          onClick={onClose}
+          style={{ width: '100%', background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BookTableModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
+      <div style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 16px' }} />
+        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', marginBottom: 4 }}>Book a table</h3>
+        <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 16 }}>Choose your preferred date and time.</p>
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <input type="date" style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit' }} />
+          <select style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit' }}>
+            <option>19:00</option><option>19:30</option><option>20:00</option><option>20:30</option><option>21:00</option>
+          </select>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <select style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit' }}>
+            <option>2 guests</option><option>3 guests</option><option>4 guests</option><option>5 guests</option><option>6 guests</option>
+          </select>
+        </div>
+
+        <button
+          onClick={() => { onClose(); alert('Booking request sent! (Demo mode — in production this integrates with TheFork/OpenTable)'); }}
+          style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
+        >
+          Request booking
+        </button>
+        <button onClick={onClose} style={{ width: '100%', background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+          Cancel
         </button>
       </div>
     </div>

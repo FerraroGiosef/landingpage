@@ -56,7 +56,16 @@ export default function AppHomePage() {
       const count = getCompatibleCount(dishes, activeFilters);
       return { ...r, dishes, compatibleCount: count };
     })
-    .sort((a, b) => b.compatibleCount - a.compatibleCount);
+    .sort((a, b) => {
+      if (activeChip === 'Nearest') {
+        const distA = parseFloat(a.distance?.replace(' km', '') || '999');
+        const distB = parseFloat(b.distance?.replace(' km', '') || '999');
+        return distA - distB;
+      }
+      if (activeChip === 'Top rated') return b.rating - a.rating;
+      if (activeChip === 'Group match') return b.compatibleCount - a.compatibleCount;
+      return 0;
+    });
 
   return (
     <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
