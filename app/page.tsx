@@ -107,12 +107,17 @@ export default function LandingPage() {
       <nav style={{ background: '#0F0E0C', borderBottom: '0.5px solid rgba(196,185,168,0.15)', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
         <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#FDFBF7', letterSpacing: '-0.3px' }}>PlateMatch</span>
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+
+          <button onClick={() => location.href = "app"} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit'}}>
+            App
+          </button>
           <button onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
             How it works
           </button>
           <button onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
             For restaurants
           </button>
+          
           <button onClick={() => scrollTo('waitlist-form')} style={{ background: '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 100, padding: '8px 18px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
             Join waitlist
           </button>
