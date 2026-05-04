@@ -98,6 +98,7 @@ export default function GroupPage() {
           )}
           {rankedRestaurants.map((r) => {
             const allCanEat = r.perPerson.every((p) => p.count > 0);
+            const imageSrc = 'image' in r && typeof r.image === 'string' ? r.image : r.heroImage;
             return (
               <div
                 key={r.id}
@@ -118,7 +119,7 @@ export default function GroupPage() {
                 style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
               >
                 <div style={{ position: 'relative', height: 160 }}>
-                  <Image src={r.heroImage} alt={r.name} fill style={{ objectFit: 'cover' }} sizes="(max-width: 430px) 100vw" />
+                  <Image src={imageSrc} alt={r.name} fill style={{ objectFit: 'cover' }} sizes="(max-width: 430px) 100vw" />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(26,22,20,0.75) 100%)' }} />
                   <div style={{ position: 'absolute', bottom: 12, left: 14, right: 74 }}>
                     <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#FDFBF7', fontWeight: 400, marginBottom: 2 }}>{r.name}</div>
