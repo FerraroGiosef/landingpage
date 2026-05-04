@@ -15,30 +15,39 @@ const DISHES_LIVE = [
 export default function AdminDashboard() {
   const [showMagicLink, setShowMagicLink] = useState(false);
   const [email, setEmail] = useState('');
-  const [sentLink, setSentLink] = useState(false);
+  const [sentLink, setSentLink] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('pm_admin_auth') === 'true';
+    }
+    return false;
+  });
+
+  function loginAdmin() {
+    setSentLink(true);
+    if (typeof window !== 'undefined') sessionStorage.setItem('pm_admin_auth', 'true');
+  }
 
   if (!sentLink && showMagicLink === false) {
     return (
-      <AdminLoginScreen onLogin={() => setSentLink(true)} onShowForm={() => setShowMagicLink(true)} showForm={showMagicLink} email={email} setEmail={setEmail} setSentLink={setSentLink} />
+      <AdminLoginScreen onLogin={loginAdmin} onShowForm={() => setShowMagicLink(true)} showForm={showMagicLink} email={email} setEmail={setEmail} />
     );
   }
 
   if (showMagicLink && !sentLink) {
     return (
-      <AdminLoginScreen onLogin={() => setSentLink(true)} onShowForm={() => setShowMagicLink(true)} showForm={showMagicLink} email={email} setEmail={setEmail} setSentLink={setSentLink} />
+      <AdminLoginScreen onLogin={loginAdmin} onShowForm={() => setShowMagicLink(true)} showForm={showMagicLink} email={email} setEmail={setEmail} />
     );
   }
 
   return <AdminDashboardContent />;
 }
 
-function AdminLoginScreen({ onShowForm, showForm, email, setEmail, setSentLink }: {
+function AdminLoginScreen({ onLogin, onShowForm, showForm, email, setEmail }: {
   onLogin: () => void;
   onShowForm: () => void;
   showForm: boolean;
   email: string;
   setEmail: (e: string) => void;
-  setSentLink: (v: boolean) => void;
 }) {
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
@@ -57,7 +66,7 @@ function AdminLoginScreen({ onShowForm, showForm, email, setEmail, setSentLink }
           style={{ width: '100%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#1A1614', outline: 'none', fontFamily: 'inherit', marginBottom: 12, boxSizing: 'border-box' }}
         />
         <button
-          onClick={() => setSentLink(true)}
+          onClick={onLogin}
           style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', marginBottom: 16 }}
         >
           Send magic link
@@ -65,7 +74,7 @@ function AdminLoginScreen({ onShowForm, showForm, email, setEmail, setSentLink }
 
         <div style={{ textAlign: 'center', fontSize: 11, color: '#8B7E71' }}>
           <span>Demo mode: </span>
-          <button onClick={() => setSentLink(true)} style={{ background: 'none', border: 'none', color: '#C8553A', cursor: 'pointer', fontSize: 11 }}>
+          <button onClick={onLogin} style={{ background: 'none', border: 'none', color: '#C8553A', cursor: 'pointer', fontSize: 11 }}>
             Enter dashboard →
           </button>
         </div>
@@ -125,7 +134,7 @@ function AdminDashboardContent() {
           <Link href="/admin/menu/import" style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', borderRadius: 10, padding: '12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', display: 'block' }}>
             Update menu
           </Link>
-          <Link href="/app/restaurant/lartigiano-del-gusto" target="_blank" style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', display: 'block' }}>
+          <Link href="/app/restaurant/lartigiano-del-gusto?from=admin" style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', display: 'block' }}>
             View as diner
           </Link>
         </div>

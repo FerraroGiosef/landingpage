@@ -33,7 +33,7 @@ export default function MenuPage() {
       </div>
       <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         {CATEGORIES.map((cat) => (
-          <button key={cat.label} onClick={() => router.push('/admin')} style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
+          <button key={cat.label} onClick={() => router.push('/admin/menu/import')} style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
             <div style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#1A1614' }}>{cat.label}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 12, color: '#8B7E71' }}>{cat.count} dishes</span>

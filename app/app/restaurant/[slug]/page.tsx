@@ -80,7 +80,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(26,22,20,0.78) 100%)' }} />
 
         {/* Back button */}
-        <button onClick={() => router.back()} style={{ position: 'absolute', top: 16, left: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#FDFBF7' }}>←</button>
+        <button onClick={() => { if (searchParams.get('from') === 'admin') { router.push('/admin'); } else { router.back(); } }} style={{ position: 'absolute', top: 16, left: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#FDFBF7' }}>←</button>
 
         {/* Actions */}
         <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 8 }}>
