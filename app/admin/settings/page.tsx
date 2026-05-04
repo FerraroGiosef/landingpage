@@ -8,6 +8,7 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState('+44 20 7123 4567');
   const [bookingUrl, setBookingUrl] = useState('https://resy.com/cities/lon/lartigiano');
   const [reviewDays, setReviewDays] = useState('30');
+  const [customReviewDays, setCustomReviewDays] = useState('');
   const [saved, setSaved] = useState(false);
 
   function handleSave() {
@@ -45,7 +46,7 @@ export default function SettingsPage() {
               <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500, marginBottom: 4 }}>Menu review reminder</div>
               <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10 }}>How often should we remind you to review allergen data?</div>
               <div style={{ display: 'flex', background: '#F5F0E8', borderRadius: 8, padding: 2, gap: 2 }}>
-                {['14', '30', '60', '90'].map((days) => (
+                {['7', '14', '30', '60'].map((days) => (
                   <button
                     key={days}
                     onClick={() => setReviewDays(days)}
@@ -65,7 +66,47 @@ export default function SettingsPage() {
                     {days}d
                   </button>
                 ))}
+                <button
+                  onClick={() => setReviewDays('custom')}
+                  style={{
+                    flex: 1,
+                    padding: '6px 4px',
+                    borderRadius: 6,
+                    border: 'none',
+                    background: reviewDays === 'custom' ? '#FFFFFF' : 'transparent',
+                    color: reviewDays === 'custom' ? '#1A1614' : '#8B7E71',
+                    fontSize: 11,
+                    fontWeight: reviewDays === 'custom' ? 500 : 400,
+                    cursor: 'pointer',
+                    boxShadow: reviewDays === 'custom' ? '0 0.5px 2px rgba(0,0,0,0.08)' : 'none',
+                  }}
+                >
+                  Custom
+                </button>
               </div>
+              {reviewDays === 'custom' && (
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  placeholder="Enter days"
+                  value={customReviewDays}
+                  onChange={(e) => setCustomReviewDays(e.target.value)}
+                  style={{
+                    background: '#F5F0E8',
+                    border: '0.5px solid #C4B9A8',
+                    borderRadius: 8,
+                    padding: '8px 12px',
+                    width: '100%',
+                    marginTop: 8,
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit',
+                    fontSize: 12,
+                    color: '#1A1614',
+                    outline: 'none',
+                  }}
+                />
+              )}
             </div>
             <ToggleRow label="Show 'Traces of' information" subtitle="Display trace allergens separately from full contains" defaultOn />
             <ToggleRow label="Owen's Law compliant display" subtitle="Show allergen info prominently on every dish" defaultOn />
