@@ -231,7 +231,7 @@ function MenuImportContent() {
       </div>
 
       <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 320 }}>
-        <button style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
+        <button onClick={() => window.location.href = '/app/restaurant/lartigiano-del-gusto'} style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
           View live page →
         </button>
         <button onClick={() => router.push('/admin')} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>

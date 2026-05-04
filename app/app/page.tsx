@@ -309,13 +309,13 @@ function RestaurantCard({
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={(e) => { e.stopPropagation(); }}
+            onClick={(e) => { e.stopPropagation(); alert('Booking sent! Demo mode'); }}
             style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Book
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); }}
+            onClick={(e) => { e.stopPropagation(); alert('Message sent! Demo mode'); }}
             style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Ask

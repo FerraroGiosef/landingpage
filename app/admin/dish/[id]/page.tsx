@@ -123,12 +123,16 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [isVegan, setIsVegan] = useState(true);
   const [isVegetarian, setIsVegetarian] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [description, setDescription] = useState(dishData.description);
+  const [price, setPrice] = useState(dishData.price);
 
   useEffect(() => {
     setAllergens(dishData.allergens);
     setIsVegan(true);
     setIsVegetarian(true);
     setSaved(false);
+    setDescription(dishData.description);
+    setPrice(dishData.price);
   }, [dishData, params.id]);
 
   function updateStatus(key: string, status: AllergenStatus) {
@@ -191,8 +195,52 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       </div>
 
       <div style={{ padding: '16px' }}>
-        {/* Dish description */}
-        <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{dishData.description}</p>
+        {/* Editable description and price */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dish details</div>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', fontSize: 12, color: '#8B7E71', marginBottom: 5 }}>Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              style={{
+                width: '100%',
+                background: '#F5F0E8',
+                border: '0.5px solid #C4B9A8',
+                borderRadius: 8,
+                padding: '9px 12px',
+                fontSize: 12,
+                color: '#1A1614',
+                lineHeight: 1.55,
+                outline: 'none',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 12, color: '#8B7E71', marginBottom: 5 }}>Price</label>
+            <input
+              type="text"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              style={{
+                width: '100%',
+                background: '#F5F0E8',
+                border: '0.5px solid #C4B9A8',
+                borderRadius: 8,
+                padding: '9px 12px',
+                fontSize: 12,
+                color: '#1A1614',
+                outline: 'none',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+        </div>
 
         {/* Info box */}
         <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
