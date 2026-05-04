@@ -266,11 +266,11 @@ export default function AppHomePage() {
       {bookingRestaurant && (
         <div
           onClick={() => setBookingRestaurant(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 36px', width: '100%', maxWidth: 480, boxShadow: '0 -4px 24px rgba(26,22,20,0.12)' }}
+            style={{ background: '#FDFBF7', borderRadius: '20px', padding: '24px 20px 36px', width: '100%', maxWidth: 480, boxShadow: '0 4px 32px rgba(26,22,20,0.16)', maxHeight: '90vh', overflowY: 'auto' }}
           >
             {/* Drag handle */}
             <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 20px' }} />
@@ -347,7 +347,7 @@ export default function AppHomePage() {
                 </div>
 
                 {/* Name */}
-                <div style={{ marginBottom: 20 }}>
+                <div style={{ marginBottom: 12 }}>
                   <label style={{ display: 'block', fontSize: 11, color: '#8B7E71', marginBottom: 5 }}>Name on booking</label>
                   <input
                     type="text"
@@ -355,6 +355,16 @@ export default function AppHomePage() {
                     onChange={(e) => setBookingName(e.target.value)}
                     placeholder="Your name"
                     style={{ width: '100%', padding: '11px 12px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit', color: '#1A1614', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {/* Message */}
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', fontSize: 11, color: '#8B7E71', marginBottom: 5 }}>Message for the restaurant</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Any dietary requirements or special requests?"
+                    style={{ width: '100%', padding: '12px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit', color: '#1A1614', outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.55 }}
                   />
                 </div>
 
@@ -385,11 +395,11 @@ export default function AppHomePage() {
       {askingRestaurant && (
         <div
           onClick={() => setAskingRestaurant(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 36px', width: '100%', maxWidth: 480, boxShadow: '0 -4px 24px rgba(26,22,20,0.12)' }}
+            style={{ background: '#FDFBF7', borderRadius: '20px', padding: '24px 20px 36px', width: '100%', maxWidth: 480, boxShadow: '0 4px 32px rgba(26,22,20,0.16)', maxHeight: '90vh', overflowY: 'auto' }}
           >
             {/* Drag handle */}
             <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 20px' }} />

@@ -263,9 +263,9 @@ function DishRow({
       style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#FFFFFF', border: '0.5px solid #C4B9A8', width: '100%', textAlign: 'left', cursor: 'pointer', padding: '10px 12px', borderRadius: 12 } as React.CSSProperties}
     >
       {/* Thumbnail */}
-      <div style={{ width: 64, height: 64, borderRadius: 10, overflow: 'hidden', flexShrink: 0, background: '#F5F0E8' }}>
+      <div style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', flexShrink: 0, background: '#F5F0E8' }}>
         {dish.image && !imgError ? (
-          <Image src={dish.image} alt={dish.name} width={64} height={64} style={{ objectFit: 'cover', width: '100%', height: '100%' }} onError={() => setImgError(true)} />
+          <Image src={dish.image} alt={dish.name} width={80} height={80} style={{ objectFit: 'cover', width: '100%', height: '100%' }} onError={() => setImgError(true)} />
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #F5F0E8, #C4B9A8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🍽️</div>
         )}
@@ -333,8 +333,8 @@ function AskRestaurantModal({
   onClose: () => void;
 }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
-      <div style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480, maxHeight: '70vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }} onClick={onClose}>
+      <div style={{ background: '#FDFBF7', borderRadius: '20px', padding: '24px 20px 32px', width: '100%', maxWidth: 480, maxHeight: '80vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 16px' }} />
         <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', marginBottom: 4 }}>Ask {restaurantName}</h3>
         <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 16 }}>Send a message about your dietary requirements before visiting.</p>
@@ -366,8 +366,8 @@ function AskRestaurantModal({
 
 function BookTableModal({ onClose }: { onClose: () => void }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
-      <div style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }} onClick={onClose}>
+      <div style={{ background: '#FDFBF7', borderRadius: '20px', padding: '24px 20px 32px', width: '100%', maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 16px' }} />
         <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', marginBottom: 4 }}>Book a table</h3>
         <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 16 }}>Choose your preferred date and time.</p>
