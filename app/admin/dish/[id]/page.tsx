@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDishTags } from '@/lib/scoring';
 import type { Dish, DishAllergens } from '@/lib/types';
@@ -15,14 +15,14 @@ interface AllergenRow {
 }
 
 const INITIAL_ALLERGENS: AllergenRow[] = [
-  { key: 'gluten', name: 'Gluten', inChart: true, status: 'contains' },
-  { key: 'milk', name: 'Milk', inChart: true, status: 'contains' },
-  { key: 'eggs', name: 'Eggs', inChart: true, status: 'traces' },
+  { key: 'gluten', name: 'Gluten', inChart: false, status: 'no' },
+  { key: 'milk', name: 'Milk', inChart: false, status: 'no' },
+  { key: 'eggs', name: 'Eggs', inChart: false, status: 'no' },
   { key: 'peanuts', name: 'Peanuts', inChart: false, status: 'no' },
   { key: 'treeNuts', name: 'Tree nuts', inChart: false, status: 'no' },
   { key: 'fish', name: 'Fish', inChart: false, status: 'no' },
   { key: 'crustaceans', name: 'Crustaceans', inChart: false, status: 'no' },
-  { key: 'soya', name: 'Soya', inChart: true, status: 'traces' },
+  { key: 'soya', name: 'Soya', inChart: false, status: 'no' },
   { key: 'celery', name: 'Celery', inChart: false, status: 'no' },
   { key: 'mustard', name: 'Mustard', inChart: false, status: 'no' },
   { key: 'sesame', name: 'Sesame', inChart: false, status: 'no' },
@@ -31,13 +31,25 @@ const INITIAL_ALLERGENS: AllergenRow[] = [
   { key: 'molluscs', name: 'Molluscs', inChart: false, status: 'no' },
 ];
 
-const DISH = {
-  id: 1,
-  restaurantId: 1,
-  name: 'Risotto ai Funghi Selvatici',
-  description: 'Creamy Arborio rice with wild mushrooms, white wine, and Parmesan',
-  price: '£16.50',
-  category: 'main' as const,
+type AdminDishData = {
+  name: string;
+  description: string;
+  price: string;
+  category: Dish['category'];
+  allergens: AllergenRow[];
+};
+
+const DISHES_MAP: Record<string, AdminDishData> = {
+  '1': { name: 'Bruschetta al Pomodoro', description: 'Vine tomatoes, basil, garlic and olive oil on toasted sourdough', price: '£7.50', category: 'starter', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'sesame' ? { ...a, status: 'traces' as const, inChart: true } : a) },
+  '2': { name: 'Risotto ai Funghi Selvatici', description: 'Wild mushroom risotto with truffle oil', price: '£16.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'traces' as const, inChart: true } : a) },
+  '3': { name: 'Melanzane alla Parmigiana', description: 'Aubergine, tomato sugo, mozzarella, basil', price: '£15.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '4': { name: 'Branzino in Crosta di Erbe', description: 'Sea bass with herb crust and roasted vegetables', price: '£22.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'fish' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '5': { name: 'Tagliatelle al Ragu Bolognese', description: 'Fresh tagliatelle with slow-cooked beef ragu', price: '£17.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '6': { name: 'Cotoletta alla Milanese', description: 'Breaded veal cutlet with rocket and lemon', price: '£24.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '7': { name: 'Gnocchi al Pomodoro', description: 'Potato gnocchi with fresh tomato sauce and basil', price: '£14.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '8': { name: 'Zuppa di Lenticchie', description: 'Red lentil soup with cumin and lemon', price: '£9.00', category: 'starter', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '9': { name: 'Tiramisu della Casa', description: 'Classic tiramisu with mascarpone and espresso', price: '£8.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '10': { name: 'Panna Cotta al Caramello', description: 'Vanilla panna cotta with caramel sauce', price: '£7.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a) },
 };
 
 function rowsToAllergens(allergens: AllergenRow[]): DishAllergens {
@@ -47,9 +59,14 @@ function rowsToAllergens(allergens: AllergenRow[]): DishAllergens {
   );
 }
 
-function buildPreviewDish(allergens: AllergenRow[], isVegan: boolean, isVegetarian: boolean): Dish {
+function buildPreviewDish(dishData: AdminDishData, id: number, allergens: AllergenRow[], isVegan: boolean, isVegetarian: boolean): Dish {
   return {
-    ...DISH,
+    id,
+    restaurantId: 1,
+    name: dishData.name,
+    description: dishData.description,
+    price: dishData.price,
+    category: dishData.category,
     allergens: rowsToAllergens(allergens),
     isVegan,
     isVegetarian: isVegan || isVegetarian,
@@ -98,16 +115,27 @@ function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange
 
 export default function AdminDishPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [allergens, setAllergens] = useState<AllergenRow[]>(INITIAL_ALLERGENS);
+  const dishData = DISHES_MAP[params.id] || DISHES_MAP['1'];
+  const allIds = Object.keys(DISHES_MAP);
+  const currentIndex = allIds.indexOf(params.id);
+  const nextId = currentIndex >= 0 && currentIndex < allIds.length - 1 ? allIds[currentIndex + 1] : null;
+  const [allergens, setAllergens] = useState<AllergenRow[]>(dishData.allergens);
   const [isVegan, setIsVegan] = useState(true);
   const [isVegetarian, setIsVegetarian] = useState(true);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setAllergens(dishData.allergens);
+    setIsVegan(true);
+    setIsVegetarian(true);
+    setSaved(false);
+  }, [dishData, params.id]);
 
   function updateStatus(key: string, status: AllergenStatus) {
     setAllergens((prev) => prev.map((a) => (a.key === key ? { ...a, status } : a)));
   }
 
-  const previewDish = buildPreviewDish(allergens, isVegan, isVegetarian);
+  const previewDish = buildPreviewDish(dishData, Number(params.id) || 1, allergens, isVegan, isVegetarian);
   const previewTags = getDishTags(previewDish);
   const veganConflictAllergens = [
     previewDish.allergens.milk === 'contains' ? 'milk' : null,
@@ -120,13 +148,19 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 16, color: '#7EA884' }}>✓</div>
         <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 400, color: '#1A1614', marginBottom: 8 }}>Dish confirmed</h1>
         <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 24, lineHeight: 1.65, maxWidth: 280 }}>
-          Allergen data for <em>{DISH.name}</em> has been saved and will appear for diners immediately.
+          Allergen data for <em>{dishData.name}</em> has been saved and will appear for diners immediately.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
-          <button onClick={() => router.push(`/admin/dish/${parseInt(params.id, 10) + 1}`)} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
-            Next dish →
-          </button>
-          <button onClick={() => router.push('/admin/menu/import')} style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
+          {nextId ? (
+            <button onClick={() => router.push(`/admin/dish/${nextId}`)} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
+              Next dish →
+            </button>
+          ) : (
+            <div style={{ fontSize: 13, color: '#456B4B', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 10, padding: '12px' }}>
+              All dishes reviewed ✓
+            </div>
+          )}
+          <button onClick={() => router.push('/admin/menu/import?step=review')} style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
             Back to review list
           </button>
           <button onClick={() => router.push('/admin')} style={{ background: 'none', border: 'none', padding: '8px', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
@@ -143,22 +177,22 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button
-            onClick={() => router.push('/admin/menu/import')}
+            onClick={() => router.push('/admin/menu/import?step=review')}
             style={{ width: 34, height: 34, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}
           >
             ←
           </button>
           <div style={{ minWidth: 0 }}>
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 400, color: '#1A1614', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{DISH.name}</h1>
+            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 400, color: '#1A1614', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{dishData.name}</h1>
             <p style={{ fontSize: 11, color: '#8B7E71', margin: '2px 0 0' }}>Edit allergen data</p>
           </div>
-          <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: '#1A1614', marginLeft: 'auto', flexShrink: 0 }}>{DISH.price}</span>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: '#1A1614', marginLeft: 'auto', flexShrink: 0 }}>{dishData.price}</span>
         </div>
       </div>
 
       <div style={{ padding: '16px' }}>
         {/* Dish description */}
-        <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{DISH.description}</p>
+        <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{dishData.description}</p>
 
         {/* Info box */}
         <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -272,7 +306,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       {/* Bottom actions */}
       <div style={{ padding: '0 16px 24px', display: 'flex', gap: 10, position: 'sticky', bottom: 68, background: '#FDFBF7', paddingTop: 12, borderTop: '0.5px solid #C4B9A8' }}>
         <button
-          onClick={() => router.push('/admin/menu/import')}
+          onClick={() => router.push('/admin/menu/import?step=review')}
           style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', color: '#8B7E71' }}
         >
           Back

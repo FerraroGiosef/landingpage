@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type Step = 'upload' | 'processing' | 'review' | 'published';
 
@@ -33,8 +33,18 @@ const PROCESSING_STEPS = [
 ];
 
 export default function MenuImportPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#FDFBF7' }} />}>
+      <MenuImportContent />
+    </Suspense>
+  );
+}
+
+function MenuImportContent() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>('upload');
+  const searchParams = useSearchParams();
+  const initialStep = searchParams.get('step') === 'review' ? 'review' : 'upload';
+  const [step, setStep] = useState<Step>(initialStep as Step);
   const [menuFile, setMenuFile] = useState<File | null>(null);
   const [allergenFile, setAllergenFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
