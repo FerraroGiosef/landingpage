@@ -177,7 +177,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button
-            onClick={() => router.push('/admin/menu/import?step=review')}
+            onClick={() => router.push('/admin/menu')}
             style={{ width: 34, height: 34, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}
           >
             ←
