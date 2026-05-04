@@ -23,11 +23,18 @@ const CUISINES = [
 
 const FILTER_CHIPS = ['All', 'Open now', 'Top rated', 'Nearest', 'Group match'];
 
+const TIME_SLOTS = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
+const PARTY_SIZES = [1, 2, 3, 4, 5, 6, 7, 8];
+
 function getGreeting(): string {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
   if (h < 17) return 'Good afternoon';
   return 'Good evening';
+}
+
+function todayISO() {
+  return new Date().toISOString().split('T')[0];
 }
 
 export default function AppHomePage() {
@@ -36,6 +43,19 @@ export default function AppHomePage() {
   const [activeChip, setActiveChip] = useState('All');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [search, setSearch] = useState('');
+  const [bookingRestaurant, setBookingRestaurant] = useState<string | null>(null);
+  const [askingRestaurant, setAskingRestaurant] = useState<string | null>(null);
+
+  // Booking form state
+  const [bookingDate, setBookingDate] = useState(todayISO());
+  const [bookingTime, setBookingTime] = useState('19:00');
+  const [bookingParty, setBookingParty] = useState(2);
+  const [bookingName, setBookingName] = useState('');
+  const [bookingDone, setBookingDone] = useState(false);
+
+  // Ask form state
+  const [askMessage, setAskMessage] = useState('');
+  const [askDone, setAskDone] = useState(false);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('pm_filters');
@@ -43,6 +63,21 @@ export default function AppHomePage() {
       try { setActiveFilters(JSON.parse(saved)); } catch {}
     }
   }, []);
+
+  function openBooking(name: string) {
+    setBookingRestaurant(name);
+    setBookingDate(todayISO());
+    setBookingTime('19:00');
+    setBookingParty(2);
+    setBookingName('');
+    setBookingDone(false);
+  }
+
+  function openAsk(name: string) {
+    setAskingRestaurant(name);
+    setAskMessage('');
+    setAskDone(false);
+  }
 
   const filteredRestaurants = restaurants
     .filter((r) => {
@@ -102,7 +137,7 @@ export default function AppHomePage() {
           <button
             onClick={() => router.push('/app/allergens')}
             style={{
-              background: activeFilters.length > 0 ? '#1A1614' : '#1A1614',
+              background: '#1A1614',
               color: '#FDFBF7',
               border: 'none',
               borderRadius: 10,
@@ -217,6 +252,8 @@ export default function AppHomePage() {
             restaurant={r}
             compatibleCount={r.compatibleCount}
             totalDishes={r.dishCount}
+            onBook={() => openBooking(r.name)}
+            onAsk={() => openAsk(r.name)}
             onClick={() => {
               analytics.restaurantViewed(r.slug);
               router.push(`/app/restaurant/${r.slug}?filters=${activeFilters.join(',')}`);
@@ -224,6 +261,222 @@ export default function AppHomePage() {
           />
         ))}
       </div>
+
+      {/* Booking modal */}
+      {bookingRestaurant && (
+        <div
+          onClick={() => setBookingRestaurant(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 36px', width: '100%', maxWidth: 480, boxShadow: '0 -4px 24px rgba(26,22,20,0.12)' }}
+          >
+            {/* Drag handle */}
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 20px' }} />
+
+            {bookingDone ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '8px 0 4px' }}>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#7EA884', marginBottom: 16 }}>✓</div>
+                <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', margin: '0 0 6px' }}>Request sent</h3>
+                <p style={{ fontSize: 13, color: '#8B7E71', lineHeight: 1.6, margin: '0 0 20px', maxWidth: 280 }}>
+                  {bookingRestaurant} will confirm your table for {bookingParty} on {new Date(bookingDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} at {bookingTime}.
+                </p>
+                <button
+                  onClick={() => setBookingRestaurant(null)}
+                  style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '13px 32px', fontSize: 13, cursor: 'pointer' }}
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', margin: '0 0 4px' }}>
+                  Book a table
+                </h3>
+                <p style={{ fontSize: 13, color: '#8B7E71', margin: '0 0 20px' }}>{bookingRestaurant}</p>
+
+                {/* Date + time row */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: 11, color: '#8B7E71', marginBottom: 5 }}>Date</label>
+                    <input
+                      type="date"
+                      value={bookingDate}
+                      min={todayISO()}
+                      onChange={(e) => setBookingDate(e.target.value)}
+                      style={{ width: '100%', padding: '11px 12px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit', color: '#1A1614', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: 11, color: '#8B7E71', marginBottom: 5 }}>Time</label>
+                    <select
+                      value={bookingTime}
+                      onChange={(e) => setBookingTime(e.target.value)}
+                      style={{ width: '100%', padding: '11px 12px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit', color: '#1A1614', outline: 'none', boxSizing: 'border-box' }}
+                    >
+                      {TIME_SLOTS.map((t) => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Party size */}
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: 'block', fontSize: 11, color: '#8B7E71', marginBottom: 8 }}>Party size</label>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {PARTY_SIZES.map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setBookingParty(n)}
+                        style={{
+                          flex: 1,
+                          padding: '9px 4px',
+                          borderRadius: 8,
+                          border: `0.5px solid ${bookingParty === n ? '#1A1614' : '#C4B9A8'}`,
+                          background: bookingParty === n ? '#1A1614' : '#F5F0E8',
+                          color: bookingParty === n ? '#FDFBF7' : '#8B7E71',
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          transition: 'all 0.12s',
+                        }}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Name */}
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', fontSize: 11, color: '#8B7E71', marginBottom: 5 }}>Name on booking</label>
+                  <input
+                    type="text"
+                    value={bookingName}
+                    onChange={(e) => setBookingName(e.target.value)}
+                    placeholder="Your name"
+                    style={{ width: '100%', padding: '11px 12px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit', color: '#1A1614', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <button
+                  onClick={() => { if (bookingName.trim()) setBookingDone(true); }}
+                  disabled={!bookingName.trim()}
+                  style={{
+                    width: '100%',
+                    background: bookingName.trim() ? '#1A1614' : '#C4B9A8',
+                    color: '#FDFBF7',
+                    border: 'none',
+                    borderRadius: 10,
+                    padding: '14px',
+                    fontSize: 13,
+                    cursor: bookingName.trim() ? 'pointer' : 'not-allowed',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  Request booking
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Ask modal */}
+      {askingRestaurant && (
+        <div
+          onClick={() => setAskingRestaurant(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 36px', width: '100%', maxWidth: 480, boxShadow: '0 -4px 24px rgba(26,22,20,0.12)' }}
+          >
+            {/* Drag handle */}
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 20px' }} />
+
+            {askDone ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '8px 0 4px' }}>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#7EA884', marginBottom: 16 }}>✓</div>
+                <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', margin: '0 0 6px' }}>Message sent</h3>
+                <p style={{ fontSize: 13, color: '#8B7E71', lineHeight: 1.6, margin: '0 0 20px', maxWidth: 280 }}>
+                  {askingRestaurant} will get back to you shortly.
+                </p>
+                <button
+                  onClick={() => setAskingRestaurant(null)}
+                  style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '13px 32px', fontSize: 13, cursor: 'pointer' }}
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', margin: '0 0 4px' }}>
+                  Ask a question
+                </h3>
+                <p style={{ fontSize: 13, color: '#8B7E71', margin: '0 0 6px' }}>{askingRestaurant}</p>
+                <p style={{ fontSize: 12, color: '#C4B9A8', margin: '0 0 16px', lineHeight: 1.5 }}>
+                  Ask about allergens, dietary needs, or anything else before you visit.
+                </p>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: 'block', fontSize: 11, color: '#8B7E71', marginBottom: 5 }}>Your question</label>
+                  <textarea
+                    value={askMessage}
+                    onChange={(e) => setAskMessage(e.target.value)}
+                    rows={4}
+                    placeholder="e.g. Do you have a dedicated fryer for nut-free dishes?"
+                    style={{
+                      width: '100%',
+                      padding: '11px 12px',
+                      borderRadius: 10,
+                      border: '0.5px solid #C4B9A8',
+                      background: '#F5F0E8',
+                      fontSize: 13,
+                      fontFamily: 'inherit',
+                      color: '#1A1614',
+                      outline: 'none',
+                      resize: 'none',
+                      lineHeight: 1.55,
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+
+                {/* Quick prompts */}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+                  {['Nut-free kitchen?', 'Vegan options?', 'Gluten-free menu?'].map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => setAskMessage(q)}
+                      style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '5px 12px', fontSize: 11, color: '#8B7E71', cursor: 'pointer' }}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => { if (askMessage.trim()) setAskDone(true); }}
+                  disabled={!askMessage.trim()}
+                  style={{
+                    width: '100%',
+                    background: askMessage.trim() ? '#1A1614' : '#C4B9A8',
+                    color: '#FDFBF7',
+                    border: 'none',
+                    borderRadius: 10,
+                    padding: '14px',
+                    fontSize: 13,
+                    cursor: askMessage.trim() ? 'pointer' : 'not-allowed',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  Send message
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -232,11 +485,15 @@ function RestaurantCard({
   restaurant,
   compatibleCount,
   totalDishes,
+  onBook,
+  onAsk,
   onClick,
 }: {
   restaurant: { name: string; cuisine: string; location: string; address: string; rating: number; distance: string; isOpen: boolean; heroImage: string };
   compatibleCount: number;
   totalDishes: number;
+  onBook: () => void;
+  onAsk: () => void;
   onClick: () => void;
 }) {
   const [imgError, setImgError] = useState(false);
@@ -309,13 +566,13 @@ function RestaurantCard({
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={(e) => { e.stopPropagation(); alert('Booking sent! Demo mode'); }}
+            onClick={(e) => { e.stopPropagation(); onBook(); }}
             style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Book
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); alert('Message sent! Demo mode'); }}
+            onClick={(e) => { e.stopPropagation(); onAsk(); }}
             style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Ask
