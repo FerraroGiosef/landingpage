@@ -186,7 +186,7 @@ export default function MenuImportPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 11, color: '#8B7E71' }}>{dish.confidence}% confidence</div>
                 {dish.status === 'review' && (
-                  <button style={{ background: 'none', border: '0.5px solid #C4B9A8', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: '#1A1614', cursor: 'pointer' }}>Edit allergens</button>
+                  <button onClick={() => router.push(`/admin/dish/${dish.id}`)} style={{ background: 'none', border: '0.5px solid #C4B9A8', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: '#1A1614', cursor: 'pointer' }}>Edit allergens</button>
                 )}
               </div>
             </div>
@@ -194,7 +194,7 @@ export default function MenuImportPage() {
         </div>
 
         <div style={{ padding: '12px 16px 24px', display: 'flex', gap: 10 }}>
-          <button style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#8B7E71' }}>
+          <button onClick={() => { const next = MOCK_DISHES.find((d) => d.status === 'review'); if (next) router.push(`/admin/dish/${next.id}`); }} style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#8B7E71' }}>
             Review next ({needsReview})
           </button>
           <button onClick={() => setStep('published')} style={{ flex: 2, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>

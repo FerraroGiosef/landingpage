@@ -36,6 +36,18 @@ export default function ProfilePage() {
         <button onClick={() => router.push('/app/allergens')} style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', transition: 'all 0.15s ease' }}>
           Set my dietary needs →
         </button>
+
+        <div style={{ background: '#1A1614', borderRadius: 14, padding: '20px', marginTop: 32, textAlign: 'left' }}>
+          <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#FDFBF7', fontWeight: 400, marginBottom: 12 }}>
+            Are you a restaurant owner?
+          </div>
+          <button
+            onClick={() => router.push('/admin')}
+            style={{ background: '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px 16px', fontSize: 13, cursor: 'pointer', width: '100%', transition: 'all 0.15s ease' }}
+          >
+            Go to restaurant dashboard
+          </button>
+        </div>
       </div>
     </div>
   );
