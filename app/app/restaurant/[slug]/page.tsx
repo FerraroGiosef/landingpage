@@ -9,6 +9,10 @@ import { analytics } from '@/lib/analytics';
 import type { Dish } from '@/lib/types';
 
 type DishWithWarnings = Dish & { traceWarnings: string[] };
+interface GroupProfileView {
+  name: string;
+  filters: string[];
+}
 
 export default function RestaurantDetailPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
@@ -16,6 +20,9 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   const [activeTab, setActiveTab] = useState<'compatible' | 'full'>('compatible');
   const [imgError, setImgError] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [showAskModal, setShowAskModal] = useState(false);
+  const [showBookModal, setShowBookModal] = useState(false);
+  const [groupProfiles, setGroupProfiles] = useState<GroupProfileView[]>([]);
 
   useEffect(() => {
     const filtersParam = searchParams.get('filters') || '';
@@ -24,6 +31,23 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       setActiveFilters(filtersParam.split(',').filter(Boolean));
     } else if (fromSession) {
       try { setActiveFilters(JSON.parse(fromSession)); } catch {}
+    }
+    const groupParam = searchParams.get('group');
+    const storedGroupProfiles = sessionStorage.getItem('pm_group_profiles');
+    if (groupParam) {
+      try {
+        setGroupProfiles(JSON.parse(decodeURIComponent(groupParam)));
+      } catch {
+        setGroupProfiles([]);
+      }
+    } else if (filtersParam && storedGroupProfiles) {
+      try {
+        setGroupProfiles(JSON.parse(storedGroupProfiles));
+      } catch {
+        setGroupProfiles([]);
+      }
+    } else {
+      setGroupProfiles([]);
     }
   }, [searchParams]);
 
@@ -37,7 +61,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
     traceWarnings: filterMatchesDish(d, activeFilters).traceWarnings,
   }));
   const displayDishes: (Dish | DishWithWarnings)[] = activeTab === 'compatible' ? dishesWithWarnings : allDishes;
-  const isFromGroup = searchParams.has('filters');
+  const isFromGroup = groupProfiles.length > 0;
 
   const starters = displayDishes.filter((d) => d.category === 'starter');
   const mains = displayDishes.filter((d) => d.category === 'main');
@@ -104,8 +128,8 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       </div>
 
       {isFromGroup && (
-        <div style={{ padding: '8px 20px', background: '#F5F0E8', fontSize: 11, color: '#8B7E71', borderBottom: '0.5px solid #C4B9A8' }}>
-          Showing dishes compatible with everyone in your group
+        <div style={{ background: '#F5F0E8', padding: '10px 16px', borderRadius: 10, fontSize: 12, color: '#8B7E71', margin: '12px 16px 0', lineHeight: 1.55 }}>
+          Dishes shown are compatible with everyone in your group
         </div>
       )}
 
@@ -169,6 +193,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
                   key={dish.id}
                   dish={dish}
                   activeFilters={activeFilters}
+                  groupProfiles={groupProfiles}
                   onClick={() => {
                     analytics.dishViewed(dish.id, restaurant.id);
                     router.push(`/app/dish/${dish.id}?filters=${activeFilters.join(',')}`);
@@ -190,25 +215,47 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       {/* Bottom action bar */}
       <div style={{ position: 'sticky', bottom: 68, background: '#FDFBF7', borderTop: '0.5px solid #C4B9A8', padding: '12px 16px', display: 'flex', gap: 10 }}>
         <button
-          onClick={() => { analytics.bookTableClicked(restaurant.slug); window.open(restaurant.bookingUrl, '_blank'); }}
+          onClick={() => { analytics.bookTableClicked(restaurant.slug); setShowBookModal(true); }}
           style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}
         >
           Book a table
         </button>
-        <button style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+        <button onClick={() => setShowAskModal(true)} style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
           Ask the restaurant
         </button>
       </div>
+
+      {showAskModal && (
+        <AskRestaurantModal
+          restaurantName={restaurant.name}
+          activeFilters={activeFilters}
+          onClose={() => setShowAskModal(false)}
+        />
+      )}
+      {showBookModal && (
+        <BookTableModal onClose={() => setShowBookModal(false)} />
+      )}
     </div>
   );
 }
 
-function DishRow({ dish, activeFilters, onClick }: { dish: Dish | DishWithWarnings; activeFilters: string[]; onClick: () => void }) {
+function DishRow({
+  dish,
+  activeFilters,
+  groupProfiles,
+  onClick,
+}: {
+  dish: Dish | DishWithWarnings;
+  activeFilters: string[];
+  groupProfiles: GroupProfileView[];
+  onClick: () => void;
+}) {
   const [imgError, setImgError] = useState(false);
   const { contains, traces } = getAllergenSummary(dish.allergens);
   const tags = getDishTags(dish);
   const match = filterMatchesDish(dish, activeFilters);
   const traceWarnings = 'traceWarnings' in dish ? dish.traceWarnings : match.traceWarnings;
+  const matchingProfiles = groupProfiles.filter((profile) => filterMatchesDish(dish, profile.filters).compatible);
 
   return (
     <button
@@ -233,6 +280,9 @@ function DishRow({ dish, activeFilters, onClick }: { dish: Dish | DishWithWarnin
 
         {/* Allergen chips */}
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 6 }}>
+          {tags.map((t) => (
+            <span key={t} style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>{t}</span>
+          ))}
           {contains.slice(0, 3).map((a) => (
             <span key={a} style={{ background: '#F9EFEA', color: '#8A4A32', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>Contains: {a}</span>
           ))}
@@ -242,13 +292,108 @@ function DishRow({ dish, activeFilters, onClick }: { dish: Dish | DishWithWarnin
           {traceWarnings.map((a) => (
             <span key={`warning-${a}`} style={{ background: '#F8F2E6', color: '#7A6432', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>May contain: {a}</span>
           ))}
-          {tags.map((t) => (
-            <span key={t} style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>{t}</span>
-          ))}
         </div>
+
+        {groupProfiles.length > 0 && (
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 6 }}>
+            {groupProfiles.map((profile) => {
+              const canEat = matchingProfiles.some((matchProfile) => matchProfile.name === profile.name);
+              return (
+                <span
+                  key={profile.name}
+                  style={{
+                    background: canEat ? '#EDF4EE' : '#F5F0E8',
+                    color: canEat ? '#456B4B' : '#8B7E71',
+                    border: `0.5px solid ${canEat ? '#7EA884' : '#C4B9A8'}`,
+                    borderRadius: 100,
+                    padding: '2px 7px',
+                    fontSize: 10,
+                  }}
+                >
+                  {canEat ? '✓' : '–'} {profile.name}
+                </span>
+              );
+            })}
+          </div>
+        )}
 
         <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614' }}>{dish.price}</div>
       </div>
     </button>
+  );
+}
+
+function AskRestaurantModal({
+  restaurantName,
+  activeFilters,
+  onClose,
+}: {
+  restaurantName: string;
+  activeFilters: string[];
+  onClose: () => void;
+}) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
+      <div style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480, maxHeight: '70vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 16px' }} />
+        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', marginBottom: 4 }}>Ask {restaurantName}</h3>
+        <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 16 }}>Send a message about your dietary requirements before visiting.</p>
+
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ fontSize: 11, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }}>Your message</label>
+          <textarea
+            defaultValue={`Hi, I'm planning to visit your restaurant. I have the following dietary requirements: ${activeFilters.join(', ')}. Could you confirm which dishes are suitable for me? Thank you.`}
+            style={{ width: '100%', minHeight: 100, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, color: '#1A1614', fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <button
+          onClick={() => { onClose(); alert('Message sent! (Demo mode — in production this sends via email or WhatsApp)'); }}
+          style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
+        >
+          Send message
+        </button>
+        <button
+          onClick={onClose}
+          style={{ width: '100%', background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BookTableModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
+      <div style={{ background: '#FDFBF7', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 16px' }} />
+        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', marginBottom: 4 }}>Book a table</h3>
+        <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 16 }}>Choose your preferred date and time.</p>
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <input type="date" style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit' }} />
+          <select style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit' }}>
+            <option>19:00</option><option>19:30</option><option>20:00</option><option>20:30</option><option>21:00</option>
+          </select>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <select style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit' }}>
+            <option>2 guests</option><option>3 guests</option><option>4 guests</option><option>5 guests</option><option>6 guests</option>
+          </select>
+        </div>
+
+        <button
+          onClick={() => { onClose(); alert('Booking request sent! (Demo mode — in production this integrates with TheFork/OpenTable)'); }}
+          style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
+        >
+          Request booking
+        </button>
+        <button onClick={onClose} style={{ width: '100%', background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }

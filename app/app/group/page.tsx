@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
 import { filterMatchesDish, getCompatibleCount } from '@/lib/scoring';
 import { analytics } from '@/lib/analytics';
@@ -20,6 +21,8 @@ const ALLERGEN_PILLS = [
   { key: 'vegan', label: 'Vegan' },
   { key: 'vegetarian', label: 'Vegetarian' },
 ];
+
+const AVATAR_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
 
 export default function GroupPage() {
   const router = useRouter();
@@ -48,6 +51,11 @@ export default function GroupPage() {
 
   function updateName(profileId: string, name: string) {
     setProfiles((prev) => prev.map((p) => p.id === profileId ? { ...p, name } : p));
+  }
+
+  function openRestaurant(slug: string) {
+    sessionStorage.setItem('pm_group_profiles', JSON.stringify(profiles));
+    router.push(`/app/restaurant/${slug}?filters=${combinedFilters.join(',')}`);
   }
 
   const combinedFilters = Array.from(new Set(profiles.flatMap((p) => p.filters)));
@@ -88,39 +96,75 @@ export default function GroupPage() {
               </div>
             </div>
           )}
-          {rankedRestaurants.map((r) => (
-            <button
-              key={r.id}
-              onClick={() => router.push(`/app/restaurant/${r.slug}?filters=${combinedFilters.join(',')}`)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,22,20,0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, padding: '16px', width: '100%', textAlign: 'left', cursor: 'pointer', transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div>
-                  <div style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#1A1614', marginBottom: 2 }}>{r.name}</div>
-                  <div style={{ fontSize: 11, color: '#8B7E71' }}>{r.cuisine} · {r.location}</div>
+          {rankedRestaurants.map((r) => {
+            const allCanEat = r.perPerson.every((p) => p.count > 0);
+            const imageSrc = 'image' in r && typeof r.image === 'string' ? r.image : r.heroImage;
+            return (
+              <div
+                key={r.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => openRestaurant(r.slug)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') openRestaurant(r.slug);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,22,20,0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+                style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 14, overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
+              >
+                <div style={{ position: 'relative', height: 160 }}>
+                  <Image src={imageSrc} alt={r.name} fill style={{ objectFit: 'cover' }} sizes="(max-width: 430px) 100vw" />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(26,22,20,0.75) 100%)' }} />
+                  <div style={{ position: 'absolute', bottom: 12, left: 14, right: 74 }}>
+                    <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#FDFBF7', fontWeight: 400, marginBottom: 2 }}>{r.name}</div>
+                  </div>
+                  <div style={{ position: 'absolute', top: 12, right: 12, width: 44, height: 44, borderRadius: '50%', background: 'rgba(26,22,20,0.75)', border: '2.5px solid #C8553A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                    <span style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#FDFBF7', lineHeight: 1 }}>{r.minCount}</span>
+                    <span style={{ fontSize: 6, color: '#C4B9A8', lineHeight: 1, marginTop: 1 }}>min</span>
+                  </div>
                 </div>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid #C8553A', background: 'rgba(200,85,58,0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#1A1614', lineHeight: 1 }}>{r.minCount}</span>
-                  <span style={{ fontSize: 6.5, color: '#8B7E71', lineHeight: 1 }}>min</span>
+                <div style={{ padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <span style={{ fontSize: 13, color: '#C8553A' }}>★</span>
+                    <span style={{ fontSize: 13, color: '#1A1614', fontWeight: 500 }}>{r.rating}</span>
+                    <span style={{ fontSize: 11, color: '#C4B9A8' }}>·</span>
+                    <span style={{ fontSize: 12, color: '#8B7E71' }}>{r.cuisine}</span>
+                    <span style={{ fontSize: 11, color: '#C4B9A8' }}>·</span>
+                    <span style={{ fontSize: 12, color: '#8B7E71' }}>{r.location}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 10 }}>
+                    {r.perPerson.map((p, idx) => (
+                      <span key={p.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '3px 9px 3px 4px', fontSize: 11, color: '#8B7E71' }}>
+                        <span style={{ width: 18, height: 18, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], color: '#FDFBF7', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 500 }}>
+                          {p.name.charAt(0).toUpperCase()}
+                        </span>
+                        {p.name}: {p.count}
+                      </span>
+                    ))}
+                  </div>
+                  {allCanEat && (
+                    <div style={{ fontSize: 12, color: '#456B4B', marginBottom: 12, fontWeight: 500 }}>
+                      Everyone can eat here
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={(e) => { e.stopPropagation(); }} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}>
+                      Book
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); }} style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}>
+                      Ask
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {r.perPerson.map((p) => (
-                  <span key={p.name} style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '3px 10px', fontSize: 11, color: '#8B7E71' }}>
-                    {p.name}: {p.count} dishes
-                  </span>
-                ))}
-              </div>
-            </button>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
