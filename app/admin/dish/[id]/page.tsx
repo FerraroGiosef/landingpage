@@ -96,7 +96,7 @@ function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange
   );
 }
 
-export default function AdminDishPage() {
+export default function AdminDishPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [allergens, setAllergens] = useState<AllergenRow[]>(INITIAL_ALLERGENS);
   const [isVegan, setIsVegan] = useState(true);
@@ -122,11 +122,14 @@ export default function AdminDishPage() {
         <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 24, lineHeight: 1.65, maxWidth: 280 }}>
           Allergen data for <em>{DISH.name}</em> has been saved and will appear for diners immediately.
         </p>
-        <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 320 }}>
-          <button onClick={() => router.push('/admin/menu')} style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
-            Back to menu
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
+          <button onClick={() => router.push(`/admin/dish/${parseInt(params.id, 10) + 1}`)} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
+            Next dish →
           </button>
-          <button onClick={() => router.push('/admin')} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
+          <button onClick={() => router.push('/admin/menu/import')} style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
+            Back to review list
+          </button>
+          <button onClick={() => router.push('/admin')} style={{ background: 'none', border: 'none', padding: '8px', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
             Dashboard
           </button>
         </div>
@@ -140,7 +143,7 @@ export default function AdminDishPage() {
       <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/admin/menu/import')}
             style={{ width: 34, height: 34, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}
           >
             ←
@@ -269,7 +272,7 @@ export default function AdminDishPage() {
       {/* Bottom actions */}
       <div style={{ padding: '0 16px 24px', display: 'flex', gap: 10, position: 'sticky', bottom: 68, background: '#FDFBF7', paddingTop: 12, borderTop: '0.5px solid #C4B9A8' }}>
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/admin/menu/import')}
           style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', color: '#8B7E71' }}
         >
           Back
