@@ -23,6 +23,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   const [showAskModal, setShowAskModal] = useState(false);
   const [showBookModal, setShowBookModal] = useState(false);
   const [groupProfiles, setGroupProfiles] = useState<GroupProfileView[]>([]);
+  const [selectedProfileIdx, setSelectedProfileIdx] = useState<number | null>(null);
 
   useEffect(() => {
     const filtersParam = searchParams.get('filters') || '';
@@ -57,9 +58,12 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   const allDishes = getDishesByRestaurant(restaurant.id);
   const isFromGroup = groupProfiles.length > 0;
 
-  // In group mode, "compatible" = at least one person can eat it
+  // In group mode, "compatible" = at least one person can eat it (or filtered by selected profile)
+  const selectedProfile = selectedProfileIdx !== null ? groupProfiles[selectedProfileIdx] : null;
   const compatibleDishes = isFromGroup
-    ? allDishes.filter((d) => groupProfiles.some((p) => filterMatchesDish(d, p.filters).compatible))
+    ? selectedProfile
+      ? allDishes.filter((d) => filterMatchesDish(d, selectedProfile.filters).compatible)
+      : allDishes.filter((d) => groupProfiles.some((p) => filterMatchesDish(d, p.filters).compatible))
     : allDishes.filter((d) => filterMatchesDish(d, activeFilters).compatible);
 
   const dishesWithWarnings: DishWithWarnings[] = compatibleDishes.map((d) => ({
@@ -135,7 +139,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       {/* Tab toggle */}
       <div style={{ display: 'flex', background: '#FFFFFF', borderBottom: '0.5px solid #C4B9A8' }}>
         {[
-          { key: 'compatible', label: isFromGroup ? `Group options (${compatibleDishes.length})` : `Compatible dishes (${compatibleDishes.length})` },
+          { key: 'compatible', label: selectedProfile ? `${selectedProfile.name}'s options (${compatibleDishes.length})` : isFromGroup ? `Group options (${compatibleDishes.length})` : `Compatible dishes (${compatibleDishes.length})` },
           { key: 'full', label: `Full menu (${allDishes.length})` },
         ].map((tab) => (
           <button
@@ -150,21 +154,48 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
 
       {/* Group legend bar */}
       {isFromGroup && (
-        <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 16px', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 16px', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           {groupProfiles.map((profile, idx) => {
             const PROFILE_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
             const filterLabels = profile.filters.map((f) => {
               const MAP: Record<string, string> = { gluten: 'GF', milk: 'Dairy-free', vegan: 'Vegan', vegetarian: 'Vegetarian', peanuts: 'Peanut-free', treeNuts: 'Nut-free', eggs: 'Egg-free', fish: 'Fish-free' };
               return MAP[f] || f;
             });
+            const isActive = selectedProfileIdx === idx;
+            const color = PROFILE_COLORS[idx % PROFILE_COLORS.length];
             return (
-              <div key={profile.name} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#8B7E71' }}>
-                <span style={{ width: 14, height: 14, borderRadius: '50%', background: PROFILE_COLORS[idx % PROFILE_COLORS.length], display: 'inline-block', flexShrink: 0 }} />
-                <span style={{ color: '#1A1614', fontWeight: 500 }}>{profile.name}</span>
-                {filterLabels.length > 0 && <span>· {filterLabels.join(', ')}</span>}
-              </div>
+              <button
+                key={profile.name}
+                onClick={() => setSelectedProfileIdx(isActive ? null : idx)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontSize: 11,
+                  background: isActive ? color : '#FFFFFF',
+                  color: isActive ? '#FDFBF7' : '#1A1614',
+                  border: `1.5px solid ${color}`,
+                  borderRadius: 100,
+                  padding: '4px 10px 4px 6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <span style={{ width: 14, height: 14, borderRadius: '50%', background: isActive ? 'rgba(255,255,255,0.35)' : color, display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ fontWeight: 500 }}>{profile.name}</span>
+                {filterLabels.length > 0 && <span style={{ opacity: 0.75 }}>· {filterLabels.join(', ')}</span>}
+              </button>
             );
           })}
+          {selectedProfileIdx !== null && (
+            <button
+              onClick={() => setSelectedProfileIdx(null)}
+              style={{ fontSize: 11, color: '#8B7E71', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', fontFamily: 'inherit' }}
+            >
+              Show all
+            </button>
+          )}
         </div>
       )}
 
