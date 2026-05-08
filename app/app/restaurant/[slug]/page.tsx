@@ -55,13 +55,18 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   if (!restaurant) return <div style={{ padding: 32, textAlign: 'center', color: '#8B7E71' }}>Restaurant not found.</div>;
 
   const allDishes = getDishesByRestaurant(restaurant.id);
-  const compatibleDishes = allDishes.filter((d) => filterMatchesDish(d, activeFilters).compatible);
+  const isFromGroup = groupProfiles.length > 0;
+
+  // In group mode, "compatible" = at least one person can eat it
+  const compatibleDishes = isFromGroup
+    ? allDishes.filter((d) => groupProfiles.some((p) => filterMatchesDish(d, p.filters).compatible))
+    : allDishes.filter((d) => filterMatchesDish(d, activeFilters).compatible);
+
   const dishesWithWarnings: DishWithWarnings[] = compatibleDishes.map((d) => ({
     ...d,
     traceWarnings: filterMatchesDish(d, activeFilters).traceWarnings,
   }));
   const displayDishes: (Dish | DishWithWarnings)[] = activeTab === 'compatible' ? dishesWithWarnings : allDishes;
-  const isFromGroup = groupProfiles.length > 0;
 
   const starters = displayDishes.filter((d) => d.category === 'starter');
   const mains = displayDishes.filter((d) => d.category === 'main');
@@ -127,16 +132,10 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         Dishes marked &quot;May contain&quot; indicate possible cross-contamination during preparation. Always inform staff about severe allergies.
       </div>
 
-      {isFromGroup && (
-        <div style={{ background: '#F5F0E8', padding: '10px 16px', borderRadius: 10, fontSize: 12, color: '#8B7E71', margin: '12px 16px 0', lineHeight: 1.55 }}>
-          Dishes shown are compatible with everyone in your group
-        </div>
-      )}
-
       {/* Tab toggle */}
       <div style={{ display: 'flex', background: '#FFFFFF', borderBottom: '0.5px solid #C4B9A8' }}>
         {[
-          { key: 'compatible', label: `Compatible dishes (${compatibleDishes.length})` },
+          { key: 'compatible', label: isFromGroup ? `Group options (${compatibleDishes.length})` : `Compatible dishes (${compatibleDishes.length})` },
           { key: 'full', label: `Full menu (${allDishes.length})` },
         ].map((tab) => (
           <button
@@ -149,31 +148,42 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         ))}
       </div>
 
+      {/* Group legend bar */}
+      {isFromGroup && (
+        <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 16px', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {groupProfiles.map((profile, idx) => {
+            const PROFILE_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
+            const filterLabels = profile.filters.map((f) => {
+              const MAP: Record<string, string> = { gluten: 'GF', milk: 'Dairy-free', vegan: 'Vegan', vegetarian: 'Vegetarian', peanuts: 'Peanut-free', treeNuts: 'Nut-free', eggs: 'Egg-free', fish: 'Fish-free' };
+              return MAP[f] || f;
+            });
+            return (
+              <div key={profile.name} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#8B7E71' }}>
+                <span style={{ width: 14, height: 14, borderRadius: '50%', background: PROFILE_COLORS[idx % PROFILE_COLORS.length], display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ color: '#1A1614', fontWeight: 500 }}>{profile.name}</span>
+                {filterLabels.length > 0 && <span>· {filterLabels.join(', ')}</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Dish list by category */}
       <div style={{ padding: '16px 16px 24px' }}>
-        {activeTab === 'compatible' && compatibleDishes.length === 0 && activeFilters.length > 0 && (
-          <div style={{
-            padding: '32px 20px',
-            textAlign: 'center',
-          }}>
+        {activeTab === 'compatible' && compatibleDishes.length === 0 && (activeFilters.length > 0 || isFromGroup) && (
+          <div style={{ padding: '32px 20px', textAlign: 'center' }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🍽️</div>
             <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#1A1614', marginBottom: 6 }}>
-              No compatible dishes found
+              {isFromGroup ? 'No dishes for your group' : 'No compatible dishes found'}
             </div>
             <div style={{ fontSize: 13, color: '#8B7E71', lineHeight: 1.6, maxWidth: 280, margin: '0 auto 16px' }}>
-              None of the dishes at this restaurant match all your current filters. Try removing a filter or check the full menu.
+              {isFromGroup
+                ? 'None of the dishes are compatible with any member of your group. Check the full menu.'
+                : 'None of the dishes match all your current filters. Try removing a filter or check the full menu.'}
             </div>
             <button
               onClick={() => setActiveTab('full')}
-              style={{
-                background: '#1A1614',
-                color: '#FDFBF7',
-                border: 'none',
-                borderRadius: 10,
-                padding: '12px 20px',
-                fontSize: 13,
-                cursor: 'pointer',
-              }}
+              style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px 20px', fontSize: 13, cursor: 'pointer' }}
             >
               View full menu
             </button>
@@ -296,21 +306,23 @@ function DishRow({
 
         {groupProfiles.length > 0 && (
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 6 }}>
-            {groupProfiles.map((profile) => {
+            {groupProfiles.map((profile, idx) => {
+              const PROFILE_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
               const canEat = matchingProfiles.some((matchProfile) => matchProfile.name === profile.name);
+              if (!canEat) return null;
               return (
                 <span
                   key={profile.name}
                   style={{
-                    background: canEat ? '#EDF4EE' : '#F5F0E8',
-                    color: canEat ? '#456B4B' : '#8B7E71',
-                    border: `0.5px solid ${canEat ? '#7EA884' : '#C4B9A8'}`,
+                    background: PROFILE_COLORS[idx % PROFILE_COLORS.length],
+                    color: '#FDFBF7',
                     borderRadius: 100,
-                    padding: '2px 7px',
+                    padding: '2px 8px',
                     fontSize: 10,
+                    fontWeight: 500,
                   }}
                 >
-                  {canEat ? '✓' : '–'} {profile.name}
+                  {profile.name}
                 </span>
               );
             })}

@@ -22,6 +22,17 @@ const ALLERGEN_PILLS = [
   { key: 'vegetarian', label: 'Vegetarian' },
 ];
 
+const FILTER_LABEL_MAP: Record<string, string> = {
+  gluten: 'GF',
+  milk: 'Dairy-free',
+  vegan: 'Vegan',
+  vegetarian: 'Vegetarian',
+  peanuts: 'Peanut-free',
+  treeNuts: 'Nut-free',
+  eggs: 'Egg-free',
+  fish: 'Fish-free',
+};
+
 const AVATAR_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
 
 export default function GroupPage() {
@@ -139,14 +150,26 @@ export default function GroupPage() {
                     <span style={{ fontSize: 12, color: '#8B7E71' }}>{r.location}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 10 }}>
-                    {r.perPerson.map((p, idx) => (
-                      <span key={p.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '3px 9px 3px 4px', fontSize: 11, color: '#8B7E71' }}>
-                        <span style={{ width: 18, height: 18, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], color: '#FDFBF7', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 500 }}>
-                          {p.name.charAt(0).toUpperCase()}
+                    {r.perPerson.map((p, idx) => {
+                      const profile = profiles[idx];
+                      const filterLabels = (profile?.filters || []).map((f) => FILTER_LABEL_MAP[f] || f);
+                      return (
+                        <span key={p.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '3px 9px 3px 4px', fontSize: 11, color: '#8B7E71' }}>
+                          <span style={{ width: 18, height: 18, borderRadius: '50%', background: AVATAR_COLORS[idx % AVATAR_COLORS.length], color: '#FDFBF7', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 500 }}>
+                            {p.name.charAt(0).toUpperCase()}
+                          </span>
+                          {p.name}
+                          {filterLabels.length > 0 && (
+                            <span style={{ color: '#C4B9A8' }}>·</span>
+                          )}
+                          {filterLabels.map((label) => (
+                            <span key={label} style={{ background: '#1A1614', color: '#FDFBF7', borderRadius: 100, padding: '1px 5px', fontSize: 9 }}>{label}</span>
+                          ))}
+                          <span style={{ color: '#C4B9A8' }}>·</span>
+                          {p.count} dishes
                         </span>
-                        {p.name}: {p.count}
-                      </span>
-                    ))}
+                      );
+                    })}
                   </div>
                   {allCanEat && (
                     <div style={{ fontSize: 12, color: '#456B4B', marginBottom: 12, fontWeight: 500 }}>

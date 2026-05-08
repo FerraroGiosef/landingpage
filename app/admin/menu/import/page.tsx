@@ -182,7 +182,8 @@ function MenuImportContent() {
           {MOCK_DISHES.map((dish) => (
             <div
               key={dish.id}
-              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', borderLeft: dish.status === 'review' ? '2px solid #C2A46E' : undefined }}
+              onClick={() => router.push(`/admin/dish/${dish.id}`)}
+              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', borderLeft: dish.status === 'review' ? '2px solid #C2A46E' : undefined, cursor: 'pointer' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614' }}>{dish.name}</div>
@@ -191,12 +192,15 @@ function MenuImportContent() {
                   <span style={{ background: dish.status === 'matched' ? '#EDF4EE' : '#F8F2E6', color: dish.status === 'matched' ? '#456B4B' : '#7A6432', borderRadius: 100, padding: '2px 8px', fontSize: 10 }}>
                     {dish.status === 'matched' ? 'matched' : 'review'}
                   </span>
+                  {dish.status === 'matched' && (
+                    <span style={{ fontSize: 11, color: '#8B7E71', textDecoration: 'underline' }}>Edit</span>
+                  )}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 11, color: '#8B7E71' }}>{dish.confidence}% confidence</div>
                 {dish.status === 'review' && (
-                  <button onClick={() => router.push(`/admin/dish/${dish.id}`)} style={{ background: 'none', border: '0.5px solid #C4B9A8', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: '#1A1614', cursor: 'pointer' }}>Edit allergens</button>
+                  <span style={{ background: 'none', border: '0.5px solid #C4B9A8', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: '#1A1614' }}>Edit allergens</span>
                 )}
               </div>
             </div>
