@@ -27,6 +27,13 @@ export interface DishAllergens {
   molluscs: AllergenStatus;
 }
 
+export interface DishModification {
+  name: string;
+  removes: string[];
+  adds: string[];
+  priceExtra: number;
+}
+
 export interface Dish {
   id: number;
   restaurantId: number;
@@ -42,6 +49,7 @@ export interface Dish {
   allergens: DishAllergens;
   isVegan: boolean;
   isVegetarian: boolean;
+  modifications?: DishModification[];
 }
 
 export interface Restaurant {

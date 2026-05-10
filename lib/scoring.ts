@@ -20,11 +20,26 @@ export const UK_ALLERGENS: { key: keyof DishAllergens; name: string; emoji: stri
 export function filterMatchesDish(
   dish: Dish,
   activeFilters: string[]
-): { compatible: boolean; traceWarnings: string[] } {
+): { compatible: boolean; traceWarnings: string[]; modifiedBy?: string; priceExtra?: number } {
   if (activeFilters.length === 0) return { compatible: true, traceWarnings: [] };
 
   const traceWarnings: string[] = [];
+  const failingAllergens = new Set<string>();
   const allergenKeys = Object.keys(dish.allergens) as (keyof DishAllergens)[];
+
+  function maybeCompatibleWithModification() {
+    if (failingAllergens.size === 0) return null;
+    const modification = dish.modifications?.find((mod) =>
+      Array.from(failingAllergens).every((allergen) => mod.removes.includes(allergen))
+    );
+    if (!modification) return null;
+    return {
+      compatible: true,
+      traceWarnings: [],
+      modifiedBy: modification.name,
+      priceExtra: modification.priceExtra,
+    };
+  }
 
   for (const filter of activeFilters) {
     // Dietary preference filters
@@ -40,13 +55,14 @@ export function filterMatchesDish(
     // Compound dietary filters (these check multiple allergens)
     if (filter === 'gf') {
       if (dish.allergens.gluten === 'contains' || dish.allergens.gluten === 'traces') {
-        return { compatible: false, traceWarnings: [] };
+        failingAllergens.add('gluten');
       }
       continue;
     }
     if (filter === 'nut-free') {
       if (dish.allergens.peanuts === 'contains' || dish.allergens.treeNuts === 'contains') {
-        return { compatible: false, traceWarnings: [] };
+        if (dish.allergens.peanuts === 'contains') failingAllergens.add('peanuts');
+        if (dish.allergens.treeNuts === 'contains') failingAllergens.add('treeNuts');
       }
       if (dish.allergens.peanuts === 'traces') traceWarnings.push('Peanuts');
       if (dish.allergens.treeNuts === 'traces') traceWarnings.push('Tree nuts');
@@ -54,7 +70,7 @@ export function filterMatchesDish(
     }
     if (filter === 'dairy-free') {
       if (dish.allergens.milk === 'contains') {
-        return { compatible: false, traceWarnings: [] };
+        failingAllergens.add('milk');
       }
       if (dish.allergens.milk === 'traces') traceWarnings.push('Milk');
       continue;
@@ -64,13 +80,19 @@ export function filterMatchesDish(
     if (allergenKeys.includes(filter as keyof DishAllergens)) {
       const status = dish.allergens[filter as keyof DishAllergens];
       if (status === 'contains') {
-        return { compatible: false, traceWarnings: [] };
+        failingAllergens.add(filter);
       }
       if (status === 'traces') {
         const allergenName = UK_ALLERGENS.find((a) => a.key === filter)?.name || filter;
         traceWarnings.push(allergenName);
       }
     }
+  }
+
+  if (failingAllergens.size > 0) {
+    const modifiedMatch = maybeCompatibleWithModification();
+    if (modifiedMatch) return modifiedMatch;
+    return { compatible: false, traceWarnings: [] };
   }
 
   return { compatible: true, traceWarnings };

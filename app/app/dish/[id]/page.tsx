@@ -80,6 +80,32 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
             </div>
           )}
 
+          {dish.modifications && dish.modifications.length > 0 && (
+            <div style={{ background: '#F7F9FC', border: '0.5px solid #7A9ABB', borderRadius: 12, padding: '14px', marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 500, color: '#4A6A8A', marginBottom: 10 }}>
+                This dish can be modified for you
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {dish.modifications.map((modification) => (
+                  <div key={modification.name} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500 }}>{modification.name}</div>
+                      <div style={{ fontSize: 11, color: '#456B4B', marginTop: 2 }}>
+                        Removes {modification.removes.join(', ')}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#C8553A', flexShrink: 0 }}>
+                      +£{modification.priceExtra.toFixed(2)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 10.5, color: '#4A6A8A', fontStyle: 'italic', lineHeight: 1.5, marginTop: 10 }}>
+                Modification verified by the restaurant. Always confirm when ordering.
+              </div>
+            </div>
+          )}
+
           <p style={{ fontSize: 14, color: '#8B7E71', lineHeight: 1.65, margin: 0 }}>{dish.description}</p>
         </div>
 
