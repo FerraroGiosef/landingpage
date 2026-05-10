@@ -8,7 +8,7 @@ import { filterMatchesDish, getAllergenSummary, getDishTags } from '@/lib/scorin
 import { analytics } from '@/lib/analytics';
 import type { Dish } from '@/lib/types';
 
-type DishWithWarnings = Dish & { traceWarnings: string[] };
+type DishWithWarnings = Dish & { traceWarnings: string[]; modifiedBy?: string; priceExtra?: number };
 interface GroupProfileView {
   name: string;
   filters: string[];
@@ -69,6 +69,8 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   const dishesWithWarnings: DishWithWarnings[] = compatibleDishes.map((d) => ({
     ...d,
     traceWarnings: filterMatchesDish(d, activeFilters).traceWarnings,
+    modifiedBy: filterMatchesDish(d, activeFilters).modifiedBy,
+    priceExtra: filterMatchesDish(d, activeFilters).priceExtra,
   }));
   const displayDishes: (Dish | DishWithWarnings)[] = activeTab === 'compatible' ? dishesWithWarnings : allDishes;
 
@@ -296,12 +298,18 @@ function DishRow({
   const tags = getDishTags(dish);
   const match = filterMatchesDish(dish, activeFilters);
   const traceWarnings = 'traceWarnings' in dish ? dish.traceWarnings : match.traceWarnings;
+  const modifiedBy = 'modifiedBy' in dish ? dish.modifiedBy : match.modifiedBy;
+  const priceExtra = 'priceExtra' in dish ? dish.priceExtra : match.priceExtra;
+  const modification = dish.modifications?.find((mod) => mod.name === modifiedBy);
+  const modificationLabel = modification?.removes.length
+    ? `Can be made ${modification.removes.map((item) => item === 'gluten' ? 'GF' : `${item}-free`).join(', ')}`
+    : 'Can be modified';
   const matchingProfiles = groupProfiles.filter((profile) => filterMatchesDish(dish, profile.filters).compatible);
 
   return (
     <button
       onClick={onClick}
-      style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#FFFFFF', border: '0.5px solid #C4B9A8', width: '100%', textAlign: 'left', cursor: 'pointer', padding: '10px 12px', borderRadius: 12 } as React.CSSProperties}
+      style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: modifiedBy ? '#F7F9FC' : '#FFFFFF', border: `0.5px solid ${modifiedBy ? '#7A9ABB' : '#C4B9A8'}`, width: '100%', textAlign: 'left', cursor: 'pointer', padding: '10px 12px', borderRadius: 12 } as React.CSSProperties}
     >
       {/* Thumbnail */}
       <div style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', flexShrink: 0, background: '#F5F0E8' }}>
@@ -333,7 +341,16 @@ function DishRow({
           {traceWarnings.map((a) => (
             <span key={`warning-${a}`} style={{ background: '#F8F2E6', color: '#7A6432', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>May contain: {a}</span>
           ))}
+          {modifiedBy && (
+            <span style={{ background: '#EBF0F7', color: '#4A6A8A', border: '0.5px solid #7A9ABB', borderRadius: 100, padding: '2px 7px', fontSize: 10 }}>{modificationLabel}</span>
+          )}
         </div>
+
+        {modifiedBy && (
+          <div style={{ fontSize: 10, color: '#4A6A8A', fontStyle: 'italic', marginBottom: 6 }}>
+            Ask for {modifiedBy}{typeof priceExtra === 'number' ? ` (+£${priceExtra.toFixed(2)})` : ''}
+          </div>
+        )}
 
         {groupProfiles.length > 0 && (
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 6 }}>

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getDishTags } from '@/lib/scoring';
-import type { Dish, DishAllergens } from '@/lib/types';
+import { getDishTags, UK_ALLERGENS } from '@/lib/scoring';
+import type { Dish, DishAllergens, DishModification } from '@/lib/types';
 
 type AllergenStatus = 'no' | 'traces' | 'contains';
 
@@ -37,6 +37,7 @@ type AdminDishData = {
   price: string;
   category: Dish['category'];
   allergens: AllergenRow[];
+  modifications?: DishModification[];
 };
 
 const DISHES_MAP: Record<string, AdminDishData> = {
@@ -44,9 +45,9 @@ const DISHES_MAP: Record<string, AdminDishData> = {
   '2': { name: 'Risotto ai Funghi Selvatici', description: 'Wild mushroom risotto with truffle oil', price: '£16.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'traces' as const, inChart: true } : a) },
   '3': { name: 'Melanzane alla Parmigiana', description: 'Aubergine, tomato sugo, mozzarella, basil', price: '£15.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
   '4': { name: 'Branzino in Crosta di Erbe', description: 'Sea bass with herb crust and roasted vegetables', price: '£22.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'fish' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '5': { name: 'Tagliatelle al Ragu Bolognese', description: 'Fresh tagliatelle with slow-cooked beef ragu', price: '£17.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '5': { name: 'Tagliatelle al Ragu Bolognese', description: 'Fresh tagliatelle with slow-cooked beef ragu', price: '£17.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a), modifications: [{ name: 'With GF pasta', removes: ['gluten'], adds: [], priceExtra: 1.50 }] },
   '6': { name: 'Cotoletta alla Milanese', description: 'Breaded veal cutlet with rocket and lemon', price: '£24.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '7': { name: 'Gnocchi al Pomodoro', description: 'Potato gnocchi with fresh tomato sauce and basil', price: '£14.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a) },
+  '7': { name: 'Gnocchi al Pomodoro', description: 'Potato gnocchi with fresh tomato sauce and basil', price: '£14.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a), modifications: [{ name: 'With GF gnocchi', removes: ['gluten'], adds: [], priceExtra: 2.00 }] },
   '8': { name: 'Zuppa di Lenticchie', description: 'Red lentil soup with cumin and lemon', price: '£9.00', category: 'starter', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'contains' as const, inChart: true } : a) },
   '9': { name: 'Tiramisu della Casa', description: 'Classic tiramisu with mascarpone and espresso', price: '£8.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
   '10': { name: 'Panna Cotta al Caramello', description: 'Vanilla panna cotta with caramel sauce', price: '£7.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a) },
@@ -122,6 +123,11 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [allergens, setAllergens] = useState<AllergenRow[]>(dishData.allergens);
   const [isVegan, setIsVegan] = useState(true);
   const [isVegetarian, setIsVegetarian] = useState(true);
+  const [modifications, setModifications] = useState<DishModification[]>(dishData.modifications || []);
+  const [showModificationForm, setShowModificationForm] = useState(false);
+  const [modificationName, setModificationName] = useState('');
+  const [modificationRemoves, setModificationRemoves] = useState<string[]>([]);
+  const [modificationPriceExtra, setModificationPriceExtra] = useState('');
   const [saved, setSaved] = useState(false);
   const [description, setDescription] = useState(dishData.description);
   const [price, setPrice] = useState(dishData.price);
@@ -130,6 +136,11 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setAllergens(dishData.allergens);
     setIsVegan(true);
     setIsVegetarian(true);
+    setModifications(dishData.modifications || []);
+    setShowModificationForm(false);
+    setModificationName('');
+    setModificationRemoves([]);
+    setModificationPriceExtra('');
     setSaved(false);
     setDescription(dishData.description);
     setPrice(dishData.price);
@@ -137,6 +148,29 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
 
   function updateStatus(key: string, status: AllergenStatus) {
     setAllergens((prev) => prev.map((a) => (a.key === key ? { ...a, status } : a)));
+  }
+
+  function toggleModificationAllergen(key: string) {
+    setModificationRemoves((prev) => (
+      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]
+    ));
+  }
+
+  function addModification() {
+    if (!modificationName.trim() || modificationRemoves.length === 0) return;
+    setModifications((prev) => [
+      ...prev,
+      {
+        name: modificationName.trim(),
+        removes: modificationRemoves,
+        adds: [],
+        priceExtra: Number(modificationPriceExtra || 0),
+      },
+    ]);
+    setModificationName('');
+    setModificationRemoves([]);
+    setModificationPriceExtra('');
+    setShowModificationForm(false);
   }
 
   const previewDish = buildPreviewDish(dishData, Number(params.id) || 1, allergens, isVegan, isVegetarian);
@@ -287,6 +321,79 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
               <SegmentedControl value={allergen.status} onChange={(v) => updateStatus(allergen.key, v)} />
             </div>
           ))}
+        </div>
+
+        {/* Dietary suitability */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Available modifications</div>
+          {modifications.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+              {modifications.map((modification) => (
+                <div key={modification.name} style={{ background: '#F7F9FC', border: '0.5px solid #7A9ABB', borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500 }}>{modification.name}</div>
+                    <div style={{ fontSize: 10.5, color: '#4A6A8A', marginTop: 2 }}>
+                      Removes {modification.removes.join(', ')} · +£{modification.priceExtra.toFixed(2)}
+                    </div>
+                  </div>
+                  <button onClick={() => setModifications((prev) => prev.filter((item) => item.name !== modification.name))} style={{ background: 'none', border: 'none', color: '#8B7E71', cursor: 'pointer', fontSize: 12 }}>
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ fontSize: 12, color: '#8B7E71', marginBottom: 12 }}>No modifications added yet.</div>
+          )}
+
+          {showModificationForm ? (
+            <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <input
+                value={modificationName}
+                onChange={(e) => setModificationName(e.target.value)}
+                placeholder="Modification name"
+                style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px 12px', fontSize: 12, color: '#1A1614', fontFamily: 'inherit', outline: 'none' }}
+              />
+              <div>
+                <div style={{ fontSize: 10.5, color: '#8B7E71', marginBottom: 6 }}>Removes allergens</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {UK_ALLERGENS.map((allergen) => {
+                    const active = modificationRemoves.includes(allergen.key);
+                    return (
+                      <button
+                        key={allergen.key}
+                        onClick={() => toggleModificationAllergen(allergen.key)}
+                        style={{ background: active ? '#1A1614' : '#FFFFFF', color: active ? '#FDFBF7' : '#8B7E71', border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`, borderRadius: 100, padding: '4px 8px', fontSize: 10.5, cursor: 'pointer' }}
+                      >
+                        {allergen.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={modificationPriceExtra}
+                onChange={(e) => setModificationPriceExtra(e.target.value)}
+                placeholder="Price extra"
+                style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px 12px', fontSize: 12, color: '#1A1614', fontFamily: 'inherit', outline: 'none' }}
+              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={addModification} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
+                  Save modification
+                </button>
+                <button onClick={() => setShowModificationForm(false)} style={{ flex: 1, background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setShowModificationForm(true)} style={{ background: 'transparent', border: '0.5px dashed #C4B9A8', borderRadius: 10, padding: '10px 12px', width: '100%', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
+              + Add modification
+            </button>
+          )}
         </div>
 
         {/* Dietary suitability */}

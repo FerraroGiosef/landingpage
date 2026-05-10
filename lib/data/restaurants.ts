@@ -176,6 +176,7 @@ export const dishes: Dish[] = [
     price: '£14.50', kcal: 580, protein: 28, carbs: 62, fat: 22, category: 'main',
     allergens: { ...base(), gluten: CONTAINS, milk: CONTAINS, eggs: CONTAINS, celery: TRACES },
     isVegan: false, isVegetarian: false,
+    modifications: [{ name: 'With gluten-free pasta', removes: ['gluten'], adds: [], priceExtra: 1.50 }],
   },
   {
     id: 109, restaurantId: 1,
@@ -192,6 +193,7 @@ export const dishes: Dish[] = [
     price: '£13.50', kcal: 450, protein: 16, carbs: 52, fat: 20, category: 'main',
     allergens: { ...base(), gluten: CONTAINS, treeNuts: CONTAINS, milk: CONTAINS },
     isVegan: false, isVegetarian: true,
+    modifications: [{ name: 'With GF gnocchi', removes: ['gluten'], adds: [], priceExtra: 2.00 }],
   },
   {
     id: 111, restaurantId: 1,
@@ -285,6 +287,7 @@ export const dishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=75',
     allergens: { ...base(), gluten: CONTAINS, milk: CONTAINS },
     isVegan: false, isVegetarian: true,
+    modifications: [{ name: 'With GF base', removes: ['gluten'], adds: [], priceExtra: 2.50 }],
   },
   {
     id: 208, restaurantId: 2,
@@ -301,6 +304,7 @@ export const dishes: Dish[] = [
     price: '£14.50', kcal: 520, protein: 20, carbs: 48, fat: 28, category: 'main',
     allergens: { ...base(), gluten: CONTAINS, milk: CONTAINS, eggs: CONTAINS },
     isVegan: false, isVegetarian: true,
+    modifications: [{ name: 'With GF sheets', removes: ['gluten'], adds: [], priceExtra: 2.00 }],
   },
   {
     id: 210, restaurantId: 2,
@@ -368,6 +372,7 @@ export const dishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=75',
     allergens: { ...base(), gluten: CONTAINS, milk: CONTAINS, eggs: CONTAINS },
     isVegan: false, isVegetarian: true,
+    modifications: [{ name: 'With GF pasta', removes: ['gluten'], adds: [], priceExtra: 1.50 }],
   },
   {
     id: 305, restaurantId: 3,
@@ -574,6 +579,7 @@ export const dishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=75',
     allergens: { ...base(), gluten: CONTAINS, milk: CONTAINS },
     isVegan: false, isVegetarian: true,
+    modifications: [{ name: 'With GF base', removes: ['gluten'], adds: [], priceExtra: 2.50 }],
   },
   {
     id: 505, restaurantId: 5,
@@ -582,6 +588,7 @@ export const dishes: Dish[] = [
     price: '£13.50', kcal: 780, protein: 30, carbs: 80, fat: 36, category: 'main',
     allergens: { ...base(), gluten: CONTAINS, milk: CONTAINS },
     isVegan: false, isVegetarian: false,
+    modifications: [{ name: 'With GF base', removes: ['gluten'], adds: [], priceExtra: 2.50 }],
   },
   {
     id: 506, restaurantId: 5,
