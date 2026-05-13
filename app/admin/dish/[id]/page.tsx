@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDishTags } from '@/lib/scoring';
+import { getDishById, getDishesByRestaurant } from '@/lib/data/restaurants';
 import type { Dish, DishAllergens, DishModification } from '@/lib/types';
 
 type AllergenStatus = 'no' | 'traces' | 'contains';
@@ -36,22 +37,27 @@ type AdminDishData = {
   description: string;
   price: string;
   category: Dish['category'];
+  isVegan: boolean;
+  isVegetarian: boolean;
   allergens: AllergenRow[];
   modifications?: DishModification[];
 };
 
-const DISHES_MAP: Record<string, AdminDishData> = {
-  '1': { name: 'Bruschetta al Pomodoro', description: 'Vine tomatoes, basil, garlic and olive oil on toasted sourdough', price: '£7.50', category: 'starter', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'sesame' ? { ...a, status: 'traces' as const, inChart: true } : a) },
-  '2': { name: 'Risotto ai Funghi Selvatici', description: 'Wild mushroom risotto with truffle oil', price: '£16.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'traces' as const, inChart: true } : a) },
-  '3': { name: 'Melanzane alla Parmigiana', description: 'Aubergine, tomato sugo, mozzarella, basil', price: '£15.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '4': { name: 'Branzino in Crosta di Erbe', description: 'Sea bass with herb crust and roasted vegetables', price: '£22.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'fish' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '5': { name: 'Tagliatelle al Ragu Bolognese', description: 'Fresh tagliatelle with slow-cooked beef ragu', price: '£17.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a), modifications: [{ name: 'With GF pasta', removes: ['gluten'], adds: [], priceExtra: 1.50 }] },
-  '6': { name: 'Cotoletta alla Milanese', description: 'Breaded veal cutlet with rocket and lemon', price: '£24.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '7': { name: 'Gnocchi al Pomodoro', description: 'Potato gnocchi with fresh tomato sauce and basil', price: '£14.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a), modifications: [{ name: 'With GF gnocchi', removes: ['gluten'], adds: [], priceExtra: 2.00 }] },
-  '8': { name: 'Zuppa di Lenticchie', description: 'Red lentil soup with cumin and lemon', price: '£9.00', category: 'starter', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '9': { name: 'Tiramisu della Casa', description: 'Classic tiramisu with mascarpone and espresso', price: '£8.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '10': { name: 'Panna Cotta al Caramello', description: 'Vanilla panna cotta with caramel sauce', price: '£7.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-};
+function dishToAdminData(dish: Dish): AdminDishData {
+  return {
+    name: dish.name,
+    description: dish.description,
+    price: dish.price,
+    category: dish.category,
+    isVegan: dish.isVegan,
+    isVegetarian: dish.isVegetarian,
+    allergens: INITIAL_ALLERGENS.map((row) => {
+      const status = dish.allergens[row.key];
+      return { ...row, status, inChart: status !== 'no' };
+    }),
+    modifications: dish.modifications,
+  };
+}
 
 function rowsToAllergens(allergens: AllergenRow[]): DishAllergens {
   return allergens.reduce(
@@ -205,11 +211,13 @@ function makesFromRemoves(removes: string[]): string[] {
 export default function AdminDishPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const dishData = DISHES_MAP[params.id] || DISHES_MAP['1'];
-  const allIds = Object.keys(DISHES_MAP);
+  const lartigianoDishes = getDishesByRestaurant(1);
+  const realDish = getDishById(Number(params.id)) ?? lartigianoDishes[0];
+  const dishData = dishToAdminData(realDish);
+  const allIds = lartigianoDishes.map((d) => String(d.id));
   const from = searchParams.get('from');
   const reviewIdsParam = searchParams.get('reviewIds');
-  const reviewIds = reviewIdsParam ? reviewIdsParam.split(',').filter((id) => DISHES_MAP[id]) : [];
+  const reviewIds = reviewIdsParam ? reviewIdsParam.split(',').filter((id) => getDishById(Number(id))) : [];
   const sequenceIds = reviewIds.length > 0 ? reviewIds : allIds;
   const currentIndex = sequenceIds.indexOf(params.id);
   const nextId = currentIndex === -1 && reviewIds.length > 0
@@ -234,8 +242,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
         : 'Back';
 
   const [allergens, setAllergens] = useState<AllergenRow[]>(dishData.allergens);
-  const [isVegan, setIsVegan] = useState(true);
-  const [isVegetarian, setIsVegetarian] = useState(true);
+  const [isVegan, setIsVegan] = useState(dishData?.isVegan || false);
+  const [isVegetarian, setIsVegetarian] = useState(dishData?.isVegetarian || false);
   const [modifications, setModifications] = useState<DishModification[]>(dishData.modifications || []);
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationName, setModificationName] = useState('');
@@ -253,8 +261,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     setAllergens(dishData.allergens);
-    setIsVegan(true);
-    setIsVegetarian(true);
+    setIsVegan(dishData.isVegan);
+    setIsVegetarian(dishData.isVegetarian);
     setModifications(dishData.modifications || []);
     setShowModificationForm(false);
     setModificationName('');
