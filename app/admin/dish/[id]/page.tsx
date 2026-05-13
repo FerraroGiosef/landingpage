@@ -60,14 +60,14 @@ function rowsToAllergens(allergens: AllergenRow[]): DishAllergens {
   );
 }
 
-function buildPreviewDish(dishData: AdminDishData, id: number, allergens: AllergenRow[], isVegan: boolean, isVegetarian: boolean): Dish {
+function buildPreviewDish(dishData: AdminDishData, id: number, allergens: AllergenRow[], isVegan: boolean, isVegetarian: boolean, name: string, description: string, price: string, category: Dish['category']): Dish {
   return {
     id,
     restaurantId: 1,
-    name: dishData.name,
-    description: dishData.description,
-    price: dishData.price,
-    category: dishData.category,
+    name: name || dishData.name,
+    description: description || dishData.description,
+    price: price || dishData.price,
+    category,
     allergens: rowsToAllergens(allergens),
     isVegan,
     isVegetarian: isVegan || isVegetarian,
@@ -114,6 +114,57 @@ function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange
   );
 }
 
+function ToggleSwitch({ checked, onChange, disabled }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => !disabled && onChange(!checked)}
+      style={{
+        width: 40,
+        height: 22,
+        borderRadius: 100,
+        background: checked ? '#1A1614' : '#C4B9A8',
+        border: 'none',
+        position: 'relative',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        transition: 'background 0.2s',
+        padding: 0,
+        flexShrink: 0,
+        opacity: disabled ? 0.6 : 1,
+      }}
+    >
+      <span
+        style={{
+          position: 'absolute',
+          top: 2,
+          left: checked ? 20 : 2,
+          width: 18,
+          height: 18,
+          borderRadius: '50%',
+          background: '#FFFFFF',
+          transition: 'left 0.2s',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+        }}
+      />
+    </button>
+  );
+}
+
+const INPUT_STYLE: React.CSSProperties = {
+  background: '#FDFBF7',
+  border: '0.5px solid #C4B9A8',
+  borderRadius: 8,
+  padding: '8px 10px',
+  fontFamily: 'inherit',
+  color: '#1A1614',
+  outline: 'none',
+  width: '100%',
+  boxSizing: 'border-box',
+};
+
 export default function AdminDishPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -144,6 +195,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       : from === 'menu'
         ? 'Back to menu'
         : 'Back';
+
   const [allergens, setAllergens] = useState<AllergenRow[]>(dishData.allergens);
   const [isVegan, setIsVegan] = useState(true);
   const [isVegetarian, setIsVegetarian] = useState(true);
@@ -156,6 +208,9 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [saved, setSaved] = useState(false);
   const [description, setDescription] = useState(dishData?.description || '');
   const [price, setPrice] = useState(dishData?.price || '');
+  const [name, setName] = useState(dishData?.name || '');
+  const [category, setCategory] = useState<Dish['category']>(dishData?.category || 'main');
+  const [showAllAllergens, setShowAllAllergens] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -171,6 +226,9 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setSaved(false);
     setDescription(dishData.description);
     setPrice(dishData.price);
+    setName(dishData.name);
+    setCategory(dishData.category);
+    setShowAllAllergens(false);
   }, [dishData, params.id]);
 
   function updateStatus(key: string, status: AllergenStatus) {
@@ -205,20 +263,24 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setPhotoPreview(URL.createObjectURL(file));
   }
 
-  const previewDish = buildPreviewDish(dishData, Number(params.id) || 1, allergens, isVegan, isVegetarian);
+  const previewDish = buildPreviewDish(dishData, Number(params.id) || 1, allergens, isVegan, isVegetarian, name, description, price, category);
   const previewTags = getDishTags(previewDish);
   const veganConflictAllergens = [
     previewDish.allergens.milk === 'contains' ? 'milk' : null,
     previewDish.allergens.eggs === 'contains' ? 'eggs' : null,
   ].filter(Boolean);
 
+  const detectedAllergens = allergens.filter((a) => a.status !== 'no');
+  const visibleAllergens = showAllAllergens ? allergens : detectedAllergens;
+  const hasGfModification = modifications.length > 0;
+
   if (saved) {
     return (
       <div style={{ fontFamily: 'Inter, -apple-system, sans-serif', padding: '40px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 16, color: '#7EA884' }}>✓</div>
-        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 400, color: '#1A1614', marginBottom: 8 }}>Dish confirmed</h1>
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 400, color: '#1A1614', marginBottom: 8 }}>Changes saved</h1>
         <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 24, lineHeight: 1.65, maxWidth: 280 }}>
-          Allergen data for <em>{dishData.name}</em> has been saved and will appear for diners immediately.
+          Your edits to <em>{name || dishData.name}</em> have been saved and will appear for diners immediately.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
           {nextId ? (
@@ -247,225 +309,275 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
+    <div style={{ fontFamily: 'Inter, -apple-system, sans-serif', background: '#FDFBF7', minHeight: '100vh' }}>
       {/* Header */}
-      <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+      <div style={{ padding: '14px 16px', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
             onClick={() => router.push(returnPath)}
-            style={{ width: 34, height: 34, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}
+            style={{ width: 32, height: 32, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, flexShrink: 0, color: '#1A1614' }}
+            aria-label={returnLabel}
           >
             ←
           </button>
-          <div style={{ minWidth: 0 }}>
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 400, color: '#1A1614', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{dishData.name}</h1>
-            <p style={{ fontSize: 11, color: '#8B7E71', margin: '2px 0 0' }}>Edit allergen data</p>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 9, color: '#8B7E71', letterSpacing: '0.04em', marginBottom: 2 }}>Dashboard › Menu</div>
+            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 400, color: '#1A1614', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name || dishData.name}</h1>
           </div>
-          <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: '#1A1614', marginLeft: 'auto', flexShrink: 0 }}>{dishData.price}</span>
+          <span style={{ padding: '4px 10px', borderRadius: 100, background: '#EDF4EE', color: '#456B4B', fontSize: 10, fontWeight: 500, flexShrink: 0 }}>
+            Published
+          </span>
         </div>
       </div>
 
-      <div style={{ padding: '16px' }}>
-        {/* Dish photo */}
-        <div
-          onClick={() => photoInputRef.current?.click()}
-          style={{
-            width: '100%',
-            height: 120,
-            borderRadius: 12,
-            background: photoPreview
-              ? `url(${photoPreview}) center/cover`
-              : 'linear-gradient(135deg, #C8B898, #A09080)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            marginBottom: 6,
-            overflow: 'hidden',
-          }}
-        >
-          <input
-            ref={photoInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
-          />
-          {!photoPreview && (
-            <div style={{ color: '#FDFBF7', textAlign: 'center' }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>📷</div>
-              <div style={{ fontSize: 12 }}>Tap to add photo</div>
-            </div>
-          )}
-        </div>
-        <div style={{ fontSize: 11, color: '#C4B9A8', marginBottom: 16 }}>
-          Photo tip: natural light, top-down angle, clean plate
-        </div>
-
-        {/* Dish description */}
-        <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{dishData.description}</p>
-
-        {/* Info box */}
-        <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>ℹ</span>
-          <p style={{ fontSize: 12, color: '#8B7E71', margin: 0, lineHeight: 1.55 }}>
-            Allergens extracted from your chart. Set each to the correct status. You are legally responsible for the accuracy of this information.
-          </p>
-        </div>
-
-        {/* Allergen rows */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          {allergens.map((allergen) => (
-            <div
-              key={allergen.key}
-              style={{
-                background: '#FFFFFF',
-                border: '0.5px solid #C4B9A8',
-                borderRadius: 12,
-                padding: '12px',
-                borderLeft: allergen.status === 'contains' ? '2px solid #C67A5C' : allergen.status === 'traces' ? '2px solid #C2A46E' : undefined,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <div>
-                  <div style={{ fontSize: 13, color: '#1A1614', fontWeight: 500 }}>{allergen.name}</div>
-                  <div style={{ fontSize: 10, color: allergen.inChart ? '#7EA884' : '#C4B9A8', marginTop: 2 }}>
-                    {allergen.inChart ? 'Found in your chart' : 'Not in chart'}
-                  </div>
-                </div>
-                {allergen.status !== 'no' && (
-                  <span
-                    style={{
-                      background: allergen.status === 'contains' ? '#F9EFEA' : '#F8F2E6',
-                      color: allergen.status === 'contains' ? '#8A4A32' : '#7A6432',
-                      borderRadius: 100,
-                      padding: '2px 8px',
-                      fontSize: 10,
-                    }}
-                  >
-                    {allergen.status === 'contains' ? 'Contains' : 'Traces'}
-                  </span>
-                )}
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 16, paddingBottom: 32 }}>
+        {/* Photo */}
+        <div>
+          <div
+            onClick={() => photoInputRef.current?.click()}
+            style={{
+              width: '100%',
+              height: 140,
+              borderRadius: 12,
+              background: photoPreview
+                ? `url(${photoPreview}) center/cover`
+                : 'linear-gradient(135deg, #C8B898, #A09080)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              marginBottom: 6,
+              overflow: 'hidden',
+            }}
+          >
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
+            />
+            {!photoPreview && (
+              <div style={{ color: '#FDFBF7', textAlign: 'center' }}>
+                <div style={{ fontSize: 24, marginBottom: 4 }}>📷</div>
+                <div style={{ fontSize: 12 }}>Tap to add photo</div>
               </div>
-              <SegmentedControl value={allergen.status} onChange={(v) => updateStatus(allergen.key, v)} />
-            </div>
-          ))}
+            )}
+          </div>
+          <div style={{ fontSize: 10, color: '#C4B9A8' }}>
+            Natural light · top-down angle · clean plate
+          </div>
         </div>
 
-        {/* Dietary suitability */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 20 }}>
-          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Available modifications</div>
-          {modifications.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-              {modifications.map((modification) => (
-                <div key={modification.name} style={{ background: '#F7F9FC', border: '0.5px solid #7A9ABB', borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500 }}>{modification.name}</div>
-                    <div style={{ fontSize: 10.5, color: '#4A6A8A', marginTop: 2 }}>
-                      Removes {modification.removes.join(', ')} · +£{modification.priceExtra.toFixed(2)}
+        {/* Dish details */}
+        <div>
+          <div style={{ fontSize: 10, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+            Dish details
+          </div>
+          <div style={{ background: '#F5F0E8', borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Dish name"
+              style={{ ...INPUT_STYLE, fontFamily: 'Georgia, serif', fontSize: 14 }}
+            />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Description"
+              style={{ ...INPUT_STYLE, fontSize: 12, minHeight: 50, lineHeight: 1.5, resize: 'vertical' }}
+            />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <input
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="£0.00"
+                style={{ ...INPUT_STYLE, fontFamily: 'Georgia, serif', fontSize: 14, flex: 1 }}
+              />
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as Dish['category'])}
+                style={{ ...INPUT_STYLE, fontSize: 12, flex: 1, cursor: 'pointer' }}
+              >
+                <option value="starter">Starter</option>
+                <option value="main">Main</option>
+                <option value="dessert">Dessert</option>
+                <option value="side">Side</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Allergens */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ fontSize: 10, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Allergens
+            </div>
+            <div style={{ fontSize: 10, color: '#8B7E71' }}>
+              {detectedAllergens.length} of 14 detected
+            </div>
+          </div>
+
+          {visibleAllergens.length === 0 ? (
+            <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: 14, fontSize: 12, color: '#8B7E71', textAlign: 'center' }}>
+              No allergens detected.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {visibleAllergens.map((allergen) => (
+                <div
+                  key={allergen.key}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '0.5px solid #C4B9A8',
+                    borderRadius: 12,
+                    padding: '12px',
+                    borderLeft: allergen.status === 'contains' ? '2px solid #C67A5C' : allergen.status === 'traces' ? '2px solid #C2A46E' : undefined,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 13, color: '#1A1614', fontWeight: 500 }}>{allergen.name}</div>
+                      <div style={{ fontSize: 10, color: allergen.inChart ? '#7EA884' : '#C4B9A8', marginTop: 2 }}>
+                        {allergen.inChart ? 'Found in your chart' : 'Not in chart'}
+                      </div>
                     </div>
+                    {allergen.status !== 'no' && (
+                      <span
+                        style={{
+                          background: allergen.status === 'contains' ? '#F9EFEA' : '#F8F2E6',
+                          color: allergen.status === 'contains' ? '#8A4A32' : '#7A6432',
+                          borderRadius: 100,
+                          padding: '2px 8px',
+                          fontSize: 10,
+                        }}
+                      >
+                        {allergen.status === 'contains' ? 'Contains' : 'Traces'}
+                      </span>
+                    )}
                   </div>
-                  <button onClick={() => setModifications((prev) => prev.filter((item) => item.name !== modification.name))} style={{ background: 'none', border: 'none', color: '#8B7E71', cursor: 'pointer', fontSize: 12 }}>
-                    Remove
-                  </button>
+                  <SegmentedControl value={allergen.status} onChange={(v) => updateStatus(allergen.key, v)} />
                 </div>
               ))}
             </div>
-          ) : (
-            <div style={{ fontSize: 12, color: '#8B7E71', marginBottom: 12 }}>No modifications added yet.</div>
           )}
 
-          {showModificationForm ? (
-            <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <input
-                value={modificationName}
-                onChange={(e) => setModificationName(e.target.value)}
-                placeholder="Modification name"
-                style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px 12px', fontSize: 12, color: '#1A1614', fontFamily: 'inherit', outline: 'none' }}
-              />
-              <div>
-                <div style={{ fontSize: 10.5, color: '#8B7E71', marginBottom: 6 }}>Removes allergens</div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {UK_ALLERGENS.map((allergen) => {
-                    const active = modificationRemoves.includes(allergen.key);
-                    return (
-                      <button
-                        key={allergen.key}
-                        onClick={() => toggleModificationAllergen(allergen.key)}
-                        style={{ background: active ? '#1A1614' : '#FFFFFF', color: active ? '#FDFBF7' : '#8B7E71', border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`, borderRadius: 100, padding: '4px 8px', fontSize: 10.5, cursor: 'pointer' }}
-                      >
-                        {allergen.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={modificationPriceExtra}
-                onChange={(e) => setModificationPriceExtra(e.target.value)}
-                placeholder="Price extra"
-                style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px 12px', fontSize: 12, color: '#1A1614', fontFamily: 'inherit', outline: 'none' }}
-              />
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={addModification} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
-                  Save modification
-                </button>
-                <button onClick={() => setShowModificationForm(false)} style={{ flex: 1, background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button onClick={() => setShowModificationForm(true)} style={{ background: 'transparent', border: '0.5px dashed #C4B9A8', borderRadius: 10, padding: '10px 12px', width: '100%', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
-              + Add modification
-            </button>
-          )}
+          <button
+            onClick={() => setShowAllAllergens((prev) => !prev)}
+            style={{ background: 'none', border: 'none', color: '#1A1614', fontSize: 12, marginTop: 10, cursor: 'pointer', padding: '6px 0', textDecoration: 'underline', textUnderlineOffset: 3, fontFamily: 'inherit' }}
+          >
+            {showAllAllergens ? 'Show only detected allergens' : 'Show all 14 allergens'}
+          </button>
         </div>
 
         {/* Dietary suitability */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 20 }}>
-          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dietary suitability</div>
-          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10, cursor: 'pointer' }}>
-            <span>
-              <span style={{ display: 'block', fontSize: 13, color: '#1A1614', fontWeight: 500 }}>Vegan</span>
-              <span style={{ display: 'block', fontSize: 10, color: '#8B7E71', marginTop: 2 }}>Suitable for vegan diners</span>
-            </span>
-            <input
-              type="checkbox"
-              checked={isVegan}
-              onChange={(e) => {
-                setIsVegan(e.target.checked);
-                if (e.target.checked) setIsVegetarian(true);
-              }}
-            />
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer' }}>
-            <span>
-              <span style={{ display: 'block', fontSize: 13, color: '#1A1614', fontWeight: 500 }}>Vegetarian</span>
-              <span style={{ display: 'block', fontSize: 10, color: '#8B7E71', marginTop: 2 }}>Suitable for vegetarian diners</span>
-            </span>
-            <input
-              type="checkbox"
-              checked={isVegetarian || isVegan}
-              disabled={isVegan}
-              onChange={(e) => setIsVegetarian(e.target.checked)}
-            />
-          </label>
+        <div>
+          <div style={{ fontSize: 10, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+            Dietary
+          </div>
+          <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <span style={{ fontSize: 13, color: '#1A1614' }}>Suitable for vegans</span>
+              <ToggleSwitch
+                checked={isVegan}
+                onChange={(v) => {
+                  setIsVegan(v);
+                  if (v) setIsVegetarian(true);
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <span style={{ fontSize: 13, color: '#1A1614' }}>Suitable for vegetarians</span>
+              <ToggleSwitch
+                checked={isVegetarian || isVegan}
+                onChange={(v) => setIsVegetarian(v)}
+                disabled={isVegan}
+              />
+            </div>
+          </div>
+          {isVegan && veganConflictAllergens.length > 0 && (
+            <div style={{ background: '#F8F2E6', border: '0.5px solid rgba(194,164,110,0.45)', borderRadius: 12, padding: '12px 14px', color: '#7A6432', fontSize: 12, lineHeight: 1.5, marginTop: 10 }}>
+              This dish contains {veganConflictAllergens.join('/')} — please confirm it&apos;s suitable for vegans
+            </div>
+          )}
         </div>
 
-        {isVegan && veganConflictAllergens.length > 0 && (
-          <div style={{ background: '#F8F2E6', border: '0.5px solid rgba(194,164,110,0.45)', borderRadius: 12, padding: '12px 14px', color: '#7A6432', fontSize: 12, lineHeight: 1.5, marginBottom: 20 }}>
-            This dish contains {veganConflictAllergens.join('/')} — please confirm it&apos;s suitable for vegans
+        {/* Modifications */}
+        <div>
+          <div style={{ fontSize: 10, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+            Modifications
           </div>
-        )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {modifications.map((modification) => (
+              <div key={modification.name} style={{ background: '#F7F9FC', border: '0.5px solid #7A9ABB', borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500 }}>{modification.name}</div>
+                  <div style={{ fontSize: 10.5, color: '#4A6A8A', marginTop: 2 }}>
+                    Removes {modification.removes.join(', ')} · +£{modification.priceExtra.toFixed(2)}
+                  </div>
+                </div>
+                <button onClick={() => setModifications((prev) => prev.filter((item) => item.name !== modification.name))} style={{ background: 'none', border: 'none', color: '#8B7E71', cursor: 'pointer', fontSize: 12 }}>
+                  Remove
+                </button>
+              </div>
+            ))}
 
-        {/* Preview tags */}
-        <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 20 }}>
-          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>This dish will show as</div>
-          {previewTags.length > 0 ? (
+            {showModificationForm ? (
+              <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <input
+                  value={modificationName}
+                  onChange={(e) => setModificationName(e.target.value)}
+                  placeholder="Modification name"
+                  style={{ ...INPUT_STYLE, background: '#FFFFFF', fontSize: 12 }}
+                />
+                <div>
+                  <div style={{ fontSize: 10.5, color: '#8B7E71', marginBottom: 6 }}>Removes allergens</div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {UK_ALLERGENS.map((allergen) => {
+                      const active = modificationRemoves.includes(allergen.key);
+                      return (
+                        <button
+                          key={allergen.key}
+                          onClick={() => toggleModificationAllergen(allergen.key)}
+                          style={{ background: active ? '#1A1614' : '#FFFFFF', color: active ? '#FDFBF7' : '#8B7E71', border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`, borderRadius: 100, padding: '4px 8px', fontSize: 10.5, cursor: 'pointer' }}
+                        >
+                          {allergen.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={modificationPriceExtra}
+                  onChange={(e) => setModificationPriceExtra(e.target.value)}
+                  placeholder="Price extra"
+                  style={{ ...INPUT_STYLE, background: '#FFFFFF', fontSize: 12 }}
+                />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={addModification} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
+                    Save modification
+                  </button>
+                  <button onClick={() => setShowModificationForm(false)} style={{ flex: 1, background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setShowModificationForm(true)} style={{ background: 'transparent', border: '0.5px dashed #C4B9A8', borderRadius: 10, padding: '10px 12px', width: '100%', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
+                + Add modification
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Preview */}
+        <div style={{ background: '#F5F0E8', borderRadius: 12, padding: '14px' }}>
+          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10 }}>Customers will see this dish as:</div>
+          {previewTags.length > 0 || hasGfModification ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {previewTags.map((tag) => (
                 <span
@@ -475,32 +587,47 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
                   {tag}
                 </span>
               ))}
+              {hasGfModification && (
+                <span style={{ background: '#F7F9FC', color: '#4A6A8A', border: '0.5px solid #7A9ABB', borderRadius: 100, padding: '4px 10px', fontSize: 11, fontWeight: 500 }}>
+                  Can be made GF
+                </span>
+              )}
             </div>
           ) : (
             <span style={{ fontSize: 12, color: '#8B7E71' }}>No dietary tags — dish contains major allergens</span>
           )}
         </div>
 
-        {/* Attribution note */}
-        <div style={{ fontSize: 11, color: '#C4B9A8', lineHeight: 1.6, marginBottom: 20 }}>
-          Allergen information will be attributed to your restaurant. Diners will be advised to always confirm with staff before ordering.
+        {/* Legal */}
+        <div style={{ background: '#FEF3C7', border: '0.5px solid #F59E0B', borderRadius: 10, padding: '10px 12px', color: '#92400E', fontSize: 10, lineHeight: 1.5 }}>
+          You are legally responsible for the accuracy of this allergen information.
         </div>
-      </div>
 
-      {/* Bottom actions */}
-      <div style={{ padding: '0 16px 24px', display: 'flex', gap: 10, position: 'sticky', bottom: 68, background: '#FDFBF7', paddingTop: 12, borderTop: '0.5px solid #C4B9A8' }}>
-        <button
-          onClick={() => router.push(returnPath)}
-          style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', color: '#8B7E71' }}
-        >
-          Back
-        </button>
-        <button
-          onClick={() => setSaved(true)}
-          style={{ flex: 2, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer' }}
-        >
-          Confirm this dish ✓
-        </button>
+        {/* Actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+          <button
+            onClick={() => setSaved(true)}
+            style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}
+          >
+            Save changes
+          </button>
+          <button
+            onClick={() => router.push(`/restaurant/1?dishId=${params.id}`)}
+            style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', color: '#1A1614' }}
+          >
+            View as customer
+          </button>
+          <button
+            onClick={() => {
+              if (confirm('Delete this dish? This cannot be undone.')) {
+                router.push(returnPath);
+              }
+            }}
+            style={{ background: 'none', border: 'none', padding: '10px', color: '#C67A5C', fontSize: 12, cursor: 'pointer', textAlign: 'center', fontFamily: 'inherit' }}
+          >
+            Delete this dish
+          </button>
+        </div>
       </div>
     </div>
   );
