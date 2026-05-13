@@ -152,7 +152,7 @@ function AdminDashboardContent() {
             {DISHES_LIVE.map((dish) => (
               <Link
                 key={dish.id}
-                href={`/admin/dish/${dish.id}`}
+                href={`/admin/dish/${dish.id}?from=dashboard`}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', textDecoration: 'none', borderLeft: dish.verified ? undefined : '2px solid #C2A46E' }}
               >
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F5F0E8', flexShrink: 0 }} />

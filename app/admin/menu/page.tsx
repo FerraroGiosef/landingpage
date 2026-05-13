@@ -62,7 +62,7 @@ export default function MenuPage() {
                     return (
                       <button
                         key={dish.id}
-                        onClick={() => router.push(`/admin/dish/${dish.id}`)}
+                        onClick={() => router.push(`/admin/dish/${dish.id}?from=menu`)}
                         style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: 'none', borderBottom: '0.5px solid #F5F0E8', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }}
                       >
                         <div style={{ flex: 1, minWidth: 0 }}>
