@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getDishTags, UK_ALLERGENS } from '@/lib/scoring';
 import type { Dish, DishAllergens, DishModification } from '@/lib/types';
 
@@ -116,10 +116,34 @@ function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange
 
 export default function AdminDishPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dishData = DISHES_MAP[params.id] || DISHES_MAP['1'];
   const allIds = Object.keys(DISHES_MAP);
-  const currentIndex = allIds.indexOf(params.id);
-  const nextId = currentIndex >= 0 && currentIndex < allIds.length - 1 ? allIds[currentIndex + 1] : null;
+  const from = searchParams.get('from');
+  const reviewIdsParam = searchParams.get('reviewIds');
+  const reviewIds = reviewIdsParam ? reviewIdsParam.split(',').filter((id) => DISHES_MAP[id]) : [];
+  const sequenceIds = reviewIds.length > 0 ? reviewIds : allIds;
+  const currentIndex = sequenceIds.indexOf(params.id);
+  const nextId = currentIndex === -1 && reviewIds.length > 0
+    ? reviewIds[0]
+    : currentIndex >= 0 && currentIndex < sequenceIds.length - 1
+      ? sequenceIds[currentIndex + 1]
+      : null;
+  const nextDishHref = nextId ? `/admin/dish/${nextId}?from=${from || 'admin'}${reviewIds.length > 0 ? `&reviewIds=${reviewIds.join(',')}` : ''}` : '';
+  const returnPath = from === 'dashboard'
+    ? '/admin'
+    : from === 'review'
+      ? '/admin/menu/import?step=review'
+      : from === 'menu'
+        ? '/admin/menu'
+        : '/admin';
+  const returnLabel = from === 'dashboard'
+    ? 'Back to dashboard'
+    : from === 'review'
+      ? 'Back to review list'
+      : from === 'menu'
+        ? 'Back to menu'
+        : 'Back';
   const [allergens, setAllergens] = useState<AllergenRow[]>(dishData.allergens);
   const [isVegan, setIsVegan] = useState(true);
   const [isVegetarian, setIsVegetarian] = useState(true);
@@ -128,9 +152,9 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [modificationName, setModificationName] = useState('');
   const [modificationRemoves, setModificationRemoves] = useState<string[]>([]);
   const [modificationPriceExtra, setModificationPriceExtra] = useState('');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [description, setDescription] = useState(dishData.description);
-  const [price, setPrice] = useState(dishData.price);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setAllergens(dishData.allergens);
@@ -141,6 +165,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setModificationName('');
     setModificationRemoves([]);
     setModificationPriceExtra('');
+    setPhotoPreview(null);
     setSaved(false);
     setDescription(dishData.description);
     setPrice(dishData.price);
@@ -173,6 +198,11 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setShowModificationForm(false);
   }
 
+  function handlePhotoSelect(file?: File) {
+    if (!file) return;
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
   const previewDish = buildPreviewDish(dishData, Number(params.id) || 1, allergens, isVegan, isVegetarian);
   const previewTags = getDishTags(previewDish);
   const veganConflictAllergens = [
@@ -190,16 +220,21 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
           {nextId ? (
-            <button onClick={() => router.push(`/admin/dish/${nextId}`)} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
+            <button onClick={() => router.push(nextDishHref)} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
               Next dish →
             </button>
           ) : (
-            <div style={{ fontSize: 13, color: '#456B4B', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 10, padding: '12px' }}>
-              All dishes reviewed ✓
-            </div>
+            <>
+              <div style={{ fontSize: 13, color: '#456B4B', background: '#EDF4EE', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 10, padding: '12px' }}>
+                All review dishes confirmed ✓
+              </div>
+              <button onClick={() => router.push('/admin/menu/import?step=review')} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
+                Publish
+              </button>
+            </>
           )}
-          <button onClick={() => router.push('/admin/menu/import?step=review')} style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
-            Back to review list
+          <button onClick={() => router.push(returnPath)} style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
+            {returnLabel}
           </button>
           <button onClick={() => router.push('/admin')} style={{ background: 'none', border: 'none', padding: '8px', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
             Dashboard
@@ -215,7 +250,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button
-            onClick={() => router.push('/admin/menu/import?step=review')}
+            onClick={() => router.push(returnPath)}
             style={{ width: 34, height: 34, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}
           >
             ←
@@ -229,52 +264,44 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       </div>
 
       <div style={{ padding: '16px' }}>
-        {/* Editable description and price */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dish details</div>
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: 12, color: '#8B7E71', marginBottom: 5 }}>Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              style={{
-                width: '100%',
-                background: '#F5F0E8',
-                border: '0.5px solid #C4B9A8',
-                borderRadius: 8,
-                padding: '9px 12px',
-                fontSize: 12,
-                color: '#1A1614',
-                lineHeight: 1.55,
-                outline: 'none',
-                fontFamily: 'inherit',
-                resize: 'vertical',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: 12, color: '#8B7E71', marginBottom: 5 }}>Price</label>
-            <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              style={{
-                width: '100%',
-                background: '#F5F0E8',
-                border: '0.5px solid #C4B9A8',
-                borderRadius: 8,
-                padding: '9px 12px',
-                fontSize: 12,
-                color: '#1A1614',
-                outline: 'none',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+        {/* Dish photo */}
+        <div
+          onClick={() => photoInputRef.current?.click()}
+          style={{
+            width: '100%',
+            height: 120,
+            borderRadius: 12,
+            background: photoPreview
+              ? `url(${photoPreview}) center/cover`
+              : 'linear-gradient(135deg, #C8B898, #A09080)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            marginBottom: 6,
+            overflow: 'hidden',
+          }}
+        >
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
+          />
+          {!photoPreview && (
+            <div style={{ color: '#FDFBF7', textAlign: 'center' }}>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>📷</div>
+              <div style={{ fontSize: 12 }}>Tap to add photo</div>
+            </div>
+          )}
         </div>
+        <div style={{ fontSize: 11, color: '#C4B9A8', marginBottom: 16 }}>
+          Photo tip: natural light, top-down angle, clean plate
+        </div>
+
+        {/* Dish description */}
+        <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{dishData.description}</p>
 
         {/* Info box */}
         <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -461,7 +488,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       {/* Bottom actions */}
       <div style={{ padding: '0 16px 24px', display: 'flex', gap: 10, position: 'sticky', bottom: 68, background: '#FDFBF7', paddingTop: 12, borderTop: '0.5px solid #C4B9A8' }}>
         <button
-          onClick={() => router.push('/admin/menu/import?step=review')}
+          onClick={() => router.push(returnPath)}
           style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', color: '#8B7E71' }}
         >
           Back

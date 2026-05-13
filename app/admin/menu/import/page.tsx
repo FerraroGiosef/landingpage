@@ -9,22 +9,30 @@ interface ImportedDish {
   id: number;
   name: string;
   price: string;
+  category: 'starter' | 'main' | 'dessert' | 'side';
   status: 'matched' | 'review';
   confidence: number;
 }
 
 const MOCK_DISHES: ImportedDish[] = [
-  { id: 1, name: 'Bruschetta al Pomodoro', price: '£7.50', status: 'matched', confidence: 98 },
-  { id: 2, name: 'Risotto ai Funghi Selvatici', price: '£16.50', status: 'matched', confidence: 94 },
-  { id: 3, name: 'Melanzane alla Parmigiana', price: '£15.00', status: 'matched', confidence: 91 },
-  { id: 4, name: 'Branzino in Crosta di Erbe', price: '£22.00', status: 'review', confidence: 72 },
-  { id: 5, name: 'Tagliatelle al Ragù Bolognese', price: '£17.50', status: 'matched', confidence: 96 },
-  { id: 6, name: 'Cotoletta alla Milanese', price: '£24.00', status: 'review', confidence: 68 },
-  { id: 7, name: 'Gnocchi al Pomodoro', price: '£14.50', status: 'matched', confidence: 90 },
-  { id: 8, name: 'Zuppa di Lenticchie', price: '£9.00', status: 'matched', confidence: 95 },
-  { id: 9, name: 'Tiramisù della Casa', price: '£8.50', status: 'matched', confidence: 99 },
-  { id: 10, name: 'Panna Cotta al Caramello', price: '£7.50', status: 'review', confidence: 65 },
+  { id: 1, name: 'Bruschetta al Pomodoro', price: '£7.50', category: 'starter', status: 'matched', confidence: 98 },
+  { id: 2, name: 'Risotto ai Funghi Selvatici', price: '£16.50', category: 'main', status: 'matched', confidence: 94 },
+  { id: 3, name: 'Melanzane alla Parmigiana', price: '£15.00', category: 'main', status: 'matched', confidence: 91 },
+  { id: 4, name: 'Branzino in Crosta di Erbe', price: '£22.00', category: 'main', status: 'review', confidence: 72 },
+  { id: 5, name: 'Tagliatelle al Ragù Bolognese', price: '£17.50', category: 'main', status: 'matched', confidence: 96 },
+  { id: 6, name: 'Cotoletta alla Milanese', price: '£24.00', category: 'main', status: 'review', confidence: 68 },
+  { id: 7, name: 'Gnocchi al Pomodoro', price: '£14.50', category: 'main', status: 'matched', confidence: 90 },
+  { id: 8, name: 'Zuppa di Lenticchie', price: '£9.00', category: 'starter', status: 'matched', confidence: 95 },
+  { id: 9, name: 'Tiramisù della Casa', price: '£8.50', category: 'dessert', status: 'matched', confidence: 99 },
+  { id: 10, name: 'Panna Cotta al Caramello', price: '£7.50', category: 'dessert', status: 'review', confidence: 65 },
 ];
+
+const REVIEW_CATEGORIES = [
+  { key: 'starter', label: 'Starters' },
+  { key: 'main', label: 'Mains' },
+  { key: 'dessert', label: 'Desserts' },
+  { key: 'side', label: 'Sides' },
+] as const;
 
 const PROCESSING_STEPS = [
   { msg: '32 dishes found', done: true },
@@ -155,6 +163,14 @@ function MenuImportContent() {
   if (step === 'review') {
     const matched = MOCK_DISHES.filter((d) => d.status === 'matched').length;
     const needsReview = MOCK_DISHES.filter((d) => d.status === 'review').length;
+    const reviewIds = MOCK_DISHES.filter((d) => d.status === 'review').map((dish) => dish.id).join(',');
+    const editHref = (dishId: number) => `/admin/dish/${dishId}?from=review&reviewIds=${reviewIds}`;
+    const groupedDishes = REVIEW_CATEGORIES
+      .map((category) => ({
+        ...category,
+        dishes: MOCK_DISHES.filter((dish) => dish.category === category.key),
+      }))
+      .filter((category) => category.dishes.length > 0);
     return (
       <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
         <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
@@ -178,37 +194,46 @@ function MenuImportContent() {
           </div>
         </div>
 
-        <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {MOCK_DISHES.map((dish) => (
-            <div
-              key={dish.id}
-              onClick={() => router.push(`/admin/dish/${dish.id}`)}
-              style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', borderLeft: dish.status === 'review' ? '2px solid #C2A46E' : undefined, cursor: 'pointer' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614' }}>{dish.name}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontFamily: 'Georgia, serif', fontSize: 12, color: '#8B7E71' }}>{dish.price}</span>
-                  <span style={{ background: dish.status === 'matched' ? '#EDF4EE' : '#F8F2E6', color: dish.status === 'matched' ? '#456B4B' : '#7A6432', borderRadius: 100, padding: '2px 8px', fontSize: 10 }}>
-                    {dish.status === 'matched' ? 'matched' : 'review'}
-                  </span>
-                  {dish.status === 'matched' && (
-                    <span style={{ fontSize: 11, color: '#8B7E71', textDecoration: 'underline' }}>Edit</span>
-                  )}
-                </div>
+        <div style={{ paddingBottom: 12 }}>
+          {groupedDishes.map((group) => (
+            <div key={group.key}>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#1A1614', padding: '12px 16px 4px' }}>
+                {group.label}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ fontSize: 11, color: '#8B7E71' }}>{dish.confidence}% confidence</div>
-                {dish.status === 'review' && (
-                  <span style={{ background: 'none', border: '0.5px solid #C4B9A8', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: '#1A1614' }}>Edit allergens</span>
-                )}
+              <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {group.dishes.map((dish) => (
+                  <div
+                    key={dish.id}
+                    onClick={() => router.push(editHref(dish.id))}
+                    style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', borderLeft: dish.status === 'review' ? '2px solid #C2A46E' : undefined, cursor: 'pointer' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
+                      <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614', flex: 1 }}>{dish.name}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                        <span style={{ fontFamily: 'Georgia, serif', fontSize: 12, color: '#8B7E71' }}>{dish.price}</span>
+                        <span style={{ background: dish.status === 'matched' ? '#EDF4EE' : '#F8F2E6', color: dish.status === 'matched' ? '#456B4B' : '#7A6432', borderRadius: 100, padding: '2px 8px', fontSize: 10 }}>
+                          {dish.status === 'matched' ? 'matched' : 'review'}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: 11, color: '#8B7E71' }}>{dish.confidence}% confidence</div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); router.push(editHref(dish.id)); }}
+                        style={{ background: 'none', border: 'none', padding: 0, fontSize: 11, color: dish.status === 'review' ? '#C8553A' : '#8B7E71', cursor: 'pointer' }}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
         </div>
 
         <div style={{ padding: '12px 16px 24px', display: 'flex', gap: 10 }}>
-          <button onClick={() => { const next = MOCK_DISHES.find((d) => d.status === 'review'); if (next) router.push(`/admin/dish/${next.id}`); }} style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#8B7E71' }}>
+          <button onClick={() => { const next = MOCK_DISHES.find((d) => d.status === 'review'); if (next) router.push(editHref(next.id)); }} style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#8B7E71' }}>
             Review next ({needsReview})
           </button>
           <button onClick={() => setStep('published')} style={{ flex: 2, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
