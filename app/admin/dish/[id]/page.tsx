@@ -147,6 +147,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [allergens, setAllergens] = useState<AllergenRow[]>(dishData.allergens);
   const [isVegan, setIsVegan] = useState(true);
   const [isVegetarian, setIsVegetarian] = useState(true);
+  const [description, setDescription] = useState(dishData?.description || '');
+  const [price, setPrice] = useState(dishData?.price || '');
   const [modifications, setModifications] = useState<DishModification[]>(dishData.modifications || []);
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationName, setModificationName] = useState('');
@@ -160,6 +162,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setAllergens(dishData.allergens);
     setIsVegan(true);
     setIsVegetarian(true);
+    setDescription(dishData.description);
+    setPrice(dishData.price);
     setModifications(dishData.modifications || []);
     setShowModificationForm(false);
     setModificationName('');
@@ -201,7 +205,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setPhotoPreview(URL.createObjectURL(file));
   }
 
-  const previewDish = buildPreviewDish(dishData, Number(params.id) || 1, allergens, isVegan, isVegetarian);
+  const previewDish = buildPreviewDish({ ...dishData, description, price }, Number(params.id) || 1, allergens, isVegan, isVegetarian);
   const previewTags = getDishTags(previewDish);
   const veganConflictAllergens = [
     previewDish.allergens.milk === 'contains' ? 'milk' : null,
@@ -257,7 +261,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 400, color: '#1A1614', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{dishData.name}</h1>
             <p style={{ fontSize: 11, color: '#8B7E71', margin: '2px 0 0' }}>Edit allergen data</p>
           </div>
-          <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: '#1A1614', marginLeft: 'auto', flexShrink: 0 }}>{dishData.price}</span>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: '#1A1614', marginLeft: 'auto', flexShrink: 0 }}>{price}</span>
         </div>
       </div>
 
@@ -299,7 +303,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Dish description */}
-        <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{dishData.description}</p>
+        <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{description}</p>
 
         {/* Info box */}
         <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
