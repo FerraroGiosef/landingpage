@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const DISHES_LIVE = [
   { id: 105, name: 'Risotto ai Funghi Selvatici', price: '£16.50', allergens: ['Vegan', 'GF', 'Traces: Celery'], verified: true },
@@ -84,6 +85,7 @@ function AdminLoginScreen({ onLogin, onShowForm, showForm, email, setEmail }: {
 }
 
 function AdminDashboardContent() {
+  const router = useRouter();
   return (
     <div>
       {/* Top bar */}
@@ -136,7 +138,7 @@ function AdminDashboardContent() {
           </Link>
           <button
             type="button"
-            onClick={() => { if (typeof window !== 'undefined') { sessionStorage.removeItem('pm_filters'); } window.open('/app/restaurant/lartigiano-del-gusto', '_blank'); }}
+            onClick={() => { if (typeof window !== 'undefined') { sessionStorage.removeItem('pm_filters'); } router.push('/app/restaurant/lartigiano-del-gusto?from=admin'); }}
             style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             View as diner
