@@ -134,9 +134,13 @@ function AdminDashboardContent() {
           <Link href="/admin/menu/import" style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', borderRadius: 10, padding: '12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', display: 'block' }}>
             Update menu
           </Link>
-          <Link href="/app/restaurant/lartigiano-del-gusto?from=admin" style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', display: 'block' }}>
+          <button
+            type="button"
+            onClick={() => { if (typeof window !== 'undefined') { sessionStorage.removeItem('pm_filters'); } window.open('/app/restaurant/lartigiano-del-gusto', '_blank'); }}
+            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit' }}
+          >
             View as diner
-          </Link>
+          </button>
         </div>
 
         {/* Verification status */}
