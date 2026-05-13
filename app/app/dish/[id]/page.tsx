@@ -6,6 +6,23 @@ import Image from 'next/image';
 import { getDishById, getRestaurantById } from '@/lib/data/restaurants';
 import { getAllergenSummary, getDishTags, filterMatchesDish, UK_ALLERGENS } from '@/lib/scoring';
 
+function modificationMakesLabels(removes: string[]): string[] {
+  const set = new Set(removes);
+  const badges: string[] = [];
+  if (set.has('gluten')) badges.push('GF');
+  const veganRemoved = ['milk', 'eggs', 'fish', 'crustaceans', 'molluscs'].every((k) => set.has(k));
+  const vegetarianRemoved = ['fish', 'crustaceans', 'molluscs'].every((k) => set.has(k));
+  if (veganRemoved) {
+    badges.push('Vegan');
+  } else {
+    if (set.has('milk')) badges.push('Dairy-free');
+    if (set.has('eggs')) badges.push('Egg-free');
+    if (vegetarianRemoved) badges.push('Vegetarian');
+  }
+  if (set.has('peanuts') && set.has('treeNuts')) badges.push('Nut-free');
+  return badges;
+}
+
 export default function DishDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -85,20 +102,39 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
               <div style={{ fontSize: 12, fontWeight: 500, color: '#4A6A8A', marginBottom: 10 }}>
                 This dish can be modified for you
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {dish.modifications.map((modification) => (
-                  <div key={modification.name} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500 }}>{modification.name}</div>
-                      <div style={{ fontSize: 11, color: '#456B4B', marginTop: 2 }}>
-                        Removes {modification.removes.join(', ')}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {dish.modifications.map((modification) => {
+                  const badges = modificationMakesLabels(modification.removes);
+                  return (
+                    <div key={modification.name} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500 }}>{modification.name}</div>
+                        {modification.description && (
+                          <div style={{ fontSize: 10, color: '#8B7E71', marginTop: 3, lineHeight: 1.5 }}>
+                            {modification.description}
+                          </div>
+                        )}
+                        {badges.length > 0 && (
+                          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 6 }}>
+                            {badges.map((label) => (
+                              <span
+                                key={label}
+                                style={{ background: '#EBF0F7', color: '#4A6A8A', borderRadius: 100, padding: '2px 8px', fontSize: 9, fontWeight: 500 }}
+                              >
+                                Makes it {label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
+                      {modification.priceExtra > 0 && (
+                        <div style={{ fontSize: 12, color: '#C8553A', flexShrink: 0, fontWeight: 500 }}>
+                          +£{modification.priceExtra.toFixed(2)}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ fontSize: 12, color: '#C8553A', flexShrink: 0 }}>
-                      +£{modification.priceExtra.toFixed(2)}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div style={{ fontSize: 10.5, color: '#4A6A8A', fontStyle: 'italic', lineHeight: 1.5, marginTop: 10 }}>
                 Modification verified by the restaurant. Always confirm when ordering.

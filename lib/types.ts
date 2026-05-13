@@ -29,6 +29,7 @@ export interface DishAllergens {
 
 export interface DishModification {
   name: string;
+  description?: string;
   removes: string[];
   adds: string[];
   priceExtra: number;

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getDishTags, UK_ALLERGENS } from '@/lib/scoring';
+import { getDishTags } from '@/lib/scoring';
 import type { Dish, DishAllergens, DishModification } from '@/lib/types';
 
 type AllergenStatus = 'no' | 'traces' | 'contains';
@@ -165,6 +165,43 @@ const INPUT_STYLE: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
+type ModificationMake = 'gf' | 'dairy-free' | 'nut-free' | 'egg-free' | 'vegan' | 'vegetarian';
+
+const MODIFICATION_MAKE_OPTIONS: { key: ModificationMake; label: string }[] = [
+  { key: 'gf', label: 'Gluten-free' },
+  { key: 'dairy-free', label: 'Dairy-free' },
+  { key: 'nut-free', label: 'Nut-free' },
+  { key: 'egg-free', label: 'Egg-free' },
+  { key: 'vegan', label: 'Vegan' },
+  { key: 'vegetarian', label: 'Vegetarian' },
+];
+
+const MAKE_TO_REMOVES: Record<ModificationMake, string[]> = {
+  'gf': ['gluten'],
+  'dairy-free': ['milk'],
+  'nut-free': ['peanuts', 'treeNuts'],
+  'egg-free': ['eggs'],
+  'vegan': ['milk', 'eggs', 'fish', 'crustaceans', 'molluscs'],
+  'vegetarian': ['fish', 'crustaceans', 'molluscs'],
+};
+
+function makesFromRemoves(removes: string[]): string[] {
+  const set = new Set(removes);
+  const badges: string[] = [];
+  if (set.has('gluten')) badges.push('GF');
+  const veganRemoved = ['milk', 'eggs', 'fish', 'crustaceans', 'molluscs'].every((k) => set.has(k));
+  const vegetarianRemoved = ['fish', 'crustaceans', 'molluscs'].every((k) => set.has(k));
+  if (veganRemoved) {
+    badges.push('Vegan');
+  } else {
+    if (set.has('milk')) badges.push('Dairy-free');
+    if (set.has('eggs')) badges.push('Egg-free');
+    if (vegetarianRemoved) badges.push('Vegetarian');
+  }
+  if (set.has('peanuts') && set.has('treeNuts')) badges.push('Nut-free');
+  return badges;
+}
+
 export default function AdminDishPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -202,7 +239,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [modifications, setModifications] = useState<DishModification[]>(dishData.modifications || []);
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationName, setModificationName] = useState('');
-  const [modificationRemoves, setModificationRemoves] = useState<string[]>([]);
+  const [modificationDescription, setModificationDescription] = useState('');
+  const [modificationMakes, setModificationMakes] = useState<ModificationMake[]>([]);
   const [modificationPriceExtra, setModificationPriceExtra] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -220,7 +258,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setModifications(dishData.modifications || []);
     setShowModificationForm(false);
     setModificationName('');
-    setModificationRemoves([]);
+    setModificationDescription('');
+    setModificationMakes([]);
     setModificationPriceExtra('');
     setPhotoPreview(null);
     setSaved(false);
@@ -235,25 +274,31 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setAllergens((prev) => prev.map((a) => (a.key === key ? { ...a, status } : a)));
   }
 
-  function toggleModificationAllergen(key: string) {
-    setModificationRemoves((prev) => (
+  function toggleModificationMake(key: ModificationMake) {
+    setModificationMakes((prev) => (
       prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]
     ));
   }
 
   function addModification() {
-    if (!modificationName.trim() || modificationRemoves.length === 0) return;
+    if (!modificationName.trim() || modificationMakes.length === 0) return;
+    const removesSet = new Set<string>();
+    for (const make of modificationMakes) {
+      for (const allergenKey of MAKE_TO_REMOVES[make]) removesSet.add(allergenKey);
+    }
     setModifications((prev) => [
       ...prev,
       {
         name: modificationName.trim(),
-        removes: modificationRemoves,
+        description: modificationDescription.trim(),
+        removes: Array.from(removesSet),
         adds: [],
         priceExtra: Number(modificationPriceExtra || 0),
       },
     ]);
     setModificationName('');
-    setModificationRemoves([]);
+    setModificationDescription('');
+    setModificationMakes([]);
     setModificationPriceExtra('');
     setShowModificationForm(false);
   }
@@ -272,7 +317,9 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
 
   const detectedAllergens = allergens.filter((a) => a.status !== 'no');
   const visibleAllergens = showAllAllergens ? allergens : detectedAllergens;
-  const hasGfModification = modifications.length > 0;
+  const modificationBadges = Array.from(
+    new Set(modifications.flatMap((mod) => makesFromRemoves(mod.removes)))
+  );
 
   if (saved) {
     return (
@@ -509,62 +556,125 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
             Modifications
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {modifications.map((modification) => (
-              <div key={modification.name} style={{ background: '#F7F9FC', border: '0.5px solid #7A9ABB', borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500 }}>{modification.name}</div>
-                  <div style={{ fontSize: 10.5, color: '#4A6A8A', marginTop: 2 }}>
-                    Removes {modification.removes.join(', ')} · +£{modification.priceExtra.toFixed(2)}
-                  </div>
+            {modifications.map((modification) => {
+              const badges = makesFromRemoves(modification.removes);
+              return (
+                <div key={modification.name} style={{ background: '#F7F9FC', border: '0.5px solid #7A9ABB', borderRadius: 10, padding: 12, position: 'relative' }}>
+                  <button
+                    onClick={() => setModifications((prev) => prev.filter((item) => item.name !== modification.name))}
+                    style={{ position: 'absolute', top: 10, right: 12, background: 'none', border: 'none', color: '#C67A5C', cursor: 'pointer', fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                  >
+                    Remove
+                  </button>
+                  <div style={{ fontSize: 12, color: '#1A1614', fontWeight: 500, paddingRight: 56 }}>{modification.name}</div>
+                  {modification.description && (
+                    <div style={{ fontSize: 10, color: '#8B7E71', marginTop: 4, lineHeight: 1.45 }}>
+                      {modification.description}
+                    </div>
+                  )}
+                  {(badges.length > 0 || modification.priceExtra > 0) && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                      {badges.map((label) => (
+                        <span
+                          key={label}
+                          style={{ background: '#EBF0F7', color: '#4A6A8A', borderRadius: 100, padding: '2px 8px', fontSize: 9, fontWeight: 500 }}
+                        >
+                          Makes {label}
+                        </span>
+                      ))}
+                      {modification.priceExtra > 0 && (
+                        <span style={{ fontSize: 11, color: '#C8553A', fontWeight: 500 }}>
+                          +£{modification.priceExtra.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <button onClick={() => setModifications((prev) => prev.filter((item) => item.name !== modification.name))} style={{ background: 'none', border: 'none', color: '#8B7E71', cursor: 'pointer', fontSize: 12 }}>
-                  Remove
-                </button>
-              </div>
-            ))}
+              );
+            })}
 
             {showModificationForm ? (
-              <div style={{ background: '#F5F0E8', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <input
-                  value={modificationName}
-                  onChange={(e) => setModificationName(e.target.value)}
-                  placeholder="Modification name"
-                  style={{ ...INPUT_STYLE, background: '#FFFFFF', fontSize: 12 }}
-                />
+              <div style={{ background: '#F5F0E8', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div>
-                  <div style={{ fontSize: 10.5, color: '#8B7E71', marginBottom: 6 }}>Removes allergens</div>
+                  <div style={{ fontSize: 11, color: '#1A1614', fontWeight: 500, marginBottom: 6 }}>What changes?</div>
+                  <input
+                    value={modificationName}
+                    onChange={(e) => setModificationName(e.target.value)}
+                    placeholder="e.g. With gluten-free bread"
+                    style={{ ...INPUT_STYLE, fontSize: 12 }}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: '#1A1614', fontWeight: 500, marginBottom: 6 }}>How is the dish served differently?</div>
+                  <textarea
+                    value={modificationDescription}
+                    onChange={(e) => setModificationDescription(e.target.value)}
+                    placeholder="e.g. Sourdough replaced with certified GF bread"
+                    rows={2}
+                    style={{ ...INPUT_STYLE, fontSize: 12, lineHeight: 1.5, resize: 'vertical' }}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: '#1A1614', fontWeight: 500, marginBottom: 6 }}>This modification makes the dish:</div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {UK_ALLERGENS.map((allergen) => {
-                      const active = modificationRemoves.includes(allergen.key);
+                    {MODIFICATION_MAKE_OPTIONS.map((opt) => {
+                      const active = modificationMakes.includes(opt.key);
                       return (
                         <button
-                          key={allergen.key}
-                          onClick={() => toggleModificationAllergen(allergen.key)}
-                          style={{ background: active ? '#1A1614' : '#FFFFFF', color: active ? '#FDFBF7' : '#8B7E71', border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`, borderRadius: 100, padding: '4px 8px', fontSize: 10.5, cursor: 'pointer' }}
+                          key={opt.key}
+                          type="button"
+                          onClick={() => toggleModificationMake(opt.key)}
+                          style={{
+                            background: active ? '#1A1614' : 'transparent',
+                            color: active ? '#FDFBF7' : '#8B7E71',
+                            border: active ? '0.5px solid #1A1614' : '0.5px solid #C4B9A8',
+                            borderRadius: 100,
+                            padding: '5px 10px',
+                            fontSize: 11,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                          }}
                         >
-                          {allergen.name}
+                          {opt.label}
                         </button>
                       );
                     })}
                   </div>
                 </div>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={modificationPriceExtra}
-                  onChange={(e) => setModificationPriceExtra(e.target.value)}
-                  placeholder="Price extra"
-                  style={{ ...INPUT_STYLE, background: '#FFFFFF', fontSize: 12 }}
-                />
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={addModification} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
-                    Save modification
-                  </button>
-                  <button onClick={() => setShowModificationForm(false)} style={{ flex: 1, background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
-                    Cancel
-                  </button>
+                <div>
+                  <div style={{ fontSize: 11, color: '#1A1614', fontWeight: 500, marginBottom: 6 }}>Extra cost</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 13, color: '#8B7E71' }}>£</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      value={modificationPriceExtra}
+                      onChange={(e) => setModificationPriceExtra(e.target.value)}
+                      placeholder="0.00"
+                      style={{ ...INPUT_STYLE, fontSize: 12, width: 80 }}
+                    />
+                    <span style={{ fontSize: 10, color: '#8B7E71' }}>Leave empty for no extra charge</span>
+                  </div>
                 </div>
+                <button
+                  onClick={addModification}
+                  style={{ background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '10px', fontSize: 12, cursor: 'pointer', fontWeight: 500 }}
+                >
+                  Save modification
+                </button>
+                <button
+                  onClick={() => {
+                    setShowModificationForm(false);
+                    setModificationName('');
+                    setModificationDescription('');
+                    setModificationMakes([]);
+                    setModificationPriceExtra('');
+                  }}
+                  style={{ background: 'none', border: 'none', color: '#8B7E71', cursor: 'pointer', fontSize: 12, padding: '2px', fontFamily: 'inherit' }}
+                >
+                  Cancel
+                </button>
               </div>
             ) : (
               <button onClick={() => setShowModificationForm(true)} style={{ background: 'transparent', border: '0.5px dashed #C4B9A8', borderRadius: 10, padding: '10px 12px', width: '100%', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
@@ -577,7 +687,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
         {/* Preview */}
         <div style={{ background: '#F5F0E8', borderRadius: 12, padding: '14px' }}>
           <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10 }}>Customers will see this dish as:</div>
-          {previewTags.length > 0 || hasGfModification ? (
+          {previewTags.length > 0 || modificationBadges.length > 0 ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {previewTags.map((tag) => (
                 <span
@@ -587,11 +697,14 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
                   {tag}
                 </span>
               ))}
-              {hasGfModification && (
-                <span style={{ background: '#F7F9FC', color: '#4A6A8A', border: '0.5px solid #7A9ABB', borderRadius: 100, padding: '4px 10px', fontSize: 11, fontWeight: 500 }}>
-                  Can be made GF
+              {modificationBadges.map((label) => (
+                <span
+                  key={`mod-${label}`}
+                  style={{ background: '#F7F9FC', color: '#4A6A8A', border: '0.5px solid #7A9ABB', borderRadius: 100, padding: '4px 10px', fontSize: 11, fontWeight: 500 }}
+                >
+                  Can be made {label}
                 </span>
-              )}
+              ))}
             </div>
           ) : (
             <span style={{ fontSize: 12, color: '#8B7E71' }}>No dietary tags — dish contains major allergens</span>
