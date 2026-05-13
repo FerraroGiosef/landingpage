@@ -154,6 +154,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [modificationPriceExtra, setModificationPriceExtra] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [description, setDescription] = useState(dishData?.description || '');
+  const [price, setPrice] = useState(dishData?.price || '');
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
