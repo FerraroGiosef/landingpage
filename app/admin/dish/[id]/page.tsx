@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getDishTags, UK_ALLERGENS } from '@/lib/scoring';
 import type { Dish, DishAllergens, DishModification } from '@/lib/types';
@@ -152,7 +152,9 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [modificationName, setModificationName] = useState('');
   const [modificationRemoves, setModificationRemoves] = useState<string[]>([]);
   const [modificationPriceExtra, setModificationPriceExtra] = useState('');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setAllergens(dishData.allergens);
@@ -163,6 +165,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setModificationName('');
     setModificationRemoves([]);
     setModificationPriceExtra('');
+    setPhotoPreview(null);
     setSaved(false);
   }, [dishData, params.id]);
 
@@ -191,6 +194,11 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setModificationRemoves([]);
     setModificationPriceExtra('');
     setShowModificationForm(false);
+  }
+
+  function handlePhotoSelect(file?: File) {
+    if (!file) return;
+    setPhotoPreview(URL.createObjectURL(file));
   }
 
   const previewDish = buildPreviewDish(dishData, Number(params.id) || 1, allergens, isVegan, isVegetarian);
@@ -254,6 +262,42 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       </div>
 
       <div style={{ padding: '16px' }}>
+        {/* Dish photo */}
+        <div
+          onClick={() => photoInputRef.current?.click()}
+          style={{
+            width: '100%',
+            height: 120,
+            borderRadius: 12,
+            background: photoPreview
+              ? `url(${photoPreview}) center/cover`
+              : 'linear-gradient(135deg, #C8B898, #A09080)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            marginBottom: 6,
+            overflow: 'hidden',
+          }}
+        >
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
+          />
+          {!photoPreview && (
+            <div style={{ color: '#FDFBF7', textAlign: 'center' }}>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>📷</div>
+              <div style={{ fontSize: 12 }}>Tap to add photo</div>
+            </div>
+          )}
+        </div>
+        <div style={{ fontSize: 11, color: '#C4B9A8', marginBottom: 16 }}>
+          Photo tip: natural light, top-down angle, clean plate
+        </div>
+
         {/* Dish description */}
         <p style={{ fontSize: 12, color: '#8B7E71', lineHeight: 1.55, marginBottom: 16, marginTop: 0 }}>{dishData.description}</p>
 
