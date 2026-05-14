@@ -1,16 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-const DISHES_LIVE = [
-  { id: 105, name: 'Risotto ai Funghi Selvatici', price: '£16.50', allergens: ['Vegan', 'GF', 'Traces: Celery'], verified: true },
-  { id: 101, name: 'Bruschetta al Pomodoro', price: '£7.50', allergens: ['Vegan', 'Contains: Gluten', 'Traces: Sesame'], verified: true },
-  { id: 106, name: 'Melanzane alla Parmigiana', price: '£15.00', allergens: ['Contains: Milk', 'Contains: Eggs'], verified: true },
-  { id: 109, name: 'Salmone alla Griglia', price: '£19.00', allergens: ['Contains: Fish', 'Contains: Milk'], verified: true },
-  { id: 107, name: 'Pollo Arrosto con Rosmarino', price: '£18.00', allergens: [], verified: true },
-  { id: 108, name: 'Pasta al Ragù di Manzo', price: '£14.50', allergens: ['Contains: Gluten', 'Contains: Milk', 'Contains: Eggs', 'Traces: Celery'], verified: false },
-];
+import { useRouter } from 'next/navigation';
+import { getDishesByRestaurant } from '@/lib/data/restaurants';
+import { getAllergenSummary, getDishTags } from '@/lib/scoring';
 
 export default function AdminDashboard() {
   const [showMagicLink, setShowMagicLink] = useState(false);
@@ -84,6 +78,14 @@ function AdminLoginScreen({ onLogin, onShowForm, showForm, email, setEmail }: {
 }
 
 function AdminDashboardContent() {
+  const router = useRouter();
+  const dishes = getDishesByRestaurant(1);
+
+  useEffect(() => {
+    // Verify each dish row navigates to its own unique ID
+    console.log('[admin] L\'Artigiano dish IDs:', dishes.map((d) => d.id));
+  }, [dishes]);
+
   return (
     <div>
       {/* Top bar */}
@@ -149,30 +151,35 @@ function AdminDashboardContent() {
         <div style={{ marginBottom: 8 }}>
           <div className="label-upper" style={{ color: '#8B7E71', marginBottom: 10 }}>Your menu</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {DISHES_LIVE.map((dish) => (
-              <Link
-                key={dish.id}
-                href={`/admin/dish/${dish.id}`}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', textDecoration: 'none', borderLeft: dish.verified ? undefined : '2px solid #C2A46E' }}
-              >
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F5F0E8', flexShrink: 0 }} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614', marginBottom: 3 }}>{dish.name}</div>
-                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                    {dish.allergens.map((a) => {
-                      const isContains = a.startsWith('Contains:');
-                      const isTraces = a.startsWith('Traces:');
-                      return (
-                        <span key={a} style={{ background: isContains ? '#F9EFEA' : isTraces ? '#F8F2E6' : '#EDF4EE', color: isContains ? '#8A4A32' : isTraces ? '#7A6432' : '#456B4B', borderRadius: 100, padding: '2px 7px', fontSize: 9.5 }}>
-                          {a}
-                        </span>
-                      );
-                    })}
+            {dishes.map((dish) => {
+              const { contains, traces } = getAllergenSummary(dish.allergens);
+              const tags = getDishTags(dish);
+              return (
+                <button
+                  key={dish.id}
+                  type="button"
+                  onClick={() => router.push(`/admin/dish/${dish.id}?from=dashboard`)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F5F0E8', flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614', marginBottom: 3 }}>{dish.name}</div>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                      {tags.slice(0, 3).map((tag) => (
+                        <span key={tag} style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '2px 7px', fontSize: 9.5 }}>{tag}</span>
+                      ))}
+                      {contains.slice(0, 2).map((allergen) => (
+                        <span key={`c-${allergen}`} style={{ background: '#F9EFEA', color: '#8A4A32', borderRadius: 100, padding: '2px 7px', fontSize: 9.5 }}>Contains: {allergen}</span>
+                      ))}
+                      {traces.slice(0, 1).map((allergen) => (
+                        <span key={`t-${allergen}`} style={{ background: '#F8F2E6', color: '#7A6432', borderRadius: 100, padding: '2px 7px', fontSize: 9.5 }}>Traces: {allergen}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <span style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614', flexShrink: 0 }}>{dish.price}</span>
-              </Link>
-            ))}
+                  <span style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#1A1614', flexShrink: 0 }}>{dish.price}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

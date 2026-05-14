@@ -118,6 +118,7 @@ export const dishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=400&q=75',
     allergens: { ...base(), gluten: CONTAINS, sesame: TRACES },
     isVegan: true, isVegetarian: true,
+    modifications: [{ name: 'With gluten-free bread', description: 'Sourdough replaced with certified GF bread', removes: ['gluten'], adds: [], priceExtra: 1.50 }],
   },
   {
     id: 102, restaurantId: 1,
@@ -149,8 +150,9 @@ export const dishes: Dish[] = [
     description: 'Wild mushroom risotto with truffle oil, seasonal porcini and fresh parsley.',
     price: '£16.50', kcal: 420, protein: 12, carbs: 58, fat: 16, category: 'main',
     image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=75',
-    allergens: { ...base(), celery: TRACES },
-    isVegan: true, isVegetarian: true,
+    allergens: { ...base(), milk: CONTAINS, celery: TRACES },
+    isVegan: false, isVegetarian: true,
+    modifications: [{ name: 'Without butter', description: 'Prepared with olive oil instead of butter', removes: ['milk'], adds: [], priceExtra: 0 }],
   },
   {
     id: 106, restaurantId: 1,
@@ -174,7 +176,7 @@ export const dishes: Dish[] = [
     name: 'Pasta al Ragù di Manzo',
     description: 'Fresh tagliatelle with slow-cooked beef ragù, a touch of cream and parmesan.',
     price: '£14.50', kcal: 580, protein: 28, carbs: 62, fat: 22, category: 'main',
-    allergens: { ...base(), gluten: CONTAINS, milk: CONTAINS, eggs: CONTAINS, celery: TRACES },
+    allergens: { ...base(), gluten: CONTAINS, eggs: CONTAINS, celery: TRACES },
     isVegan: false, isVegetarian: false,
     modifications: [{ name: 'With gluten-free pasta', removes: ['gluten'], adds: [], priceExtra: 1.50 }],
   },

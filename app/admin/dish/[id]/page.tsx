@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getDishTags, UK_ALLERGENS } from '@/lib/scoring';
+import { getDishById, getDishesByRestaurant } from '@/lib/data/restaurants';
 import type { Dish, DishAllergens, DishModification } from '@/lib/types';
 
 type AllergenStatus = 'no' | 'traces' | 'contains';
@@ -36,22 +37,27 @@ type AdminDishData = {
   description: string;
   price: string;
   category: Dish['category'];
+  isVegan: boolean;
+  isVegetarian: boolean;
   allergens: AllergenRow[];
   modifications?: DishModification[];
 };
 
-const DISHES_MAP: Record<string, AdminDishData> = {
-  '1': { name: 'Bruschetta al Pomodoro', description: 'Vine tomatoes, basil, garlic and olive oil on toasted sourdough', price: '£7.50', category: 'starter', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'sesame' ? { ...a, status: 'traces' as const, inChart: true } : a) },
-  '2': { name: 'Risotto ai Funghi Selvatici', description: 'Wild mushroom risotto with truffle oil', price: '£16.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'traces' as const, inChart: true } : a) },
-  '3': { name: 'Melanzane alla Parmigiana', description: 'Aubergine, tomato sugo, mozzarella, basil', price: '£15.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '4': { name: 'Branzino in Crosta di Erbe', description: 'Sea bass with herb crust and roasted vegetables', price: '£22.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'fish' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '5': { name: 'Tagliatelle al Ragu Bolognese', description: 'Fresh tagliatelle with slow-cooked beef ragu', price: '£17.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a), modifications: [{ name: 'With GF pasta', removes: ['gluten'], adds: [], priceExtra: 1.50 }] },
-  '6': { name: 'Cotoletta alla Milanese', description: 'Breaded veal cutlet with rocket and lemon', price: '£24.00', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '7': { name: 'Gnocchi al Pomodoro', description: 'Potato gnocchi with fresh tomato sauce and basil', price: '£14.50', category: 'main', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a), modifications: [{ name: 'With GF gnocchi', removes: ['gluten'], adds: [], priceExtra: 2.00 }] },
-  '8': { name: 'Zuppa di Lenticchie', description: 'Red lentil soup with cumin and lemon', price: '£9.00', category: 'starter', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'celery' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '9': { name: 'Tiramisu della Casa', description: 'Classic tiramisu with mascarpone and espresso', price: '£8.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'gluten' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a.key === 'eggs' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-  '10': { name: 'Panna Cotta al Caramello', description: 'Vanilla panna cotta with caramel sauce', price: '£7.50', category: 'dessert', allergens: INITIAL_ALLERGENS.map((a) => a.key === 'milk' ? { ...a, status: 'contains' as const, inChart: true } : a) },
-};
+function dishToAdminData(dish: Dish): AdminDishData {
+  return {
+    name: dish.name,
+    description: dish.description,
+    price: dish.price,
+    category: dish.category,
+    isVegan: dish.isVegan,
+    isVegetarian: dish.isVegetarian,
+    allergens: INITIAL_ALLERGENS.map((row) => {
+      const status = dish.allergens[row.key];
+      return { ...row, status, inChart: status !== 'no' };
+    }),
+    modifications: dish.modifications,
+  };
+}
 
 function rowsToAllergens(allergens: AllergenRow[]): DishAllergens {
   return allergens.reduce(
@@ -116,13 +122,23 @@ function SegmentedControl({ value, onChange }: { value: AllergenStatus; onChange
 
 export default function AdminDishPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const dishData = DISHES_MAP[params.id] || DISHES_MAP['1'];
-  const allIds = Object.keys(DISHES_MAP);
+  const searchParams = useSearchParams();
+  const lartigianoDishes = getDishesByRestaurant(1);
+  const realDish = getDishById(Number(params.id)) ?? lartigianoDishes[0];
+  const dishData = dishToAdminData(realDish);
+  const allIds = lartigianoDishes.map((d) => String(d.id));
   const currentIndex = allIds.indexOf(params.id);
   const nextId = currentIndex >= 0 && currentIndex < allIds.length - 1 ? allIds[currentIndex + 1] : null;
+  const from = searchParams.get('from');
+  const returnPath = from === 'dashboard'
+    ? '/admin'
+    : from === 'menu'
+      ? '/admin/menu'
+      : '/admin/menu/import?step=review';
+
   const [allergens, setAllergens] = useState<AllergenRow[]>(dishData.allergens);
-  const [isVegan, setIsVegan] = useState(true);
-  const [isVegetarian, setIsVegetarian] = useState(true);
+  const [isVegan, setIsVegan] = useState(dishData?.isVegan ?? false);
+  const [isVegetarian, setIsVegetarian] = useState(dishData?.isVegetarian ?? false);
   const [modifications, setModifications] = useState<DishModification[]>(dishData.modifications || []);
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationName, setModificationName] = useState('');
@@ -133,11 +149,13 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [description, setDescription] = useState(dishData.description);
   const [price, setPrice] = useState(dishData.price);
   const [showAllAllergens, setShowAllAllergens] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setAllergens(dishData.allergens);
-    setIsVegan(true);
-    setIsVegetarian(true);
+    setIsVegan(dishData.isVegan);
+    setIsVegetarian(dishData.isVegetarian);
     setModifications(dishData.modifications || []);
     setShowModificationForm(false);
     setModificationName('');
@@ -148,7 +166,13 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setDescription(dishData.description);
     setPrice(dishData.price);
     setShowAllAllergens(false);
+    setPhotoPreview(null);
   }, [dishData, params.id]);
+
+  function handlePhotoSelect(file?: File) {
+    if (!file) return;
+    setPhotoPreview(URL.createObjectURL(file));
+  }
 
   function updateStatus(key: string, status: AllergenStatus) {
     setAllergens((prev) => prev.map((a) => (a.key === key ? { ...a, status } : a)));
@@ -196,7 +220,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
           {nextId ? (
-            <button onClick={() => router.push(`/admin/dish/${nextId}`)} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
+            <button onClick={() => router.push(`/admin/dish/${nextId}${from ? `?from=${from}` : ''}`)} style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer' }}>
               Next dish →
             </button>
           ) : (
@@ -204,8 +228,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
               All dishes reviewed ✓
             </div>
           )}
-          <button onClick={() => router.push('/admin/menu/import?step=review')} style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
-            Back to review list
+          <button onClick={() => router.push(returnPath)} style={{ width: '100%', background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, cursor: 'pointer', color: '#1A1614' }}>
+            Back
           </button>
           <button onClick={() => router.push('/admin')} style={{ background: 'none', border: 'none', padding: '8px', color: '#8B7E71', fontSize: 12, cursor: 'pointer' }}>
             Dashboard
@@ -221,7 +245,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', position: 'sticky', top: 0, background: '#FDFBF7', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button
-            onClick={() => router.push('/admin/menu/import?step=review')}
+            onClick={() => router.push(returnPath)}
             style={{ width: 34, height: 34, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}
           >
             ←
@@ -235,6 +259,42 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       </div>
 
       <div style={{ padding: '16px' }}>
+        {/* Dish photo */}
+        <div
+          onClick={() => photoInputRef.current?.click()}
+          style={{
+            width: '100%',
+            height: 120,
+            borderRadius: 12,
+            background: photoPreview
+              ? `url(${photoPreview}) center/cover`
+              : 'linear-gradient(135deg, #C8B898, #A09080)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            marginBottom: 6,
+            overflow: 'hidden',
+          }}
+        >
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoSelect(e.target.files?.[0])}
+          />
+          {!photoPreview && (
+            <div style={{ color: '#FDFBF7', textAlign: 'center' }}>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>📷</div>
+              <div style={{ fontSize: 12 }}>Tap to add photo</div>
+            </div>
+          )}
+        </div>
+        <div style={{ fontSize: 10, color: '#C4B9A8', marginBottom: 16 }}>
+          Natural light · top-down angle · clean plate
+        </div>
+
         {/* Editable description and price */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 16 }}>
           <div style={{ fontSize: 11, color: '#8B7E71', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dish details</div>
@@ -495,7 +555,7 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       {/* Bottom actions */}
       <div style={{ padding: '0 16px 24px', display: 'flex', gap: 10, position: 'sticky', bottom: 68, background: '#FDFBF7', paddingTop: 12, borderTop: '0.5px solid #C4B9A8' }}>
         <button
-          onClick={() => router.push('/admin/menu/import?step=review')}
+          onClick={() => router.push(returnPath)}
           style={{ flex: 1, background: 'transparent', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '13px', fontSize: 13, cursor: 'pointer', color: '#8B7E71' }}
         >
           Back
