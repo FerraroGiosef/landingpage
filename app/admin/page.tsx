@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 const DISHES_LIVE = [
   { id: 105, name: 'Risotto ai Funghi Selvatici', price: '£16.50', allergens: ['Vegan', 'GF', 'Traces: Celery'], verified: true },
@@ -85,7 +84,6 @@ function AdminLoginScreen({ onLogin, onShowForm, showForm, email, setEmail }: {
 }
 
 function AdminDashboardContent() {
-  const router = useRouter();
   return (
     <div>
       {/* Top bar */}
@@ -136,13 +134,9 @@ function AdminDashboardContent() {
           <Link href="/admin/menu/import" style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', borderRadius: 10, padding: '12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', display: 'block' }}>
             Update menu
           </Link>
-          <button
-            type="button"
-            onClick={() => { if (typeof window !== 'undefined') { sessionStorage.removeItem('pm_filters'); } router.push('/app/restaurant/lartigiano-del-gusto?from=admin'); }}
-            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit' }}
-          >
+          <Link href="/app/restaurant/lartigiano-del-gusto?from=admin" style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 10, padding: '12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', display: 'block' }}>
             View as diner
-          </button>
+          </Link>
         </div>
 
         {/* Verification status */}
@@ -158,7 +152,7 @@ function AdminDashboardContent() {
             {DISHES_LIVE.map((dish) => (
               <Link
                 key={dish.id}
-                href={`/admin/dish/${dish.id}?from=dashboard`}
+                href={`/admin/dish/${dish.id}`}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '12px', textDecoration: 'none', borderLeft: dish.verified ? undefined : '2px solid #C2A46E' }}
               >
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F5F0E8', flexShrink: 0 }} />

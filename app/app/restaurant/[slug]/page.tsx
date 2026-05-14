@@ -348,7 +348,7 @@ function DishRow({
 
         {modifiedBy && (
           <div style={{ fontSize: 10, color: '#4A6A8A', fontStyle: 'italic', marginBottom: 6 }}>
-            Ask for {modifiedBy}{typeof priceExtra === 'number' && priceExtra > 0 ? ` (+£${priceExtra.toFixed(2)})` : ''}
+            Ask for {modifiedBy}{typeof priceExtra === 'number' ? ` (+£${priceExtra.toFixed(2)})` : ''}
           </div>
         )}
 

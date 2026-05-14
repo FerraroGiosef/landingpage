@@ -118,7 +118,6 @@ export const dishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=400&q=75',
     allergens: { ...base(), gluten: CONTAINS, sesame: TRACES },
     isVegan: true, isVegetarian: true,
-    modifications: [{ name: 'With gluten-free bread', removes: ['gluten'], adds: [], priceExtra: 1.50 }],
   },
   {
     id: 102, restaurantId: 1,
