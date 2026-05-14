@@ -126,11 +126,13 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
   const [modifications, setModifications] = useState<DishModification[]>(dishData.modifications || []);
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationName, setModificationName] = useState('');
+  const [modificationDescription, setModificationDescription] = useState('');
   const [modificationRemoves, setModificationRemoves] = useState<string[]>([]);
   const [modificationPriceExtra, setModificationPriceExtra] = useState('');
   const [saved, setSaved] = useState(false);
   const [description, setDescription] = useState(dishData.description);
   const [price, setPrice] = useState(dishData.price);
+  const [showAllAllergens, setShowAllAllergens] = useState(false);
 
   useEffect(() => {
     setAllergens(dishData.allergens);
@@ -139,11 +141,13 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
     setModifications(dishData.modifications || []);
     setShowModificationForm(false);
     setModificationName('');
+    setModificationDescription('');
     setModificationRemoves([]);
     setModificationPriceExtra('');
     setSaved(false);
     setDescription(dishData.description);
     setPrice(dishData.price);
+    setShowAllAllergens(false);
   }, [dishData, params.id]);
 
   function updateStatus(key: string, status: AllergenStatus) {
@@ -162,12 +166,14 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
       ...prev,
       {
         name: modificationName.trim(),
+        description: modificationDescription.trim() || undefined,
         removes: modificationRemoves,
         adds: [],
         priceExtra: Number(modificationPriceExtra || 0),
       },
     ]);
     setModificationName('');
+    setModificationDescription('');
     setModificationRemoves([]);
     setModificationPriceExtra('');
     setShowModificationForm(false);
@@ -285,8 +291,8 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Allergen rows */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          {allergens.map((allergen) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+          {(showAllAllergens ? allergens : allergens.filter((a) => a.status !== 'no')).map((allergen) => (
             <div
               key={allergen.key}
               style={{
@@ -321,7 +327,19 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
               <SegmentedControl value={allergen.status} onChange={(v) => updateStatus(allergen.key, v)} />
             </div>
           ))}
+          {!showAllAllergens && allergens.every((a) => a.status === 'no') && (
+            <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: 14, fontSize: 12, color: '#8B7E71', textAlign: 'center' }}>
+              No allergens detected.
+            </div>
+          )}
         </div>
+        <button
+          type="button"
+          onClick={() => setShowAllAllergens(!showAllAllergens)}
+          style={{ background: 'none', border: 'none', color: '#1A1614', fontSize: 12, marginBottom: 20, cursor: 'pointer', padding: '6px 0', textDecoration: 'underline', textUnderlineOffset: 3, fontFamily: 'inherit' }}
+        >
+          {showAllAllergens ? 'Show less ▴' : 'Show all 14 allergens ▾'}
+        </button>
 
         {/* Dietary suitability */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', marginBottom: 20 }}>
@@ -354,6 +372,13 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
                 placeholder="Modification name"
                 style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px 12px', fontSize: 12, color: '#1A1614', fontFamily: 'inherit', outline: 'none' }}
               />
+              <textarea
+                value={modificationDescription}
+                onChange={(e) => setModificationDescription(e.target.value)}
+                placeholder="Description (e.g. Sourdough replaced with certified GF bread)"
+                rows={2}
+                style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px 12px', fontSize: 12, color: '#1A1614', fontFamily: 'inherit', outline: 'none', lineHeight: 1.5, resize: 'vertical' }}
+              />
               <div>
                 <div style={{ fontSize: 10.5, color: '#8B7E71', marginBottom: 6 }}>Removes allergens</div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -384,7 +409,16 @@ export default function AdminDishPage({ params }: { params: { id: string } }) {
                 <button onClick={addModification} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
                   Save modification
                 </button>
-                <button onClick={() => setShowModificationForm(false)} style={{ flex: 1, background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}>
+                <button
+                  onClick={() => {
+                    setShowModificationForm(false);
+                    setModificationName('');
+                    setModificationDescription('');
+                    setModificationRemoves([]);
+                    setModificationPriceExtra('');
+                  }}
+                  style={{ flex: 1, background: 'transparent', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '9px', fontSize: 12, cursor: 'pointer' }}
+                >
                   Cancel
                 </button>
               </div>
