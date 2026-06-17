@@ -9,17 +9,26 @@ import { analytics } from '@/lib/analytics';
 import type { DishAllergens } from '@/lib/types';
 import EmptyState from '@/components/EmptyState';
 
-const CUISINES = [
-  { code: 'IT', label: 'Italian' },
-  { code: 'JP', label: 'Japanese' },
-  { code: 'IN', label: 'Indian' },
-  { code: 'TH', label: 'Thai' },
-  { code: 'GR', label: 'Greek' },
-  { code: 'MX', label: 'Mexican' },
-  { code: 'CN', label: 'Chinese' },
-  { code: 'FR', label: 'French' },
-  { code: 'LB', label: 'Lebanese' },
-  { code: 'GB', label: 'British' },
+const CUISINES: { name: string; flag: string }[] = [
+  { name: 'Italian', flag: '🇮🇹' },
+  { name: 'Japanese', flag: '🇯🇵' },
+  { name: 'Indian', flag: '🇮🇳' },
+  { name: 'Thai', flag: '🇹🇭' },
+  { name: 'Greek', flag: '🇬🇷' },
+  { name: 'Mexican', flag: '🇲🇽' },
+  { name: 'Chinese', flag: '🇨🇳' },
+  { name: 'French', flag: '🇫🇷' },
+  { name: 'Lebanese', flag: '🇱🇧' },
+  { name: 'British', flag: '🇬🇧' },
+];
+
+const ALLERGEN_CHIPS: { key: string; label: string }[] = [
+  { key: 'gluten', label: 'Gluten-free' },
+  { key: 'milk', label: 'Dairy-free' },
+  { key: 'peanuts', label: 'Nut-free' },
+  { key: 'eggs', label: 'Egg-free' },
+  { key: 'fish', label: 'Fish-free' },
+  { key: 'vegan', label: 'Vegan' },
 ];
 
 const FILTER_CHIPS = ['All', 'Open now', 'Top rated', 'Nearest', 'Group match'];
@@ -41,6 +50,7 @@ function todayISO() {
 export default function AppHomePage() {
   const router = useRouter();
   const [activeCuisine, setActiveCuisine] = useState<string | null>(null);
+  const [showCuisinePicker, setShowCuisinePicker] = useState(false);
   const [activeChip, setActiveChip] = useState('All');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [search, setSearch] = useState('');
@@ -64,6 +74,14 @@ export default function AppHomePage() {
       try { setActiveFilters(JSON.parse(saved)); } catch {}
     }
   }, []);
+
+  function toggleFilter(key: string) {
+    const newFilters = activeFilters.includes(key)
+      ? activeFilters.filter((f) => f !== key)
+      : [...activeFilters, key];
+    setActiveFilters(newFilters);
+    sessionStorage.setItem('pm_filters', JSON.stringify(newFilters));
+  }
 
   function openBooking(name: string) {
     setBookingRestaurant(name);
@@ -178,42 +196,46 @@ export default function AppHomePage() {
         )}
       </div>
 
-      {/* Cuisine filter row */}
-      <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px', overflowX: 'auto' }} className="no-scrollbar">
-        {CUISINES.map((c) => {
-          const active = activeCuisine === c.label;
+      {/* Allergen chips */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', padding: '0 16px 12px' }}>
+        {ALLERGEN_CHIPS.map((chip) => {
+          const active = activeFilters.includes(chip.key);
           return (
             <button
-              key={c.label}
-              onClick={() => setActiveCuisine(active ? null : c.label)}
+              key={chip.key}
+              onClick={() => toggleFilter(chip.key)}
               style={{
-                flexShrink: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 4,
-                width: 56,
-                padding: '8px 4px',
                 background: active ? '#1A1614' : '#F5F0E8',
                 border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`,
-                borderRadius: 10,
+                borderRadius: 100,
+                padding: '5px 12px',
+                fontSize: 11,
+                color: active ? '#FDFBF7' : '#1A1614',
                 cursor: 'pointer',
+                fontFamily: 'inherit',
+                whiteSpace: 'nowrap',
               }}
             >
-              <div style={{
-                width: 40, height: 40, borderRadius: 10,
-                background: active ? '#1A1614' : '#F5F0E8',
-                border: `0.5px solid ${active ? '#1A1614' : '#C4B9A8'}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 13, fontWeight: 500,
-                color: active ? '#FDFBF7' : '#8B7E71',
-              }}>
-                {c.code}
-              </div>
-              <span style={{ fontSize: 9.5, color: active ? '#FDFBF7' : '#8B7E71', fontWeight: 400 }}>{c.label}</span>
+              {chip.label}
             </button>
           );
         })}
+        <button
+          onClick={() => router.push('/app/allergens')}
+          style={{
+            background: '#F5F0E8',
+            border: '0.5px dashed #C4B9A8',
+            borderRadius: 100,
+            padding: '5px 12px',
+            fontSize: 11,
+            color: '#1A1614',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          + more
+        </button>
       </div>
 
       {/* Chip filters */}
@@ -240,6 +262,30 @@ export default function AppHomePage() {
             </button>
           );
         })}
+        {(() => {
+          const cuisineActive = !!activeCuisine;
+          const flag = cuisineActive ? CUISINES.find((c) => c.name === activeCuisine)?.flag : null;
+          return (
+            <button
+              onClick={() => setShowCuisinePicker(true)}
+              style={{
+                flexShrink: 0,
+                padding: '7px 14px',
+                background: cuisineActive ? '#F5F0E8' : 'transparent',
+                border: `0.5px solid ${cuisineActive ? '#1A1614' : '#C4B9A8'}`,
+                borderRadius: 100,
+                fontSize: 12,
+                color: cuisineActive ? '#1A1614' : '#8B7E71',
+                fontWeight: cuisineActive ? 500 : 400,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                fontFamily: 'inherit',
+              }}
+            >
+              {cuisineActive ? `${flag ?? ''} ${activeCuisine} ↑` : 'Cuisine ↓'}
+            </button>
+          );
+        })()}
       </div>
 
       {activeFilters.length === 0 && <EmptyState />}
@@ -264,6 +310,56 @@ export default function AppHomePage() {
           />
         ))}
       </div>
+
+      {/* Cuisine picker bottom sheet */}
+      {showCuisinePicker && (
+        <div
+          onClick={() => setShowCuisinePicker(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.45)', zIndex: 300, display: 'flex', alignItems: 'flex-end' }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: '#FDFBF7', borderRadius: '16px 16px 0 0', width: '100%', paddingBottom: 32, maxHeight: '80vh', overflowY: 'auto' }}
+          >
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '12px auto 14px' }} />
+            <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 400, color: '#1A1614', margin: '0 0 8px', padding: '0 20px', letterSpacing: '-0.2px' }}>
+              Select cuisine
+            </h3>
+            <button
+              type="button"
+              onClick={() => { setActiveCuisine(null); setShowCuisinePicker(false); }}
+              style={{ width: '100%', padding: '13px 20px', textAlign: 'left', background: 'none', border: 'none', borderBottom: '0.5px solid #F5F0E8', fontSize: 13, color: '#1A1614', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              <span>All cuisines</span>
+              {activeCuisine === null && (
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#C8553A' }} />
+              )}
+            </button>
+            {CUISINES.map((c) => {
+              const active = activeCuisine === c.name;
+              return (
+                <button
+                  key={c.name}
+                  type="button"
+                  onClick={() => {
+                    setActiveCuisine(active ? null : c.name);
+                    setShowCuisinePicker(false);
+                  }}
+                  style={{ width: '100%', padding: '13px 20px', textAlign: 'left', background: 'none', border: 'none', borderBottom: '0.5px solid #F5F0E8', fontSize: 13, color: '#1A1614', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontFamily: 'inherit' }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 18, lineHeight: 1 }}>{c.flag}</span>
+                    <span>{c.name}</span>
+                  </span>
+                  {active && (
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#C8553A' }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Booking modal */}
       {bookingRestaurant && (
@@ -580,7 +676,7 @@ function RestaurantCard({
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={(e) => { e.stopPropagation(); onBook(); }}
-            style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
+            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Book
           </button>
@@ -592,9 +688,9 @@ function RestaurantCard({
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onClick(); }}
-            style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
+            style={{ flex: 2, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
-            Menu
+            View menu
           </button>
         </div>
       </div>

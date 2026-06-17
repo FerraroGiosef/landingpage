@@ -38,6 +38,46 @@ export default function AppBottomNav() {
       {NAV.map((item) => {
         const active = isActive(item.href);
         const Icon = item.Icon;
+        const isGroup = item.label === 'Group';
+
+        if (isGroup) {
+          return (
+            <button
+              key={item.href}
+              onClick={() => router.push(item.href)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 4,
+                padding: '0 4px 8px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                position: 'relative',
+              }}
+            >
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  background: '#C8553A',
+                  borderRadius: '50%',
+                  marginTop: -16,
+                  boxShadow: '0 4px 12px rgba(200,85,58,0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Icon size={20} color="#FDFBF7" strokeWidth={2.25} />
+              </div>
+              <span style={{ fontSize: 9, color: '#8B7E71' }}>{item.label}</span>
+            </button>
+          );
+        }
+
         return (
           <button
             key={item.href}
