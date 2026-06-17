@@ -9,11 +9,11 @@ export const UK_ALLERGENS: { key: keyof DishAllergens; name: string; emoji: stri
   { key: 'fish', name: 'Fish', emoji: '🐟' },
   { key: 'crustaceans', name: 'Crustaceans', emoji: '🦐' },
   { key: 'soya', name: 'Soya', emoji: '🫘' },
-  { key: 'celery', name: 'Celery', emoji: '🥬' },
-  { key: 'mustard', name: 'Mustard', emoji: '🌿' },
-  { key: 'sesame', name: 'Sesame', emoji: '⚪' },
-  { key: 'sulphites', name: 'Sulphites', emoji: '🍷' },
-  { key: 'lupin', name: 'Lupin', emoji: '🌸' },
+  { key: 'celery', name: 'Celery', emoji: '🌿' },
+  { key: 'mustard', name: 'Mustard', emoji: '🌼' },
+  { key: 'sesame', name: 'Sesame', emoji: '🫙' },
+  { key: 'sulphites', name: 'Sulphites', emoji: '🧪' },
+  { key: 'lupin', name: 'Lupin', emoji: '🌱' },
   { key: 'molluscs', name: 'Molluscs', emoji: '🐚' },
 ];
 
