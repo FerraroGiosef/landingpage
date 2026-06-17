@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
-import { getCompatibleCount } from '@/lib/scoring';
+import { getCompatibleCount, filterMatchesDish } from '@/lib/scoring';
 import { analytics } from '@/lib/analytics';
 import type { DishAllergens } from '@/lib/types';
 import EmptyState from '@/components/EmptyState';
@@ -108,7 +108,12 @@ export default function AppHomePage() {
     .map((r) => {
       const dishes = getDishesByRestaurant(r.id);
       const count = getCompatibleCount(dishes, activeFilters);
-      const modifiableCount = dishes.filter((d) => d.modifications && d.modifications.length > 0).length;
+      const modifiableCount = activeFilters.length === 0
+        ? 0
+        : dishes.filter((d) => {
+            const match = filterMatchesDish(d, activeFilters);
+            return match.compatible && match.modifiedBy !== undefined;
+          }).length;
       return { ...r, dishes, compatibleCount: count, modifiableCount };
     })
     .sort((a, b) => {
