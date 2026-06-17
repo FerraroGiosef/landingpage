@@ -130,6 +130,29 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         </div>
       </div>
 
+      {activeFilters.length > 0 && (
+        <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 10, color: '#8B7E71', flexShrink: 0 }}>Filtering for:</span>
+          {activeFilters.map((f) => {
+            const LABELS: Record<string, string> = {
+              gluten: 'Gluten-free', milk: 'Dairy-free', eggs: 'Egg-free',
+              peanuts: 'Peanut-free', treeNuts: 'Nut-free', fish: 'Fish-free',
+              crustaceans: 'Crustacean-free', soya: 'Soya-free', celery: 'Celery-free',
+              mustard: 'Mustard-free', sesame: 'Sesame-free', sulphites: 'Sulphite-free',
+              lupin: 'Lupin-free', molluscs: 'Mollusc-free',
+              vegan: 'Vegan', vegetarian: 'Vegetarian',
+              'dairy-free': 'Dairy-free', 'nut-free': 'Nut-free', gf: 'Gluten-free',
+            };
+            const label = LABELS[f] || f;
+            return (
+              <span key={f} style={{ background: '#1A1614', color: '#FDFBF7', borderRadius: 100, padding: '3px 10px', fontSize: 11, whiteSpace: 'nowrap' }}>
+                {label}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
       {/* Attribution */}
       <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 16px', fontSize: 11, color: '#8B7E71' }}>
         Allergen information declared by restaurant · Last updated {restaurant.lastUpdated} · Always confirm with staff before ordering
