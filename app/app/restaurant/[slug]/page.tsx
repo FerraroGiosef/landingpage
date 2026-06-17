@@ -154,11 +154,15 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       )}
 
       {/* Attribution */}
-      <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 16px', fontSize: 11, color: '#8B7E71' }}>
-        Allergen information declared by restaurant · Last updated {restaurant.lastUpdated} · Always confirm with staff before ordering
-      </div>
-      <div style={{ padding: '0 20px 8px', fontSize: 11, color: '#8B7E71', lineHeight: 1.55, background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8' }}>
-        Dishes marked &quot;May contain&quot; indicate possible cross-contamination during preparation. Always inform staff about severe allergies.
+      <div style={{ background: '#F5F0E8', borderBottom: '0.5px solid #C4B9A8', padding: '8px 14px', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8B7E71" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <p style={{ fontSize: 11, color: '#8B7E71', lineHeight: 1.55, margin: 0 }}>
+          Allergen details declared by this restaurant · Updated {restaurant.lastUpdated} · Dishes showing ⚠ may be prepared near allergens · Always speak to staff before ordering
+        </p>
       </div>
 
       {/* Tab toggle */}

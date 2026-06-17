@@ -108,7 +108,8 @@ export default function AppHomePage() {
     .map((r) => {
       const dishes = getDishesByRestaurant(r.id);
       const count = getCompatibleCount(dishes, activeFilters);
-      return { ...r, dishes, compatibleCount: count };
+      const modifiableCount = dishes.filter((d) => d.modifications && d.modifications.length > 0).length;
+      return { ...r, dishes, compatibleCount: count, modifiableCount };
     })
     .sort((a, b) => {
       if (activeChip === 'Nearest') {
@@ -300,6 +301,7 @@ export default function AppHomePage() {
             key={r.id}
             restaurant={r}
             compatibleCount={r.compatibleCount}
+            modifiableCount={r.modifiableCount}
             totalDishes={r.dishCount}
             onBook={() => openBooking(r.name)}
             onAsk={() => openAsk(r.name)}
@@ -593,6 +595,7 @@ export default function AppHomePage() {
 function RestaurantCard({
   restaurant,
   compatibleCount,
+  modifiableCount,
   totalDishes,
   onBook,
   onAsk,
@@ -600,16 +603,13 @@ function RestaurantCard({
 }: {
   restaurant: { name: string; cuisine: string; location: string; address: string; rating: number; distance: string; isOpen: boolean; heroImage: string };
   compatibleCount: number;
+  modifiableCount: number;
   totalDishes: number;
   onBook: () => void;
   onAsk: () => void;
   onClick: () => void;
 }) {
   const [imgError, setImgError] = useState(false);
-
-  const tags = [];
-  if (compatibleCount > 0) tags.push(`${compatibleCount} compatible`);
-  if (restaurant.isOpen) tags.push('Open');
 
   return (
     <div
@@ -667,13 +667,24 @@ function RestaurantCard({
           <span style={{ fontSize: 12, color: restaurant.isOpen ? '#7EA884' : '#8B7E71' }}>{restaurant.isOpen ? 'Open' : 'Closed'}</span>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-          {tags.map((tag) => (
-            <span key={tag} style={{ background: '#F5F0E8', color: '#8B7E71', border: '0.5px solid #C4B9A8', borderRadius: 100, padding: '3px 10px', fontSize: 11 }}>
-              {tag}
+          {compatibleCount > 0 && (
+            <span style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '3px 9px', fontSize: 10 }}>
+              {compatibleCount} compatible
             </span>
-          ))}
+          )}
+          {modifiableCount > 0 && (
+            <span style={{ background: '#EBF0F7', color: '#4A6A8A', borderRadius: 100, padding: '3px 9px', fontSize: 10 }}>
+              {modifiableCount} modifiable
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); onClick(); }}
+            style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
+          >
+            View menu
+          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onBook(); }}
             style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
@@ -685,12 +696,6 @@ function RestaurantCard({
             style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
           >
             Ask
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onClick(); }}
-            style={{ flex: 2, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}
-          >
-            View menu
           </button>
         </div>
       </div>
