@@ -7,6 +7,7 @@ import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
 import { getCompatibleCount } from '@/lib/scoring';
 import { analytics } from '@/lib/analytics';
 import type { DishAllergens } from '@/lib/types';
+import EmptyState from '@/components/EmptyState';
 
 const CUISINES = [
   { code: 'IT', label: 'Italian' },
@@ -241,8 +242,10 @@ export default function AppHomePage() {
         })}
       </div>
 
+      {activeFilters.length === 0 && <EmptyState />}
+
       {/* Restaurant cards */}
-      <div style={{ padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div id="restaurant-list" style={{ padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ fontSize: 11, color: '#8B7E71', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>
           {filteredRestaurants.length} restaurants{activeFilters.length > 0 ? ` · ${filteredRestaurants.reduce((a, r) => a + r.compatibleCount, 0)} compatible dishes` : ''}
         </div>
