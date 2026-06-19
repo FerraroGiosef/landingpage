@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
@@ -16,8 +16,18 @@ interface Profile {
 const ALLERGEN_PILLS = [
   { key: 'gluten', label: 'Gluten-free' },
   { key: 'milk', label: 'Dairy-free' },
+  { key: 'eggs', label: 'Egg-free' },
   { key: 'peanuts', label: 'Peanut-free' },
   { key: 'treeNuts', label: 'Nut-free' },
+  { key: 'fish', label: 'Fish-free' },
+  { key: 'crustaceans', label: 'Crustacean-free' },
+  { key: 'soya', label: 'Soya-free' },
+  { key: 'celery', label: 'Celery-free' },
+  { key: 'mustard', label: 'Mustard-free' },
+  { key: 'sesame', label: 'Sesame-free' },
+  { key: 'sulphites', label: 'Sulphite-free' },
+  { key: 'lupin', label: 'Lupin-free' },
+  { key: 'molluscs', label: 'Mollusc-free' },
   { key: 'vegan', label: 'Vegan' },
   { key: 'vegetarian', label: 'Vegetarian' },
 ];
@@ -25,15 +35,23 @@ const ALLERGEN_PILLS = [
 const FILTER_LABEL_MAP: Record<string, string> = {
   gluten: 'GF',
   milk: 'Dairy-free',
-  vegan: 'Vegan',
-  vegetarian: 'Vegetarian',
+  eggs: 'Egg-free',
   peanuts: 'Peanut-free',
   treeNuts: 'Nut-free',
-  eggs: 'Egg-free',
   fish: 'Fish-free',
+  crustaceans: 'Crustacean-free',
+  soya: 'Soya-free',
+  celery: 'Celery-free',
+  mustard: 'Mustard-free',
+  sesame: 'Sesame-free',
+  sulphites: 'Sulphite-free',
+  lupin: 'Lupin-free',
+  molluscs: 'Mollusc-free',
+  vegan: 'Vegan',
+  vegetarian: 'Vegetarian',
 };
 
-const AVATAR_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
+const AVATAR_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8', '#A67C52', '#7A6BA8'];
 
 export default function GroupPage() {
   const router = useRouter();
@@ -42,6 +60,18 @@ export default function GroupPage() {
     { id: '2', name: 'Guest 2', filters: [] },
   ]);
   const [showResults, setShowResults] = useState(false);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('pm_filters');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProfiles((prev) => prev.map((p) => p.id === '1' ? { ...p, filters: parsed } : p));
+        }
+      } catch {}
+    }
+  }, []);
 
   function addProfile() {
     if (profiles.length >= 6) return;
@@ -149,6 +179,13 @@ export default function GroupPage() {
                     <span style={{ fontSize: 11, color: '#C4B9A8' }}>·</span>
                     <span style={{ fontSize: 12, color: '#8B7E71' }}>{r.location}</span>
                   </div>
+                  {allCanEat && (
+                    <div style={{ marginBottom: 10 }}>
+                      <span style={{ display: 'inline-block', background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '4px 10px', fontSize: 11, fontWeight: 500 }}>
+                        Everyone can eat here
+                      </span>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 10 }}>
                     {r.perPerson.map((p, idx) => {
                       const profile = profiles[idx];
@@ -171,11 +208,6 @@ export default function GroupPage() {
                       );
                     })}
                   </div>
-                  {allCanEat && (
-                    <div style={{ fontSize: 12, color: '#456B4B', marginBottom: 12, fontWeight: 500 }}>
-                      Everyone can eat here
-                    </div>
-                  )}
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={(e) => { e.stopPropagation(); }} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}>
                       Book
