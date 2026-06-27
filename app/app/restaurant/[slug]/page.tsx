@@ -229,7 +229,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       )}
 
       {/* Dish list by category */}
-      <div style={{ padding: '16px 16px 24px' }}>
+      <div style={{ padding: '16px 16px 140px' }}>
         {activeTab === 'compatible' && compatibleDishes.length === 0 && (activeFilters.length > 0 || isFromGroup) && (
           <div style={{ padding: '32px 20px', textAlign: 'center' }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🍽️</div>
