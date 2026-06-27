@@ -94,9 +94,11 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
                         Removes {modification.removes.join(', ')}
                       </div>
                     </div>
-                    <div style={{ fontSize: 12, color: '#C8553A', flexShrink: 0 }}>
-                      +£{modification.priceExtra.toFixed(2)}
-                    </div>
+                    {modification.priceExtra > 0 && (
+                      <div style={{ fontSize: 12, color: '#C8553A', flexShrink: 0 }}>
+                        +£{modification.priceExtra.toFixed(2)}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -189,7 +191,7 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
         <div style={{ background: '#F5F0E8', borderRadius: 10, padding: '12px 14px', fontSize: 11, color: '#8B7E71', lineHeight: 1.6, border: '0.5px solid #C4B9A8' }}>
           <strong style={{ color: '#1A1614', fontWeight: 500 }}>Information declared by {restaurant?.name} · Last updated {restaurant?.lastUpdated ?? today}</strong>
           <br />
-          Always confirm with restaurant staff before ordering. PlateMatch presents allergen information as declared by the restaurant. We cannot guarantee accuracy.
+          Allergen information declared by this restaurant. Always confirm with staff before ordering.
         </div>
 
         {traces.length > 0 && (
@@ -259,7 +261,7 @@ function AskRestaurantModal({
         </div>
 
         <button
-          onClick={() => { onClose(); alert('Message sent! (Demo mode — in production this sends via email or WhatsApp)'); }}
+          onClick={() => { onClose(); }}
           style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
         >
           Send message
@@ -296,7 +298,7 @@ function BookTableModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <button
-          onClick={() => { onClose(); alert('Booking request sent! (Demo mode — in production this integrates with TheFork/OpenTable)'); }}
+          onClick={() => { onClose(); }}
           style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
         >
           Request booking

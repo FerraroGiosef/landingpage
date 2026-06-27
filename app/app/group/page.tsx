@@ -33,7 +33,7 @@ const ALLERGEN_PILLS = [
 ];
 
 const FILTER_LABEL_MAP: Record<string, string> = {
-  gluten: 'GF',
+  gluten: 'Gluten-free',
   milk: 'Dairy-free',
   eggs: 'Egg-free',
   peanuts: 'Peanut-free',
@@ -209,11 +209,11 @@ export default function GroupPage() {
                     })}
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={(e) => { e.stopPropagation(); }} style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}>
-                      Book
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); }} style={{ flex: 1, background: 'transparent', color: '#1A1614', border: '0.5px solid #C4B9A8', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer', transition: 'all 0.15s ease' }}>
-                      Ask
+                    <button
+                      onClick={(e) => { e.stopPropagation(); openRestaurant(r.slug); }}
+                      style={{ flex: 1, background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 8, padding: '8px', fontSize: 12, cursor: 'pointer' }}
+                    >
+                      View menu
                     </button>
                   </div>
                 </div>
@@ -230,7 +230,7 @@ export default function GroupPage() {
       <div style={{ padding: '16px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
           <button
-            onClick={() => router.push('/app')}
+            onClick={() => router.back()}
             style={{
               width: 36,
               height: 36,

@@ -314,7 +314,7 @@ export default function AppHomePage() {
         })()}
       </div>
 
-      {activeFilters.length === 0 && <EmptyState />}
+      {activeFilters.length === 0 && !activeCuisine && <EmptyState />}
 
       {/* Restaurant cards */}
       <div id="restaurant-list" style={{ padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>

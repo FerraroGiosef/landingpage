@@ -303,7 +303,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         />
       )}
       {showBookModal && (
-        <BookTableModal onClose={() => setShowBookModal(false)} />
+        <BookTableModal restaurantName={restaurant.name} onClose={() => setShowBookModal(false)} />
       )}
     </div>
   );
@@ -435,7 +435,7 @@ function AskRestaurantModal({
         </div>
 
         <button
-          onClick={() => { onClose(); alert('Message sent! (Demo mode — in production this sends via email or WhatsApp)'); }}
+          onClick={() => { onClose(); }}
           style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
         >
           Send message
@@ -451,13 +451,14 @@ function AskRestaurantModal({
   );
 }
 
-function BookTableModal({ onClose }: { onClose: () => void }) {
+function BookTableModal({ restaurantName, onClose }: { restaurantName: string; onClose: () => void }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }} onClick={onClose}>
       <div style={{ background: '#FDFBF7', borderRadius: '20px', padding: '24px 20px 32px', width: '100%', maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: '#C4B9A8', margin: '0 auto 16px' }} />
         <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#1A1614', marginBottom: 4 }}>Book a table</h3>
         <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 16 }}>Choose your preferred date and time.</p>
+        <p style={{ fontSize: 13, fontWeight: 500, color: '#1A1614', margin: '0 0 16px' }}>{restaurantName}</p>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <input type="date" style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, fontFamily: 'inherit' }} />
@@ -472,7 +473,7 @@ function BookTableModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <button
-          onClick={() => { onClose(); alert('Booking request sent! (Demo mode — in production this integrates with TheFork/OpenTable)'); }}
+          onClick={() => { onClose(); }}
           style={{ width: '100%', background: '#1A1614', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 8 }}
         >
           Request booking
