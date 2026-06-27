@@ -25,11 +25,31 @@ const CUISINES: { name: string; flag: string }[] = [
 const ALLERGEN_CHIPS: { key: string; label: string }[] = [
   { key: 'gluten', label: 'Gluten-free' },
   { key: 'milk', label: 'Dairy-free' },
-  { key: 'peanuts', label: 'Nut-free' },
+  { key: 'peanuts', label: 'Peanut-free' },
+  { key: 'treeNuts', label: 'Nut-free' },
   { key: 'eggs', label: 'Egg-free' },
   { key: 'fish', label: 'Fish-free' },
   { key: 'vegan', label: 'Vegan' },
 ];
+
+const FILTER_LABEL_MAP: Record<string, string> = {
+  gluten: 'Gluten-free',
+  milk: 'Dairy-free',
+  peanuts: 'Peanut-free',
+  treeNuts: 'Nut-free',
+  eggs: 'Egg-free',
+  fish: 'Fish-free',
+  crustaceans: 'Crustacean-free',
+  soya: 'Soya-free',
+  celery: 'Celery-free',
+  mustard: 'Mustard-free',
+  sesame: 'Sesame-free',
+  sulphites: 'Sulphite-free',
+  lupin: 'Lupin-free',
+  molluscs: 'Mollusc-free',
+  vegan: 'Vegan',
+  vegetarian: 'Vegetarian',
+};
 
 const FILTER_CHIPS = ['All', 'Open now', 'Top rated', 'Nearest', 'Group match'];
 
@@ -190,7 +210,7 @@ export default function AppHomePage() {
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
             {activeFilters.map((f) => (
               <div key={f} style={{ background: '#1A1614', color: '#FDFBF7', borderRadius: 100, padding: '4px 10px', fontSize: 11, display: 'flex', alignItems: 'center', gap: 5 }}>
-                {f}
+                {FILTER_LABEL_MAP[f] || f}
                 <button onClick={() => {
                   const newFilters = activeFilters.filter((x) => x !== f);
                   setActiveFilters(newFilters);
