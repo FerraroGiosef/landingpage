@@ -35,7 +35,7 @@ export function filterMatchesDish(
     if (!modification) return null;
     return {
       compatible: true,
-      traceWarnings: [],
+      traceWarnings,
       modifiedBy: modification.name,
       priceExtra: modification.priceExtra,
     };
