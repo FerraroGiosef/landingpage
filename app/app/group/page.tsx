@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
 import { filterMatchesDish, getCompatibleCount } from '@/lib/scoring';
@@ -88,7 +89,7 @@ export default function GroupPage() {
       <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
         <div style={{ padding: '16px 16px 0', borderBottom: '0.5px solid #C4B9A8', background: '#FDFBF7', position: 'sticky', top: 0, zIndex: 50 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            <button onClick={() => setShowResults(false)} style={{ width: 36, height: 36, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}>←</button>
+            <button onClick={() => setShowResults(false)} style={{ width: 36, height: 36, borderRadius: '50%', background: '#F5F0E8', border: '0.5px solid #C4B9A8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}><ChevronLeft size={18} /></button>
             <div>
               <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 400, color: '#1A1614', margin: 0 }}>Dine together</h1>
               <p style={{ fontSize: 11, color: '#8B7E71', margin: '2px 0 0' }}>Restaurants where everyone can eat</p>
@@ -209,13 +210,12 @@ export default function GroupPage() {
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              fontSize: 16,
               color: '#1A1614',
               flexShrink: 0,
               transition: 'all 0.15s ease',
             }}
           >
-            ←
+            <ChevronLeft size={18} />
           </button>
           <div>
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 400, color: '#1A1614', margin: '0 0 4px', letterSpacing: '-0.3px' }}>Dine together</h1>
