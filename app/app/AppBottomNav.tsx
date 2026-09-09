@@ -15,7 +15,11 @@ export default function AppBottomNav() {
   const pathname = usePathname();
 
   function isActive(href: string) {
-    if (href === '/app') return pathname === '/app';
+    if (href === '/app') {
+      return pathname === '/app' ||
+             pathname.startsWith('/app/restaurant') ||
+             pathname.startsWith('/app/dish');
+    }
     return pathname.startsWith(href);
   }
 

@@ -8,7 +8,7 @@ export default function ProfilePage() {
     <div style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
       <div style={{ padding: '16px 16px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
         <button
-          onClick={() => router.push('/app')}
+          onClick={() => router.back()}
           style={{
             width: 36,
             height: 36,
