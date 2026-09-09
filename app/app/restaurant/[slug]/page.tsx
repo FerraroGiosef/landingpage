@@ -160,7 +160,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
           {groupProfiles.map((profile, idx) => {
             const PROFILE_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
             const filterLabels = profile.filters.map((f) => {
-              const MAP: Record<string, string> = { gluten: 'GF', milk: 'Dairy-free', vegan: 'Vegan', vegetarian: 'Vegetarian', peanuts: 'Peanut-free', treeNuts: 'Nut-free', eggs: 'Egg-free', fish: 'Fish-free' };
+              const MAP: Record<string, string> = { gluten: 'GF', milk: 'Dairy-free', vegan: 'Vegan', vegetarian: 'Vegetarian', peanuts: 'Peanut-free', treeNuts: 'Tree nut-free', eggs: 'Egg-free', fish: 'Fish-free' };
               return MAP[f] || f;
             });
             const isActive = selectedProfileIdx === idx;

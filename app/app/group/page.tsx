@@ -17,7 +17,7 @@ const ALLERGEN_PILLS = [
   { key: 'gluten', label: 'Gluten-free' },
   { key: 'milk', label: 'Dairy-free' },
   { key: 'peanuts', label: 'Peanut-free' },
-  { key: 'treeNuts', label: 'Nut-free' },
+  { key: 'treeNuts', label: 'Tree nut-free' },
   { key: 'vegan', label: 'Vegan' },
   { key: 'vegetarian', label: 'Vegetarian' },
 ];
@@ -28,7 +28,7 @@ const FILTER_LABEL_MAP: Record<string, string> = {
   vegan: 'Vegan',
   vegetarian: 'Vegetarian',
   peanuts: 'Peanut-free',
-  treeNuts: 'Nut-free',
+  treeNuts: 'Tree nut-free',
   eggs: 'Egg-free',
   fish: 'Fish-free',
 };
