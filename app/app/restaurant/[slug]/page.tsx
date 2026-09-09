@@ -26,6 +26,8 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   const [selectedProfileIdx, setSelectedProfileIdx] = useState<number | null>(null);
 
   useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'full') setActiveTab('full');
     const filtersParam = searchParams.get('filters') || '';
     const fromSession = sessionStorage.getItem('pm_filters');
     if (filtersParam) {
@@ -146,7 +148,12 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         ].map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setActiveTab(tab.key as 'compatible' | 'full')}
+            onClick={() => {
+              setActiveTab(tab.key as 'compatible' | 'full');
+              const params = new URLSearchParams(searchParams.toString());
+              params.set('tab', tab.key);
+              router.replace(`/app/restaurant/${restaurant.slug}?${params.toString()}`);
+            }}
             style={{ flex: 1, padding: '12px 8px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab.key ? '#1A1614' : 'transparent'}`, fontSize: 12.5, fontWeight: 500, color: activeTab === tab.key ? '#1A1614' : '#8B7E71', cursor: 'pointer' }}
           >
             {tab.label}
