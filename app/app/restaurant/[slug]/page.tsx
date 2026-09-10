@@ -268,7 +268,11 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
       <div style={{ padding: '16px 16px 140px' }}>
         {activeTab === 'compatible' && compatibleDishes.length === 0 && (activeFilters.length > 0 || isFromGroup) && (
           <div style={{ padding: '32px 20px', textAlign: 'center' }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>🍽️</div>
+            <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(139,126,113,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+              </svg>
+            </div>
             <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#1A1614', marginBottom: 6 }}>
               {isFromGroup ? 'No dishes for your group' : 'No compatible dishes found'}
             </div>
