@@ -39,7 +39,8 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam === 'full') setActiveTab('full');
+    const savedTab = sessionStorage.getItem('pm_tab_' + params.slug);
+    if (tabParam === 'full' || savedTab === 'full') setActiveTab('full');
     const filtersParam = searchParams.get('filters') || '';
     const fromSession = sessionStorage.getItem('pm_filters');
     if (filtersParam) {
@@ -67,7 +68,6 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   }, [searchParams]);
 
   const restaurant = getRestaurantBySlug(params.slug);
-  if (!restaurant) return <div style={{ padding: 32, textAlign: 'center', color: '#8B7E71' }}>Restaurant not found.</div>;
 
   function toggleFavourite() {
     if (!restaurant) return;
@@ -82,6 +82,8 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
     localStorage.setItem('pm_favourites', JSON.stringify(list));
     setIsFavourite(!isFavourite);
   }
+
+  if (!restaurant) return <div style={{ padding: 32, textAlign: 'center', color: '#8B7E71' }}>Restaurant not found.</div>;
 
   const allDishes = getDishesByRestaurant(restaurant.id);
   const isFromGroup = groupProfiles.length > 0;
@@ -167,7 +169,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
           {activeFilters.map((f) => {
             const LABELS: Record<string, string> = {
               gluten: 'Gluten-free', milk: 'Dairy-free', eggs: 'Egg-free',
-              peanuts: 'Peanut-free', treeNuts: 'Nut-free', fish: 'Fish-free',
+              peanuts: 'Peanut-free', treeNuts: 'Tree nut-free', fish: 'Fish-free',
               crustaceans: 'Crustacean-free', soya: 'Soya-free', celery: 'Celery-free',
               mustard: 'Mustard-free', sesame: 'Sesame-free', sulphites: 'Sulphite-free',
               lupin: 'Lupin-free', molluscs: 'Mollusc-free',
@@ -206,9 +208,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
             key={tab.key}
             onClick={() => {
               setActiveTab(tab.key as 'compatible' | 'full');
-              const params = new URLSearchParams(searchParams.toString());
-              params.set('tab', tab.key);
-              router.replace(`/app/restaurant/${restaurant.slug}?${params.toString()}`);
+              sessionStorage.setItem('pm_tab_' + restaurant.slug, tab.key);
             }}
             style={{ flex: 1, padding: '12px 8px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab.key ? '#1A1614' : 'transparent'}`, fontSize: 12.5, fontWeight: 500, color: activeTab === tab.key ? '#1A1614' : '#8B7E71', cursor: 'pointer' }}
           >
@@ -379,7 +379,11 @@ function DishRow({
         {dish.image && !imgError ? (
           <Image src={dish.image} alt={dish.name} width={80} height={80} style={{ objectFit: 'cover', width: '100%', height: '100%' }} onError={() => setImgError(true)} />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #F5F0E8, #C4B9A8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🍽️</div>
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #F5F0E8, #C4B9A8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(139,126,113,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+            </svg>
+          </div>
         )}
       </div>
 
