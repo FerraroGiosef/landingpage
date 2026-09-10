@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ChevronLeft, Heart, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import { getRestaurantBySlug, getDishesByRestaurant } from '@/lib/data/restaurants';
 import { filterMatchesDish, getAllergenSummary, getDishTags } from '@/lib/scoring';
@@ -24,8 +25,21 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
   const [showBookModal, setShowBookModal] = useState(false);
   const [groupProfiles, setGroupProfiles] = useState<GroupProfileView[]>([]);
   const [selectedProfileIdx, setSelectedProfileIdx] = useState<number | null>(null);
+  const [isFavourite, setIsFavourite] = useState(false);
 
   useEffect(() => {
+    const saved = localStorage.getItem('pm_favourites');
+    if (saved) {
+      try {
+        const list: string[] = JSON.parse(saved);
+        setIsFavourite(list.includes(params.slug));
+      } catch {}
+    }
+  }, [params.slug]);
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'full') setActiveTab('full');
     const filtersParam = searchParams.get('filters') || '';
     const fromSession = sessionStorage.getItem('pm_filters');
     if (filtersParam) {
@@ -54,6 +68,20 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
 
   const restaurant = getRestaurantBySlug(params.slug);
   if (!restaurant) return <div style={{ padding: 32, textAlign: 'center', color: '#8B7E71' }}>Restaurant not found.</div>;
+
+  function toggleFavourite() {
+    if (!restaurant) return;
+    const saved = localStorage.getItem('pm_favourites');
+    let list: string[] = [];
+    try { if (saved) list = JSON.parse(saved); } catch {}
+    if (list.includes(restaurant.slug)) {
+      list = list.filter((s) => s !== restaurant.slug);
+    } else {
+      list.push(restaurant.slug);
+    }
+    localStorage.setItem('pm_favourites', JSON.stringify(list));
+    setIsFavourite(!isFavourite);
+  }
 
   const allDishes = getDishesByRestaurant(restaurant.id);
   const isFromGroup = groupProfiles.length > 0;
@@ -91,13 +119,16 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(26,22,20,0.78) 100%)' }} />
 
         {/* Back button */}
-        <button onClick={() => { if (searchParams.get('from') === 'admin') { router.push('/admin'); } else { router.back(); } }} style={{ position: 'absolute', top: 16, left: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#FDFBF7' }}>←</button>
+        <button onClick={() => { if (searchParams.get('from') === 'admin') { router.push('/admin'); } else { router.back(); } }} style={{ position: 'absolute', top: 16, left: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#FDFBF7' }}><ChevronLeft size={18} /></button>
 
         {/* Actions */}
         <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 8 }}>
-          {['🤍', '⬆'].map((icon) => (
-            <button key={icon} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: '#FDFBF7' }}>{icon}</button>
-          ))}
+          <button onClick={toggleFavourite} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#FDFBF7' }} aria-label={isFavourite ? 'Remove from favourites' : 'Save to favourites'}>
+            <Heart size={16} color="#FDFBF7" fill={isFavourite ? '#FDFBF7' : 'none'} />
+          </button>
+          <button style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#FDFBF7' }} aria-label="Share">
+            <Share2 size={16} color="#FDFBF7" />
+          </button>
         </div>
 
         {/* Restaurant name + address overlay */}
@@ -173,7 +204,12 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
         ].map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setActiveTab(tab.key as 'compatible' | 'full')}
+            onClick={() => {
+              setActiveTab(tab.key as 'compatible' | 'full');
+              const params = new URLSearchParams(searchParams.toString());
+              params.set('tab', tab.key);
+              router.replace(`/app/restaurant/${restaurant.slug}?${params.toString()}`);
+            }}
             style={{ flex: 1, padding: '12px 8px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab.key ? '#1A1614' : 'transparent'}`, fontSize: 12.5, fontWeight: 500, color: activeTab === tab.key ? '#1A1614' : '#8B7E71', cursor: 'pointer' }}
           >
             {tab.label}
@@ -187,7 +223,7 @@ export default function RestaurantDetailPage({ params }: { params: { slug: strin
           {groupProfiles.map((profile, idx) => {
             const PROFILE_COLORS = ['#C8553A', '#8B7E71', '#6B8E6F', '#5B7BA8'];
             const filterLabels = profile.filters.map((f) => {
-              const MAP: Record<string, string> = { gluten: 'GF', milk: 'Dairy-free', vegan: 'Vegan', vegetarian: 'Vegetarian', peanuts: 'Peanut-free', treeNuts: 'Nut-free', eggs: 'Egg-free', fish: 'Fish-free' };
+              const MAP: Record<string, string> = { gluten: 'GF', milk: 'Dairy-free', vegan: 'Vegan', vegetarian: 'Vegetarian', peanuts: 'Peanut-free', treeNuts: 'Tree nut-free', eggs: 'Egg-free', fish: 'Fish-free' };
               return MAP[f] || f;
             });
             const isActive = selectedProfileIdx === idx;
