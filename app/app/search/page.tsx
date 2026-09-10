@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { restaurants, getDishesByRestaurant } from '@/lib/data/restaurants';
 import { getCompatibleCount } from '@/lib/scoring';
 
 export default function SearchPage() {
   const router = useRouter();
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('pm_filters');
+    if (saved) { try { setActiveFilters(JSON.parse(saved)); } catch {} }
+  }, []);
+
   const [query, setQuery] = useState('');
 
   const results = query.trim()
@@ -45,7 +52,7 @@ export default function SearchPage() {
         {results.map((r) => (
           <button
             key={r.id}
-            onClick={() => router.push(`/app/restaurant/${r.slug}`)}
+            onClick={() => router.push(`/app/restaurant/${r.slug}?filters=${activeFilters.join(',')}`)}
             style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 12, padding: '14px', textAlign: 'left', cursor: 'pointer', width: '100%' }}
           >
             <div style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: '#1A1614', marginBottom: 3 }}>{r.name}</div>
