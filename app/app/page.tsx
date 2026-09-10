@@ -26,7 +26,7 @@ const ALLERGEN_CHIPS: { key: string; label: string }[] = [
   { key: 'gluten', label: 'Gluten-free' },
   { key: 'milk', label: 'Dairy-free' },
   { key: 'peanuts', label: 'Peanut-free' },
-  { key: 'treeNuts', label: 'Nut-free' },
+  { key: 'treeNuts', label: 'Tree nut-free' },
   { key: 'eggs', label: 'Egg-free' },
   { key: 'fish', label: 'Fish-free' },
   { key: 'vegan', label: 'Vegan' },
@@ -36,7 +36,7 @@ const FILTER_LABEL_MAP: Record<string, string> = {
   gluten: 'Gluten-free',
   milk: 'Dairy-free',
   peanuts: 'Peanut-free',
-  treeNuts: 'Nut-free',
+  treeNuts: 'Tree nut-free',
   eggs: 'Egg-free',
   fish: 'Fish-free',
   crustaceans: 'Crustacean-free',
@@ -314,7 +314,7 @@ export default function AppHomePage() {
         })()}
       </div>
 
-      {activeFilters.length === 0 && <EmptyState />}
+      {activeFilters.length === 0 && !activeCuisine && <EmptyState />}
 
       {/* Restaurant cards */}
       <div id="restaurant-list" style={{ padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>

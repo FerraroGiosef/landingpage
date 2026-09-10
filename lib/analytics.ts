@@ -11,7 +11,7 @@ function track(event: string, props?: Record<string, unknown>) {
 }
 
 export const analytics = {
-  waitlistJoined: (filters: string[]) => track('waitlist_joined', { filters }),
+  waitlistJoined: () => track('waitlist_joined'),
   restaurantViewed: (slug: string) => track('restaurant_viewed', { slug }),
   dishViewed: (id: number, restaurantId: number) => track('dish_viewed', { id, restaurant_id: restaurantId }),
   filterChanged: (filters: string[]) => track('filter_changed', { filters }),

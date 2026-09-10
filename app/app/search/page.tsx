@@ -15,12 +15,6 @@ export default function SearchPage() {
   }, []);
 
   const [query, setQuery] = useState('');
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-
-  useEffect(() => {
-    const saved = sessionStorage.getItem('pm_filters');
-    if (saved) { try { setActiveFilters(JSON.parse(saved)); } catch {} }
-  }, []);
 
   const results = query.trim()
     ? restaurants.filter((r) =>
