@@ -419,7 +419,7 @@ function DishRow({
 
         {modifiedBy && (
           <div style={{ fontSize: 10, color: '#4A6A8A', fontStyle: 'italic', marginBottom: 6 }}>
-            Ask for {modifiedBy}{typeof priceExtra === 'number' ? ` (+£${priceExtra.toFixed(2)})` : ''}
+            Ask for {modifiedBy}{typeof priceExtra === 'number' && priceExtra > 0 ? ` (+£${priceExtra.toFixed(2)})` : ''}
           </div>
         )}
 
@@ -463,6 +463,8 @@ function AskRestaurantModal({
   activeFilters: string[];
   onClose: () => void;
 }) {
+  const defaultMessage = `Hi, I'm planning to visit your restaurant. I have the following dietary requirements: ${activeFilters.join(', ')}. Could you confirm which dishes are suitable for me? Thank you.`;
+  const [askMessage, setAskMessage] = useState(defaultMessage);
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,20,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }} onClick={onClose}>
       <div style={{ background: '#FDFBF7', borderRadius: '20px', padding: '24px 20px 32px', width: '100%', maxWidth: 480, maxHeight: '80vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
@@ -473,7 +475,8 @@ function AskRestaurantModal({
         <div style={{ marginBottom: 12 }}>
           <label style={{ fontSize: 11, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }}>Your message</label>
           <textarea
-            defaultValue={`Hi, I'm planning to visit your restaurant. I have the following dietary requirements: ${activeFilters.join(', ')}. Could you confirm which dishes are suitable for me? Thank you.`}
+            value={askMessage}
+            onChange={(e) => setAskMessage(e.target.value)}
             style={{ width: '100%', minHeight: 100, padding: '12px 14px', borderRadius: 10, border: '0.5px solid #C4B9A8', background: '#F5F0E8', fontSize: 13, color: '#1A1614', fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
           />
         </div>

@@ -26,6 +26,34 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
   }, [searchParams]);
 
   const dish = getDishById(Number(params.id));
+
+  const [isFavourite, setIsFavourite] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('pm_favourites');
+    if (saved) {
+      try {
+        const list: string[] = JSON.parse(saved);
+        setIsFavourite(list.includes(String(dish?.id)));
+      } catch {}
+    }
+  }, [dish?.id]);
+
+  function toggleFavourite() {
+    if (!dish) return;
+    const saved = localStorage.getItem('pm_favourites');
+    let list: string[] = [];
+    try { if (saved) list = JSON.parse(saved); } catch {}
+    const key = String(dish.id);
+    if (list.includes(key)) {
+      list = list.filter((s) => s !== key);
+    } else {
+      list.push(key);
+    }
+    localStorage.setItem('pm_favourites', JSON.stringify(list));
+    setIsFavourite(!isFavourite);
+  }
+
   if (!dish) return <div style={{ padding: 32, textAlign: 'center', color: '#8B7E71' }}>Dish not found.</div>;
 
   const restaurant = getRestaurantById(dish.restaurantId);
@@ -53,7 +81,7 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(26,22,20,0.7) 100%)' }} />
         <button onClick={() => router.back()} style={{ position: 'absolute', top: 16, left: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#FDFBF7' }}><ChevronLeft size={18} /></button>
-        <button style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#FDFBF7' }}><Heart size={16} color="#FDFBF7" /></button>
+        <button onClick={toggleFavourite} style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(253,251,247,0.15)', backdropFilter: 'blur(8px)', border: '0.5px solid rgba(253,251,247,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#FDFBF7' }} aria-label={isFavourite ? 'Remove from favourites' : 'Save to favourites'}><Heart size={16} color="#FDFBF7" fill={isFavourite ? '#FDFBF7' : 'none'} /></button>
         {hasFilters && isCompatible && (
           <div style={{ position: 'absolute', bottom: 12, left: 14, background: '#7EA884', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#FFFFFF', fontWeight: 500 }}>
             ✓ Matches your filter
