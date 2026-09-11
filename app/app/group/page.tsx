@@ -30,7 +30,6 @@ const FILTER_LABEL_MAP: Record<string, string> = {
   eggs: 'Egg-free',
   peanuts: 'Peanut-free',
   treeNuts: 'Tree nut-free',
-  eggs: 'Egg-free',
   fish: 'Fish-free',
   crustaceans: 'Crustacean-free',
   soya: 'Soya-free',
