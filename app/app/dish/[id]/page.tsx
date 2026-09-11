@@ -25,8 +25,6 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
     }
   }, [searchParams]);
 
-  const dish = getDishById(Number(params.id));
-
   const [isFavourite, setIsFavourite] = useState(false);
 
   useEffect(() => {
@@ -34,10 +32,12 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
     if (saved) {
       try {
         const list: string[] = JSON.parse(saved);
-        setIsFavourite(list.includes(String(dish?.id)));
+        setIsFavourite(list.includes(String(params.id)));
       } catch {}
     }
-  }, [dish?.id]);
+  }, [params.id]);
+
+  const dish = getDishById(Number(params.id));
 
   function toggleFavourite() {
     if (!dish) return;
