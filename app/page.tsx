@@ -87,7 +87,7 @@ export default function LandingPage() {
           consent_timestamp: new Date().toISOString(),
         });
       }
-      analytics.waitlistJoined([]);
+      analytics.waitlistJoined();
       setSubmitted(true);
     } catch {
       setError('Something went wrong. Please try again.');

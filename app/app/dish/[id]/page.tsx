@@ -14,6 +14,7 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [showAskModal, setShowAskModal] = useState(false);
   const [showBookModal, setShowBookModal] = useState(false);
+  const [isFavourite, setIsFavourite] = useState(false);
 
   useEffect(() => {
     const filtersParam = searchParams.get('filters') || '';
@@ -25,19 +26,17 @@ export default function DishDetailPage({ params }: { params: { id: string } }) {
     }
   }, [searchParams]);
 
-  const dish = getDishById(Number(params.id));
-
-  const [isFavourite, setIsFavourite] = useState(false);
-
   useEffect(() => {
     const saved = localStorage.getItem('pm_favourites');
     if (saved) {
       try {
         const list: string[] = JSON.parse(saved);
-        setIsFavourite(list.includes(String(dish?.id)));
+        setIsFavourite(list.includes(String(params.id)));
       } catch {}
     }
-  }, [dish?.id]);
+  }, [params.id]);
+
+  const dish = getDishById(Number(params.id));
 
   function toggleFavourite() {
     if (!dish) return;
