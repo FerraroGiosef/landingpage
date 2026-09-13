@@ -63,7 +63,7 @@ function WaitlistContent() {
           consent_timestamp: new Date().toISOString(),
         });
       }
-      analytics.waitlistJoined(isRestaurant ? ['restaurant'] : filters);
+      analytics.waitlistJoined();
       if (isRestaurant) {
         setSubmitted(true);
         return;
