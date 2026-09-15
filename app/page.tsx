@@ -291,9 +291,6 @@ export default function LandingPage() {
       <section style={{ background: '#FDFBF7', padding: '64px 24px', borderTop: '0.5px solid #C4B9A8' }}>
         <div style={{ maxWidth: 560, margin: '0 auto' }}>
           <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: '#1A1614', fontWeight: 400, marginBottom: 16, letterSpacing: '-0.3px' }}>Your data, your control</h2>
-          <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 20, lineHeight: 1.65 }}>
-            PlateMatch is ICO registered and fully compliant with the UK GDPR, the Data Protection Act 2018, and PECR.
-          </p>
           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               'We collect only your email address for the waitlist',
@@ -324,7 +321,7 @@ export default function LandingPage() {
             {[
               { label: 'Privacy Policy', href: '/privacy' },
               { label: 'Cookie Policy', href: '/cookies' },
-              { label: 'Terms', href: '/terms' },
+              { label: 'Terms of Service', href: '/terms' },
               { label: 'Consumer App', href: '/app' },
               { label: 'For Restaurants', href: '/waitlist?type=restaurant' },
             ].map((l) => (
