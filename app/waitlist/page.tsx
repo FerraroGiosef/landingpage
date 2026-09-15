@@ -272,7 +272,12 @@ function WaitlistContent() {
             {consent && <span style={{ fontSize: 11, fontWeight: 800, color: '#FDFBF7' }}>✓</span>}
           </div>
           <span style={{ fontSize: 11, color: '#8B7E71', lineHeight: 1.5 }}>
-            I agree to receive updates about PlateMatch and confirm I am over 13. You can unsubscribe at any time.
+            By joining I agree to the{' '}
+            <a href="/terms" style={{ color: '#C8553A', textDecoration: 'underline' }}>Terms of Service</a>
+            {' '}and confirm I have read the{' '}
+            <a href="/privacy" style={{ color: '#C8553A', textDecoration: 'underline' }}>Privacy Policy</a>.
+            {' '}I understand my allergen preferences are stored only on my device.{' '}
+            <a href="/cookies" style={{ color: '#8B7E71', textDecoration: 'underline', fontSize: 10 }}>Cookie Policy</a>
           </span>
         </label>
 

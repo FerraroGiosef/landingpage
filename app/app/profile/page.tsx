@@ -49,6 +49,26 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+
+      <div style={{ padding: '0 24px', marginTop: 32 }}>
+        <div style={{ fontSize: 9, fontWeight: 500, color: '#8B7E71', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Legal</div>
+        <div style={{ background: '#FFFFFF', border: '0.5px solid #C4B9A8', borderRadius: 10, overflow: 'hidden' }}>
+          {[
+            { label: 'Terms of Service', sub: 'Last updated September 2026', href: '/terms' },
+            { label: 'Privacy Policy', sub: 'How we use your data', href: '/privacy' },
+            { label: 'Cookie Policy', sub: 'Storage technologies we use', href: '/cookies' },
+          ].map((item, i, arr) => (
+            <a key={item.href} href={item.href} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', borderBottom: i < arr.length - 1 ? '0.5px solid #F5F0E8' : 'none', textDecoration: 'none' }}>
+              <div>
+                <div style={{ fontSize: 12, color: '#1A1614' }}>{item.label}</div>
+                <div style={{ fontSize: 10, color: '#8B7E71' }}>{item.sub}</div>
+              </div>
+              <span style={{ fontSize: 14, color: '#C4B9A8' }}>›</span>
+            </a>
+          ))}
+        </div>
+        <div style={{ fontSize: 9, color: '#C4B9A8', textAlign: 'center', marginTop: 12 }}>PlateMatch · London, UK</div>
+      </div>
     </div>
   );
 }

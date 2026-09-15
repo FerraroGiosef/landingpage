@@ -338,6 +338,14 @@ export default function LandingPage() {
           </span>
         </div>
       </footer>
+      <footer style={{ borderTop: '0.5px solid #C4B9A8', padding: '20px 24px', textAlign: 'center', marginTop: 40 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 8 }}>
+          <a href="/terms" style={{ fontSize: 11, color: '#8B7E71', textDecoration: 'underline' }}>Terms of Service</a>
+          <a href="/privacy" style={{ fontSize: 11, color: '#8B7E71', textDecoration: 'underline' }}>Privacy Policy</a>
+          <a href="/cookies" style={{ fontSize: 11, color: '#8B7E71', textDecoration: 'underline' }}>Cookie Policy</a>
+        </div>
+        <div style={{ fontSize: 10, color: '#C4B9A8' }}>© 2026 PlateMatch Ltd · London, UK</div>
+      </footer>
     </div>
   );
 }
