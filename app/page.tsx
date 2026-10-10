@@ -88,7 +88,10 @@ export default function LandingPage() {
   return (
     <div style={{ background: '#F4F6F8', fontFamily: 'Inter, -apple-system, sans-serif', color: '#2C3E50', minHeight: '100vh', overflowX: 'hidden' }}>
       <style>{`
+        html { scroll-behavior: smooth; }
         @keyframes pm-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.3); } }
+        .pm-nav-text { color: #A0AEC0; transition: color 0.15s ease; white-space: nowrap; }
+        .pm-nav-text:hover { color: #0A1628; }
         .pm-section { padding: 72px 24px; }
         .pm-container { max-width: 680px; margin: 0 auto; }
         .pm-hero { padding: 56px 24px 72px; }
@@ -112,10 +115,10 @@ export default function LandingPage() {
       <nav className="pm-nav-wrap" style={{ background: '#FFFFFF', borderBottom: '1px solid #CBD5E0', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
         <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px' }}>{APP_NAME}</span>
         <div className="pm-nav-links">
-          <button className="pm-nav-text" onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
+          <button className="pm-nav-text" onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, padding: 0, fontFamily: 'inherit' }}>
             How it works
           </button>
-          <button className="pm-nav-text" onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
+          <button className="pm-nav-text" onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, padding: 0, fontFamily: 'inherit' }}>
             For restaurants
           </button>
           <button className="pm-nav-cta" onClick={() => scrollTo('waitlist-form')} onMouseEnter={(e) => (e.currentTarget.style.background = '#0C3A4E')} onMouseLeave={(e) => (e.currentTarget.style.background = '#1B5E7A')} style={{ background: '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 7, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s ease' }}>
