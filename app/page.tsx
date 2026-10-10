@@ -5,64 +5,49 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { analytics } from '@/lib/analytics';
 
-const STATS = [
-  { value: '2M+', label: 'People in UK with food allergies' },
-  { value: '3.6×', label: 'More engagement on filtered menus' },
-  { value: 'Set once', label: 'Eat everywhere' },
-];
+const APP_NAME = 'PlateMatch';
 
 const HOW_IT_WORKS = [
   {
-    step: '01',
-    title: 'Set your needs',
-    desc: 'Select your allergens and dietary preferences once. We remember nothing between sessions — you stay in control.',
+    n: '1',
+    title: 'Set your needs once',
+    desc: 'Select your allergens and dietary preferences. Your data stays on your device — never stored between sessions.',
   },
   {
-    step: '02',
-    title: 'Browse matches',
-    desc: "Restaurants are ranked by how many of their dishes are compatible with your needs. The number you see is real — dishes, not percentages.",
+    n: '2',
+    title: "See what's compatible",
+    desc: 'Every dish is checked against your needs. The number you see is real dishes — not a percentage, not an estimate.',
   },
   {
-    step: '03',
-    title: 'Dine with clarity',
-    desc: 'See exactly what you can eat before you arrive. Every dish shows its declared allergens. Always confirm with the restaurant.',
+    n: '3',
+    title: 'Arrive knowing your options',
+    desc: 'No more calling ahead. No more waiting for the waiter. Always confirm with staff before ordering.',
   },
 ];
 
-const RESTAURANT_FEATURES = [
-  {
-    title: 'Reach',
-    desc: 'Customers who need you find you automatically',
-  },
-  {
-    title: 'Save time',
-    desc: 'No more explaining allergens at every table',
-  },
-  {
-    title: 'Stay ready',
-    desc: "Owen's Law audit trail built in",
-  },
+const RESTAURANT_POINTS = [
+  'Your staff answers fewer allergen questions at the table — they focus on service.',
+  "A timestamped record of every allergen declaration — ready when Owen's Law arrives in 2027.",
+  'Customers who were avoiding you start finding you and arriving informed.',
 ];
 
-const MOCK_DISHES = [
-  { name: 'Risotto ai Funghi', price: '£16.50' },
-  { name: 'Sorbetto al Limone', price: '£6.00' },
-  { name: 'Insalata Verde', price: '£6.50' },
+const PREVIEW_DISHES = [
+  { name: 'Risotto ai Funghi', price: '£16.50', badge: 'Compatible', tone: 'green' as const },
+  { name: 'Pasta al Ragù', price: '£14.00', badge: 'Can be made GF', tone: 'blue' as const },
+  { name: 'Sorbetto al Limone', price: '£6.00', badge: 'Compatible', tone: 'green' as const },
 ];
 
-const FEATURES = [
-  {
-    title: 'Filter by your needs',
-    sub: '14 UK allergens + dietary preferences',
-  },
-  {
-    title: 'See compatible dishes',
-    sub: 'Every dish checked, restaurant by restaurant',
-  },
-  {
-    title: 'Group Match',
-    sub: 'Find restaurants for different dietary requirements',
-  },
+const GROUP_PEOPLE = [
+  { initial: 'G', name: 'Giulia', needs: 'Gluten-free · Dairy-free', color: '#1B5E7A' },
+  { initial: 'L', name: 'Lorenzo', needs: 'Vegan', color: '#1B9BA8' },
+  { initial: 'M', name: 'Marco', needs: 'Peanut-free', color: '#3D6B4F' },
+];
+
+const SOCIAL_AVATARS = [
+  { initial: 'S', color: '#1B5E7A' },
+  { initial: 'L', color: '#1B9BA8' },
+  { initial: 'M', color: '#3D6B4F' },
+  { initial: 'A', color: '#6B5E3A' },
 ];
 
 export default function LandingPage() {
@@ -101,237 +86,324 @@ export default function LandingPage() {
   }
 
   return (
-    <div style={{ background: '#FDFBF7', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+    <div style={{ background: '#F4F6F8', fontFamily: 'Inter, -apple-system, sans-serif', color: '#2C3E50', minHeight: '100vh' }}>
+      <style>{`
+        @keyframes pm-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.3); } }
+      `}</style>
 
       {/* ── NAV ── */}
-      <nav style={{ background: '#0F0E0C', borderBottom: '0.5px solid rgba(196,185,168,0.15)', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-        <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#FDFBF7', letterSpacing: '-0.3px' }}>PlateMatch</span>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-
-          <button onClick={() => location.href = "app"} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit'}}>
-            App
-          </button>
-          <button onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
+      <nav style={{ background: '#FFFFFF', borderBottom: '1px solid #CBD5E0', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
+        <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px' }}>{APP_NAME}</span>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+          <button onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
             How it works
           </button>
-          <button onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#A09A8F', padding: 0, fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
+          <button onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
             For restaurants
           </button>
-          
-          <button onClick={() => scrollTo('waitlist-form')} style={{ background: '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 100, padding: '8px 18px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
+          <button onClick={() => scrollTo('waitlist-form')} onMouseEnter={(e) => (e.currentTarget.style.background = '#0C3A4E')} onMouseLeave={(e) => (e.currentTarget.style.background = '#1B5E7A')} style={{ background: '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 7, padding: '9px 18px', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s ease' }}>
             Join waitlist
           </button>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ background: '#0F0E0C', padding: '64px 24px 0', minHeight: 600, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(200,85,58,0.06) 0%, transparent 60%), radial-gradient(circle at 80% 20%, rgba(196,185,168,0.04) 0%, transparent 50%)', pointerEvents: 'none' }} />
-
-        <div style={{ maxWidth: 760, width: '100%', display: 'grid', gridTemplateColumns: '1fr auto', gap: 48, alignItems: 'start', position: 'relative' }}>
-          {/* Left: copy + form */}
+      <section style={{ background: '#F4F6F8', padding: '56px 24px 72px' }}>
+        <div style={{ maxWidth: 1040, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 48, alignItems: 'start' }}>
+          {/* Left column */}
           <div>
-            {/* Tag */}
-            <div style={{ display: 'inline-block', background: 'rgba(200,85,58,0.15)', border: '0.5px solid rgba(200,85,58,0.35)', borderRadius: 100, padding: '5px 12px', fontSize: 11, color: '#C8553A', fontWeight: 500, marginBottom: 20 }}>
+            {/* Tag pill */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#E0F2F4', borderRadius: 100, padding: '5px 11px', fontSize: 11, color: '#0C4A5C', fontWeight: 500, marginBottom: 22 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1B9BA8', animation: 'pm-pulse 1.8s ease-in-out infinite' }} />
               Launching in London
             </div>
 
-            {/* Headline */}
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 30, fontWeight: 400, color: '#FDFBF7', lineHeight: 1.2, marginBottom: 16, letterSpacing: '-0.5px' }}>
-              Every restaurant. Matched to you.
+            {/* H1 */}
+            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 38, fontWeight: 400, color: '#0A1628', lineHeight: 1.15, letterSpacing: '-0.6px', margin: '0 0 16px' }}>
+              Dinner out. On your terms.
             </h1>
 
-            {/* Paragraph */}
-            <p style={{ fontSize: 14, color: '#A09A8F', lineHeight: 1.7, marginBottom: 32, maxWidth: 380 }}>
-              PlateMatch matches your dietary requirements to restaurant menus — dish by dish, restaurant by restaurant. Set your needs once. See what&apos;s compatible. Book with confidence. All verified directly by the restaurant.
+            {/* Subheadline */}
+            <p style={{ fontSize: 14, color: '#2C3E50', lineHeight: 1.7, margin: '0 0 24px', maxWidth: 460 }}>
+              Filter every dish in London by your exact allergens and dietary needs — restaurant by restaurant, dish by dish. Set your preferences once. Always confirm with staff before ordering.
             </p>
 
-            {submitted ? (
-              <div style={{ background: 'rgba(126,168,132,0.12)', border: '0.5px solid rgba(126,168,132,0.3)', borderRadius: 12, padding: '20px 24px' }}>
-                <div style={{ fontSize: 16, color: '#7EA884', fontFamily: 'Georgia, serif', marginBottom: 4 }}>You&apos;re on the list.</div>
-                <p style={{ fontSize: 12, color: '#A09A8F', margin: 0 }}>We&apos;ll be in touch when PlateMatch opens in your area.</p>
+            {/* Social proof */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <div style={{ display: 'flex' }}>
+                {SOCIAL_AVATARS.map((a, i) => (
+                  <div key={a.initial} style={{ width: 26, height: 26, borderRadius: '50%', background: a.color, color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, border: '2px solid #F4F6F8', marginLeft: i === 0 ? 0 : -8 }}>
+                    {a.initial}
+                  </div>
+                ))}
               </div>
-            ) : (
-              <form id="waitlist-form" onSubmit={handleWaitlist}>
-                <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    style={{
-                      flex: '1 1 240px',
-                      background: 'rgba(253,251,247,0.07)',
-                      border: '0.5px solid rgba(196,185,168,0.3)',
-                      borderRadius: 10,
-                      padding: '12px 16px',
-                      fontSize: 14,
-                      color: '#FDFBF7',
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                    }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(200,85,58,0.6)')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(196,185,168,0.3)')}
-                  />
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{ background: loading ? '#8B7E71' : '#C8553A', color: '#FDFBF7', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'all 0.15s ease' }}
-                  >
-                    {loading ? 'Joining…' : 'Join waitlist'}
-                  </button>
+              <div style={{ fontSize: 12, color: '#4A5568' }}>
+                <strong style={{ color: '#0A1628', fontWeight: 600 }}>127 Londoners</strong> with dietary needs already waiting
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div style={{ marginBottom: 22 }}>
+              <div style={{ height: 6, background: 'rgba(27,94,122,0.12)', borderRadius: 100, overflow: 'hidden', marginBottom: 6 }}>
+                <div style={{ width: '63.5%', height: '100%', background: '#1B5E7A' }} />
+              </div>
+              <div style={{ fontSize: 11, color: '#4A5568' }}>127 / 200 early access spots</div>
+            </div>
+
+            {/* Form card */}
+            <div id="waitlist-form" style={{ background: '#FFFFFF', border: '1px solid #CBD5E0', borderRadius: 10, padding: 14 }}>
+              {submitted ? (
+                <div style={{ padding: '6px 2px' }}>
+                  <div style={{ fontFamily: 'Georgia, serif', fontSize: 17, color: '#0A1628', marginBottom: 4 }}>You&apos;re on the list.</div>
+                  <p style={{ fontSize: 12, color: '#4A5568', margin: 0 }}>We&apos;ll be in touch when {APP_NAME} opens.</p>
                 </div>
-
-                {/* Free for diners */}
-                <div style={{ fontSize: 10.5, color: '#6B6760', marginBottom: 10 }}>Free for diners. Always.</div>
-
-                {/* Consent — no checkbox */}
-                <p style={{ fontSize: 10.5, color: '#6B6760', lineHeight: 1.5, margin: '0 0 8px' }}>
-                  By joining you agree to receive launch updates. Unsubscribe anytime.{' '}
-                  <Link href="/privacy" style={{ color: '#A09A8F', textDecoration: 'underline' }}>Privacy Policy</Link>
-                </p>
-
-                {error && <p style={{ fontSize: 11, color: '#C8553A', margin: '4px 0 0' }}>{error}</p>}
-
-                {/* Feature list */}
-                <div style={{ borderTop: '0.5px solid rgba(245,240,232,0.06)', marginTop: 24, paddingTop: 20, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-                  {FEATURES.map((f) => (
-                    <div key={f.title} style={{ flex: '1 1 100px', minWidth: 80 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-                        <span style={{ fontSize: 10, color: '#7EA884' }}>✓</span>
-                        <span style={{ fontSize: 12, fontWeight: 500, color: '#F5F0E8' }}>{f.title}</span>
-                      </div>
-                      <div style={{ fontSize: 10, color: '#6B6760', lineHeight: 1.45 }}>{f.sub}</div>
-                    </div>
-                  ))}
-                </div>
-              </form>
-            )}
-
-            {/* Stats */}
-            <div style={{ display: 'flex', gap: 24, marginTop: 40, paddingTop: 32, borderTop: '0.5px solid rgba(196,185,168,0.12)', flexWrap: 'wrap' }}>
-              {STATS.map((s) => (
-                <div key={s.value} style={{ minWidth: 120, flex: '1 1 120px' }}>
-                  <div style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: '#FDFBF7', fontWeight: 400 }}>{s.value}</div>
-                  <div style={{ fontSize: 11, color: '#6B6760', marginTop: 2 }}>{s.label}</div>
-                </div>
-              ))}
+              ) : (
+                <form onSubmit={handleWaitlist}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      style={{ flex: '1 1 220px', minWidth: 0, background: '#F4F6F8', border: '1px solid #CBD5E0', borderRadius: 7, padding: '11px 13px', fontSize: 13, color: '#0A1628', outline: 'none', fontFamily: 'inherit' }}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = '#1B5E7A')}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = '#CBD5E0')}
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#0C3A4E'; }}
+                      onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#1B5E7A'; }}
+                      style={{ background: loading ? '#A0AEC0' : '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 7, padding: '11px 20px', fontSize: 13, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'background 0.15s ease' }}
+                    >
+                      {loading ? 'Joining…' : 'Get my access'}
+                    </button>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#4A5568', textAlign: 'center', marginBottom: 10 }}>Free for diners · Always</div>
+                  <p style={{ fontSize: 10, color: '#4A5568', lineHeight: 1.55, margin: 0 }}>
+                    By joining I agree to the{' '}
+                    <Link href="/terms" style={{ color: '#1B5E7A', textDecoration: 'underline' }}>Terms of Service</Link>
+                    {' '}and confirm I have read the{' '}
+                    <Link href="/privacy" style={{ color: '#1B5E7A', textDecoration: 'underline' }}>Privacy Policy</Link>.
+                    {' '}I understand my allergen preferences are stored only on my device.{' '}
+                    <Link href="/cookies" style={{ color: '#4A5568', textDecoration: 'underline' }}>Cookie Policy</Link>
+                  </p>
+                  {error && <p style={{ fontSize: 11, color: '#C0392B', margin: '8px 0 0' }}>{error}</p>}
+                </form>
+              )}
             </div>
           </div>
 
-          {/* Right: phone mockup */}
-          <PhoneMockup />
+          {/* Right column — product preview */}
+          <ProductPreview />
         </div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" style={{ background: '#FDFBF7', padding: '80px 24px' }}>
+      <section id="how-it-works" style={{ background: '#FFFFFF', padding: '72px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 26, fontWeight: 400, color: '#1A1614', marginBottom: 8, letterSpacing: '-0.3px' }}>How it works</h2>
-            <p style={{ fontSize: 14, color: '#8B7E71' }}>Three steps. No more guesswork.</p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
-            {HOW_IT_WORKS.map((item) => (
-              <div key={item.step} style={{ background: '#F5F0E8', borderRadius: 14, padding: '24px', border: '0.5px solid #C4B9A8' }}>
-                <div style={{ fontSize: 11, color: '#C8553A', fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>{item.step}</div>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: 17, color: '#1A1614', marginBottom: 10, fontWeight: 400 }}>{item.title}</div>
-                <p style={{ fontSize: 13, color: '#8B7E71', lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
+          <SectionLabel>How it works</SectionLabel>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 32px' }}>
+            Three steps. No more guesswork.
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {HOW_IT_WORKS.map((item, i) => (
+              <div key={item.n} style={{ display: 'flex', gap: 16, padding: '22px 0', borderTop: i === 0 ? 'none' : '1px solid #CBD5E0' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E0F2F4', color: '#0C4A5C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, flexShrink: 0 }}>
+                  {item.n}
+                </div>
+                <div style={{ paddingTop: 4 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#0A1628', marginBottom: 6 }}>{item.title}</div>
+                  <p style={{ fontSize: 13, color: '#2C3E50', lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── QUOTE ── */}
-      <section style={{ background: '#F5F0E8', padding: '64px 24px', borderTop: '0.5px solid #C4B9A8', borderBottom: '0.5px solid #C4B9A8' }}>
-        <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <blockquote style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 18, color: '#1A1614', lineHeight: 1.65, margin: 0, marginBottom: 16 }}>
-            &ldquo;I spend 15 minutes on Google every time I eat out. I just want to know what I can actually eat.&rdquo;
-          </blockquote>
-          <cite style={{ fontSize: 12, color: '#8B7E71', fontStyle: 'normal' }}>— Vegan diner, London</cite>
+      {/* ── WHY THIS EXISTS ── */}
+      <section style={{ background: '#FFFFFF', padding: '0 24px 72px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <SectionLabel>Why this exists</SectionLabel>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 24px' }}>
+            Built by someone who lives this every day.
+          </h2>
+          <div style={{ background: '#F4F6F8', border: '1px solid #CBD5E0', borderRadius: 12, padding: 20 }}>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 14 }}>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#1B5E7A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 400, flexShrink: 0 }}>
+                GF
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 500, color: '#0A1628', marginBottom: 2 }}>Giosef Ferraro</div>
+                <div style={{ fontSize: 12, color: '#4A5568', marginBottom: 6 }}>Assistant Manager · Software Development Student · Founder</div>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#E0F2F4', color: '#0C4A5C', borderRadius: 100, padding: '3px 9px', fontSize: 11, fontWeight: 500 }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  London
+                </span>
+              </div>
+            </div>
+            <blockquote style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 15, color: '#0A1628', lineHeight: 1.6, borderLeft: '2px solid #1B9BA8', paddingLeft: 14, margin: '0 0 16px' }}>
+              &ldquo;I have G6PD deficiency — a rare allergy to legumes that most London restaurants have never heard of.&rdquo;
+            </blockquote>
+            <p style={{ fontSize: 13, color: '#2C3E50', lineHeight: 1.65, margin: '0 0 14px' }}>
+              As an assistant manager in hospitality, I&apos;ve watched people with multiple allergies spend their evenings negotiating with the kitchen instead of enjoying their meal. I&apos;m building this app to give everyone the same freedom: choose a restaurant based on what you feel like eating, not based on what you can manage.
+            </p>
+            <Link href="/story" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: '#1B5E7A', textDecoration: 'none' }}>
+              Read my full story
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── MODIFIABLE DISHES ── */}
+      <section style={{ background: '#F4F6F8', padding: '72px 24px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <SectionLabel>Modifiable dishes</SectionLabel>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 10px' }}>
+            Dishes you thought were off the table.
+          </h2>
+          <p style={{ fontSize: 14, color: '#2C3E50', lineHeight: 1.65, margin: '0 0 28px', maxWidth: 560 }}>
+            Some dishes can be adapted for your needs. We show you which ones, how, and whether there&apos;s an extra cost — as declared by the restaurant.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginBottom: 20 }}>
+            <ModDishCard
+              name="Pasta al Ragù"
+              price="£14.00"
+              from="#7C5A38"
+              to="#150E05"
+              badge="Can be made gluten-free"
+              desc="Replace pasta with certified GF pasta on request. Sauce and all other ingredients unchanged."
+              meta="+£1.50 · Declared by the restaurant"
+            />
+            <ModDishCard
+              name="Risotto ai Funghi"
+              price="£16.50"
+              from="#2A5040"
+              to="#060F09"
+              badge="Can be made dairy-free"
+              desc="Prepared without butter on request. Same dish, same flavour profile."
+              meta="No extra charge · Declared by the restaurant"
+            />
+          </div>
+          <InfoBox icon="info">
+            Modifiable dishes are declared directly by the restaurant. Always confirm the modification with staff before ordering.
+          </InfoBox>
+        </div>
+      </section>
+
+      {/* ── GROUP MATCH ── */}
+      <section style={{ background: '#FFFFFF', padding: '72px 24px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <SectionLabel>Group Match</SectionLabel>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 10px' }}>
+            Every person at the table. Every person with something to eat.
+          </h2>
+          <p style={{ fontSize: 14, color: '#2C3E50', lineHeight: 1.65, margin: '0 0 24px', maxWidth: 520 }}>
+            One evening where the only thing that matters is the company.
+          </p>
+          <div style={{ background: '#F4F6F8', border: '1px solid #CBD5E0', borderRadius: 12, padding: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
+              {GROUP_PEOPLE.map((p) => (
+                <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 34, height: 34, borderRadius: '50%', background: p.color, color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, flexShrink: 0 }}>
+                    {p.initial}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: '#0A1628' }}>{p.name}</div>
+                    <div style={{ fontSize: 12, color: '#4A5568' }}>{p.needs}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: '#0A1628', borderRadius: 9, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>Restaurants in Shoreditch where everyone has compatible dishes</div>
+                <div style={{ fontFamily: 'Georgia, serif', fontSize: 18, color: '#FFFFFF', fontWeight: 400 }}>12 restaurants found</div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B9BA8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <InfoBox icon="users">
+              Each person sets their own needs independently. Group Match finds where everyone has options — not just the least bad compromise.
+            </InfoBox>
+          </div>
         </div>
       </section>
 
       {/* ── FOR RESTAURANTS ── */}
-      <section id="for-restaurants" style={{ background: '#1A1614', padding: '80px 24px' }}>
+      <section id="for-restaurants" style={{ background: '#0A1628', padding: '72px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <div style={{ display: 'inline-block', background: 'rgba(200,85,58,0.15)', border: '0.5px solid rgba(200,85,58,0.35)', borderRadius: 100, padding: '5px 12px', fontSize: 11, color: '#C8553A', fontWeight: 500, marginBottom: 20 }}>
-            For restaurants
-          </div>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 26, color: '#FDFBF7', fontWeight: 400, letterSpacing: '-0.3px', marginBottom: 12 }}>
-            Let your menu answer before they ask.
+          <SectionLabel dark>For restaurants</SectionLabel>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#FFFFFF', letterSpacing: '-0.3px', margin: '12px 0 12px' }}>
+            Your customers with dietary needs are looking for you.
           </h2>
-          <p style={{ fontSize: 14, color: '#A09A8F', lineHeight: 1.65, maxWidth: 460, marginBottom: 48 }}>
-            Your staff spends time explaining allergens to every customer who asks. Your kitchen worries about getting it wrong. And the customers who don&apos;t ask? They just don&apos;t come back. PlateMatch gives them the answers before they walk in — so your staff serves food, not explanations.
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.70)', lineHeight: 1.65, margin: '0 0 28px', maxWidth: 560 }}>
+            2.4 million people in the UK have food allergies. Most avoid eating out because they can&apos;t find clear information. They&apos;re already searching — they just can&apos;t find you yet.
           </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
-            {RESTAURANT_FEATURES.map((f) => (
-              <div key={f.title} style={{ background: 'rgba(253,251,247,0.05)', border: '0.5px solid rgba(196,185,168,0.15)', borderRadius: 14, padding: '24px' }}>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: 16, color: '#FDFBF7', marginBottom: 8, fontWeight: 400 }}>{f.title}</div>
-                <p style={{ fontSize: 12, color: '#A09A8F', lineHeight: 1.65, margin: 0 }}>{f.desc}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 22 }}>
+            {RESTAURANT_POINTS.map((text, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div style={{ width: 24, height: 24, borderRadius: 7, background: 'rgba(27,155,168,0.15)', color: '#1B9BA8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {i === 0 && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                  )}
+                  {i === 1 && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
+                  )}
+                  {i === 2 && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
+                  )}
+                </div>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.78)', lineHeight: 1.6, margin: 0 }}>{text}</p>
               </div>
             ))}
           </div>
-
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link href="/waitlist?type=restaurant" style={{ background: '#C8553A', color: '#FDFBF7', padding: '12px 24px', borderRadius: 10, fontSize: 13, textDecoration: 'none', fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
-              Register your restaurant →
-            </Link>
-            <button onClick={() => scrollTo('how-it-works')} style={{ background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(245,240,232,0.2)', borderRadius: 10, padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}>
-              See how it works
-            </button>
-            <span style={{ fontSize: 12, color: '#6B6760', width: '100%' }}>From £29/month · Free onboarding for early partners</span>
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 9, padding: '14px 16px', fontSize: 13, color: 'rgba(255,255,255,0.78)', lineHeight: 1.6, marginBottom: 20 }}>
+            We help you upload and verify your menu — dish by dish, allergen by allergen. You get reminders when it&apos;s time to update. You stay in full control.
           </div>
-        </div>
-      </section>
-
-      {/* ── GDPR ── */}
-      <section style={{ background: '#FDFBF7', padding: '64px 24px', borderTop: '0.5px solid #C4B9A8' }}>
-        <div style={{ maxWidth: 560, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: '#1A1614', fontWeight: 400, marginBottom: 16, letterSpacing: '-0.3px' }}>Your data, your control</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              'We collect only your email address for the waitlist',
-              'Used solely to notify you when PlateMatch launches',
-              'Never sold, shared, or transferred to third parties',
-              'Unsubscribe and request deletion at any time',
-              'Data stored securely in UK/EEA on encrypted servers',
-            ].map((item) => (
-              <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#8B7E71' }}>
-                <span style={{ color: '#7EA884', flexShrink: 0 }}>✓</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-          <div style={{ background: '#F5F0E8', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#8B7E71', border: '0.5px solid #C4B9A8' }}>
-            <strong style={{ color: '#1A1614', fontWeight: 500 }}>Lawful basis:</strong> Consent (Art. 6(1)(a) UK GDPR) ·{' '}
-            <strong style={{ color: '#1A1614', fontWeight: 500 }}>Contact:</strong>{' '}
-            <a href="mailto:privacy@platematch.app" style={{ color: '#8B7E71' }}>privacy@platematch.app</a>
+          <Link href="/waitlist?type=restaurant" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', background: '#1B9BA8', color: '#FFFFFF', padding: '13px 18px', borderRadius: 8, fontSize: 14, fontWeight: 500, textDecoration: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 9l1.5-5h15L21 9" />
+              <path d="M4 9h16v11H4z" />
+              <path d="M9 20v-6h6v6" />
+            </svg>
+            Register your restaurant
+          </Link>
+          <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.40)', marginTop: 12 }}>
+            First 30 restaurants: £29/month, locked forever
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#0F0E0C', padding: '32px 24px', borderTop: '0.5px solid rgba(196,185,168,0.12)' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-          <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: 'rgba(253,251,247,0.4)', letterSpacing: '-0.2px' }}>PlateMatch</span>
+      <footer style={{ background: '#071020', padding: '28px 24px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: 'rgba(255,255,255,0.35)', letterSpacing: '-0.2px' }}>{APP_NAME}</span>
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             {[
-              { label: 'Privacy Policy', href: '/privacy' },
-              { label: 'Cookie Policy', href: '/cookies' },
-              { label: 'Terms of Service', href: '/terms' },
-              { label: 'Consumer App', href: '/app' },
-              { label: 'For Restaurants', href: '/waitlist?type=restaurant' },
+              { label: 'Terms', href: '/terms' },
+              { label: 'Privacy', href: '/privacy' },
+              { label: 'Cookies', href: '/cookies' },
             ].map((l) => (
-              <Link key={l.href} href={l.href} style={{ fontSize: 11, color: 'rgba(253,251,247,0.35)', textDecoration: 'none' }}>
+              <Link key={l.href} href={l.href} style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', textDecoration: 'none' }}>
                 {l.label}
               </Link>
             ))}
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(253,251,247,0.25)', width: '100%' }}>
-            © 2026 PlateMatch Ltd · London, UK
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.20)', width: '100%' }}>
+            © 2026 {APP_NAME} · London, UK
           </span>
         </div>
       </footer>
@@ -339,73 +411,115 @@ export default function LandingPage() {
   );
 }
 
-function PhoneMockup() {
-  return (
-    <div
-      style={{
-        width: 220,
-        background: '#1A1614',
-        borderRadius: 28,
-        border: '2px solid rgba(196,185,168,0.2)',
-        padding: '12px 10px',
-        flexShrink: 0,
-        marginTop: 0,
-        boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
-        alignSelf: 'flex-start',
-      }}
-    >
-      {/* notch */}
-      <div style={{ width: 60, height: 8, background: 'rgba(196,185,168,0.12)', borderRadius: 100, margin: '0 auto 12px' }} />
+/* ──────────── sub-components ──────────── */
 
-      {/* top bar */}
-      <div style={{ background: '#FDFBF7', borderRadius: 14, padding: '10px 10px 8px', marginBottom: 8 }}>
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: 11, color: '#1A1614', marginBottom: 2, fontWeight: 400 }}>Good evening</div>
-        <div style={{ fontSize: 9, color: '#8B7E71', marginBottom: 8 }}>Find restaurants that match your needs</div>
+function SectionLabel({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <span style={{ fontSize: 11, fontWeight: 600, color: '#1B9BA8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{children}</span>
+      <div style={{ flex: 1, height: 1, background: dark ? 'rgba(255,255,255,0.1)' : '#CBD5E0' }} />
+    </div>
+  );
+}
+
+function InfoBox({ children, icon }: { children: React.ReactNode; icon: 'info' | 'users' }) {
+  return (
+    <div style={{ background: '#E0F2F4', border: '1px solid rgba(27,155,168,0.25)', borderRadius: 9, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div style={{ color: '#0C4A5C', flexShrink: 0, marginTop: 1 }}>
+        {icon === 'info' ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        )}
+      </div>
+      <p style={{ fontSize: 12.5, color: '#0C4A5C', lineHeight: 1.55, margin: 0 }}>{children}</p>
+    </div>
+  );
+}
+
+function ModDishCard({ name, price, from, to, badge, desc, meta }: { name: string; price: string; from: string; to: string; badge: string; desc: string; meta: string }) {
+  return (
+    <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E0', borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ height: 84, background: `linear-gradient(135deg, ${from}, ${to})`, position: 'relative' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.55) 100%)' }} />
+        <div style={{ position: 'absolute', bottom: 10, left: 12, right: 12, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
+          <div style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#FFFFFF', fontWeight: 400 }}>{name}</div>
+          <div style={{ background: 'rgba(0,0,0,0.55)', color: '#FFFFFF', fontSize: 11, fontWeight: 500, borderRadius: 7, padding: '3px 8px' }}>{price}</div>
+        </div>
+      </div>
+      <div style={{ padding: 14 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#DBEAFE', color: '#1E40AF', borderRadius: 100, padding: '3px 9px', fontSize: 11, fontWeight: 500, marginBottom: 8 }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10" />
+            <polyline points="1 20 1 14 7 14" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10" />
+            <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14" />
+          </svg>
+          {badge}
+        </span>
+        <p style={{ fontSize: 13, color: '#2C3E50', lineHeight: 1.55, margin: '0 0 8px' }}>{desc}</p>
+        <div style={{ fontSize: 11.5, color: '#4A5568', fontStyle: 'italic' }}>{meta}</div>
+      </div>
+    </div>
+  );
+}
+
+function ProductPreview() {
+  return (
+    <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 20px 50px rgba(10,22,40,0.08)' }}>
+      {/* Browser chrome */}
+      <div style={{ background: '#F4F6F8', borderBottom: '1px solid #CBD5E0', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ display: 'flex', gap: 5 }}>
-          {['Gluten-free', 'Vegan'].map((filter) => (
-            <span key={filter} style={{ background: '#1A1614', color: '#FDFBF7', borderRadius: 100, padding: '4px 8px', fontSize: 7.5, fontWeight: 500 }}>
-              {filter}
-            </span>
+          {['#FF5F57', '#FEBC2E', '#28C840'].map((c) => (
+            <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />
           ))}
+        </div>
+        <div style={{ flex: 1, textAlign: 'center', fontSize: 11, color: '#4A5568' }}>
+          Your filters: <span style={{ color: '#0A1628', fontWeight: 500 }}>Gluten-free · Dairy-free</span>
         </div>
       </div>
 
-      {/* restaurant card */}
-      <div style={{ background: '#FDFBF7', borderRadius: 10, overflow: 'hidden', marginBottom: 6, border: '0.5px solid #C4B9A8' }}>
-        <div style={{ height: 48, background: 'linear-gradient(135deg, #6B5E52, #3A302A)', position: 'relative' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 25%, rgba(0,0,0,0.58) 100%)' }} />
-          <div style={{ position: 'absolute', bottom: 5, left: 7, right: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 5 }}>
-            <div>
-              <div style={{ fontFamily: 'Georgia, serif', fontSize: 8.5, color: '#FDFBF7', fontWeight: 400, marginBottom: 2 }}>L&apos;Artigiano del Gusto</div>
-              <div style={{ fontSize: 6.5, color: 'rgba(253,251,247,0.75)' }}>6 dishes match your filters</div>
-            </div>
-            <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: '1.5px solid #C8553A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontSize: 8, color: '#FDFBF7', fontFamily: 'Georgia, serif', lineHeight: 1 }}>6</span>
+      {/* Body */}
+      <div style={{ background: '#F4F6F8', padding: 14 }}>
+        {/* Filter chips */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+          {['Gluten-free', 'Dairy-free'].map((f) => (
+            <span key={f} style={{ background: '#0A1628', color: '#FFFFFF', borderRadius: 100, padding: '4px 10px', fontSize: 11, fontWeight: 500 }}>{f}</span>
+          ))}
+        </div>
+
+        {/* Restaurant card */}
+        <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E0', borderRadius: 10, overflow: 'hidden' }}>
+          <div style={{ height: 70, background: 'linear-gradient(135deg, #0A1628, #1B5E7A)', position: 'relative' }}>
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)' }} />
+            <div style={{ position: 'absolute', bottom: 8, left: 12, right: 12, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#FFFFFF', fontWeight: 400 }}>
+                L&apos;Artigiano del Gusto <span style={{ color: 'rgba(255,255,255,0.7)' }}>· Shoreditch</span>
+              </div>
+              <span style={{ background: '#1B9BA8', color: '#FFFFFF', borderRadius: 100, padding: '3px 9px', fontSize: 10, fontWeight: 500, whiteSpace: 'nowrap' }}>9 compatible</span>
             </div>
           </div>
-        </div>
-        <div style={{ padding: '6px' }}>
-          {MOCK_DISHES.map((dish) => (
-            <div key={dish.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, padding: '5px 0', borderBottom: dish.name === 'Insalata Verde' ? 'none' : '0.5px solid #E7DED1' }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 7.5, color: '#1A1614', fontWeight: 500, marginBottom: 3 }}>{dish.name}</div>
-                <div style={{ display: 'flex', gap: 3 }}>
-                  {['GF', 'Vegan'].map((tag) => (
-                    <span key={tag} style={{ background: '#EDF4EE', color: '#456B4B', borderRadius: 100, padding: '1px 4px', fontSize: 6 }}>
-                      {tag}
-                    </span>
-                  ))}
+          <div style={{ padding: '4px 12px 10px' }}>
+            {PREVIEW_DISHES.map((d, i) => (
+              <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '10px 0', borderTop: i === 0 ? 'none' : '1px solid #F4F6F8' }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 12, color: '#0A1628', fontWeight: 500, marginBottom: 4 }}>{d.name}</div>
+                  <span style={{ background: d.tone === 'green' ? '#EAF3DE' : '#DBEAFE', color: d.tone === 'green' ? '#276228' : '#1E40AF', borderRadius: 100, padding: '2px 7px', fontSize: 10, fontWeight: 500 }}>{d.badge}</span>
                 </div>
+                <span style={{ fontFamily: 'Georgia, serif', fontSize: 12, color: '#0A1628' }}>{d.price}</span>
               </div>
-              <span style={{ fontFamily: 'Georgia, serif', fontSize: 7.5, color: '#1A1614', flexShrink: 0 }}>{dish.price}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* disclaimer */}
-      <div style={{ textAlign: 'center', marginTop: 4 }}>
-        <span style={{ fontSize: 7, color: '#C4B9A8', fontStyle: 'italic' }}>Example preview — fictional restaurants</span>
       </div>
     </div>
   );
