@@ -86,31 +86,48 @@ export default function LandingPage() {
   }
 
   return (
-    <div style={{ background: '#F4F6F8', fontFamily: 'Inter, -apple-system, sans-serif', color: '#2C3E50', minHeight: '100vh' }}>
+    <div style={{ background: '#F4F6F8', fontFamily: 'Inter, -apple-system, sans-serif', color: '#2C3E50', minHeight: '100vh', overflowX: 'hidden' }}>
       <style>{`
         @keyframes pm-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.3); } }
+        .pm-section { padding: 72px 24px; }
+        .pm-container { max-width: 680px; margin: 0 auto; }
+        .pm-hero { padding: 56px 24px 72px; }
+        .pm-hero-stack { display: flex; flex-direction: column; gap: 36px; align-items: stretch; }
+        .pm-nav-links { display: flex; gap: 24px; align-items: center; }
+        .pm-nav-cta { padding: 9px 18px; white-space: nowrap; }
+        .pm-h1 { font-size: clamp(28px, 8vw, 38px); }
+        .pm-sub { font-size: clamp(13px, 3.5vw, 15px); }
+        .pm-h2 { font-size: clamp(20px, 5.5vw, 23px); }
+        @media (max-width: 640px) {
+          .pm-section { padding: 28px 20px; }
+          .pm-hero { padding: 28px 20px 36px; }
+          .pm-nav-wrap { padding: 0 20px !important; }
+          .pm-nav-text { display: none !important; }
+          .pm-nav-cta { padding: 6px 12px !important; font-size: 12px !important; }
+          .pm-nav-links { gap: 10px !important; }
+        }
       `}</style>
 
       {/* ── NAV ── */}
-      <nav style={{ background: '#FFFFFF', borderBottom: '1px solid #CBD5E0', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav className="pm-nav-wrap" style={{ background: '#FFFFFF', borderBottom: '1px solid #CBD5E0', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
         <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px' }}>{APP_NAME}</span>
-        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-          <button onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
+        <div className="pm-nav-links">
+          <button className="pm-nav-text" onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
             How it works
           </button>
-          <button onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
+          <button className="pm-nav-text" onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#A0AEC0', padding: 0, fontFamily: 'inherit' }}>
             For restaurants
           </button>
-          <button onClick={() => scrollTo('waitlist-form')} onMouseEnter={(e) => (e.currentTarget.style.background = '#0C3A4E')} onMouseLeave={(e) => (e.currentTarget.style.background = '#1B5E7A')} style={{ background: '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 7, padding: '9px 18px', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s ease' }}>
+          <button className="pm-nav-cta" onClick={() => scrollTo('waitlist-form')} onMouseEnter={(e) => (e.currentTarget.style.background = '#0C3A4E')} onMouseLeave={(e) => (e.currentTarget.style.background = '#1B5E7A')} style={{ background: '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 7, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s ease' }}>
             Join waitlist
           </button>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ background: '#F4F6F8', padding: '56px 24px 72px' }}>
-        <div style={{ maxWidth: 1040, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 48, alignItems: 'start' }}>
-          {/* Left column */}
+      <section className="pm-hero" style={{ background: '#F4F6F8' }}>
+        <div className="pm-container pm-hero-stack">
+          {/* Column — copy + form */}
           <div>
             {/* Tag pill */}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#E0F2F4', borderRadius: 100, padding: '5px 11px', fontSize: 11, color: '#0C4A5C', fontWeight: 500, marginBottom: 22 }}>
@@ -119,12 +136,12 @@ export default function LandingPage() {
             </div>
 
             {/* H1 */}
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 38, fontWeight: 400, color: '#0A1628', lineHeight: 1.15, letterSpacing: '-0.6px', margin: '0 0 16px' }}>
+            <h1 className="pm-h1" style={{ fontFamily: 'Georgia, serif', fontWeight: 400, color: '#0A1628', lineHeight: 1.15, letterSpacing: '-0.6px', margin: '0 0 16px' }}>
               Dinner out. On your terms.
             </h1>
 
             {/* Subheadline */}
-            <p style={{ fontSize: 14, color: '#2C3E50', lineHeight: 1.7, margin: '0 0 24px', maxWidth: 460 }}>
+            <p className="pm-sub" style={{ color: '#2C3E50', lineHeight: 1.7, margin: '0 0 24px', maxWidth: 460 }}>
               Filter every dish in London by your exact allergens and dietary needs — restaurant by restaurant, dish by dish. Set your preferences once. Always confirm with staff before ordering.
             </p>
 
@@ -194,16 +211,16 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right column — product preview */}
+          {/* Product preview — stacks below form */}
           <ProductPreview />
         </div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" style={{ background: '#FFFFFF', padding: '72px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <section id="how-it-works" className="pm-section" style={{ background: '#FFFFFF' }}>
+        <div className="pm-container">
           <SectionLabel>How it works</SectionLabel>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 32px' }}>
+          <h2 className="pm-h2" style={{ fontFamily: 'Georgia, serif', fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 32px' }}>
             Three steps. No more guesswork.
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -223,10 +240,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── WHY THIS EXISTS ── */}
-      <section style={{ background: '#FFFFFF', padding: '0 24px 72px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <section className="pm-section" style={{ background: '#FFFFFF', paddingTop: 0 }}>
+        <div className="pm-container">
           <SectionLabel>Why this exists</SectionLabel>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 24px' }}>
+          <h2 className="pm-h2" style={{ fontFamily: 'Georgia, serif', fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 24px' }}>
             Built by someone who lives this every day.
           </h2>
           <div style={{ background: '#F4F6F8', border: '1px solid #CBD5E0', borderRadius: 12, padding: 20 }}>
@@ -264,10 +281,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── MODIFIABLE DISHES ── */}
-      <section style={{ background: '#F4F6F8', padding: '72px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <section className="pm-section" style={{ background: '#F4F6F8' }}>
+        <div className="pm-container">
           <SectionLabel>Modifiable dishes</SectionLabel>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 10px' }}>
+          <h2 className="pm-h2" style={{ fontFamily: 'Georgia, serif', fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 10px' }}>
             Dishes you thought were off the table.
           </h2>
           <p style={{ fontSize: 14, color: '#2C3E50', lineHeight: 1.65, margin: '0 0 28px', maxWidth: 560 }}>
@@ -300,10 +317,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── GROUP MATCH ── */}
-      <section style={{ background: '#FFFFFF', padding: '72px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <section className="pm-section" style={{ background: '#FFFFFF' }}>
+        <div className="pm-container">
           <SectionLabel>Group Match</SectionLabel>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 10px' }}>
+          <h2 className="pm-h2" style={{ fontFamily: 'Georgia, serif', fontWeight: 400, color: '#0A1628', letterSpacing: '-0.3px', margin: '12px 0 10px' }}>
             Every person at the table. Every person with something to eat.
           </h2>
           <p style={{ fontSize: 14, color: '#2C3E50', lineHeight: 1.65, margin: '0 0 24px', maxWidth: 520 }}>
@@ -343,10 +360,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOR RESTAURANTS ── */}
-      <section id="for-restaurants" style={{ background: '#0A1628', padding: '72px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <section id="for-restaurants" className="pm-section" style={{ background: '#0A1628' }}>
+        <div className="pm-container">
           <SectionLabel dark>For restaurants</SectionLabel>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 23, fontWeight: 400, color: '#FFFFFF', letterSpacing: '-0.3px', margin: '12px 0 12px' }}>
+          <h2 className="pm-h2" style={{ fontFamily: 'Georgia, serif', fontWeight: 400, color: '#FFFFFF', letterSpacing: '-0.3px', margin: '12px 0 12px' }}>
             Your customers with dietary needs are looking for you.
           </h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.70)', lineHeight: 1.65, margin: '0 0 28px', maxWidth: 560 }}>
@@ -499,23 +516,23 @@ function ProductPreview() {
 
         {/* Restaurant card */}
         <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E0', borderRadius: 10, overflow: 'hidden' }}>
-          <div style={{ height: 70, background: 'linear-gradient(135deg, #0A1628, #1B5E7A)', position: 'relative' }}>
+          <div style={{ minHeight: 70, background: 'linear-gradient(135deg, #0A1628, #1B5E7A)', position: 'relative', padding: '10px 12px', display: 'flex', alignItems: 'flex-end' }}>
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)' }} />
-            <div style={{ position: 'absolute', bottom: 8, left: 12, right: 12, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
-              <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#FFFFFF', fontWeight: 400 }}>
+            <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#FFFFFF', fontWeight: 400, minWidth: 0, flex: '1 1 auto' }}>
                 L&apos;Artigiano del Gusto <span style={{ color: 'rgba(255,255,255,0.7)' }}>· Shoreditch</span>
               </div>
-              <span style={{ background: '#1B9BA8', color: '#FFFFFF', borderRadius: 100, padding: '3px 9px', fontSize: 10, fontWeight: 500, whiteSpace: 'nowrap' }}>9 compatible</span>
+              <span style={{ background: '#1B9BA8', color: '#FFFFFF', borderRadius: 100, padding: '3px 9px', fontSize: 10, fontWeight: 500, whiteSpace: 'nowrap', flexShrink: 0 }}>9 compatible</span>
             </div>
           </div>
           <div style={{ padding: '4px 12px 10px' }}>
             {PREVIEW_DISHES.map((d, i) => (
-              <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '10px 0', borderTop: i === 0 ? 'none' : '1px solid #F4F6F8' }}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 12, color: '#0A1628', fontWeight: 500, marginBottom: 4 }}>{d.name}</div>
-                  <span style={{ background: d.tone === 'green' ? '#EAF3DE' : '#DBEAFE', color: d.tone === 'green' ? '#276228' : '#1E40AF', borderRadius: 100, padding: '2px 7px', fontSize: 10, fontWeight: 500 }}>{d.badge}</span>
+              <div key={d.name} style={{ padding: '10px 0', borderTop: i === 0 ? 'none' : '1px solid #F4F6F8' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                  <div style={{ flex: 1, fontSize: 12, color: '#0A1628', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</div>
+                  <span style={{ flexShrink: 0, fontFamily: 'Georgia, serif', fontSize: 12, color: '#0A1628' }}>{d.price}</span>
                 </div>
-                <span style={{ fontFamily: 'Georgia, serif', fontSize: 12, color: '#0A1628' }}>{d.price}</span>
+                <span style={{ display: 'block', marginTop: 2, background: d.tone === 'green' ? '#EAF3DE' : '#DBEAFE', color: d.tone === 'green' ? '#276228' : '#1E40AF', borderRadius: 100, padding: '2px 7px', fontSize: 10, fontWeight: 500, width: 'fit-content' }}>{d.badge}</span>
               </div>
             ))}
           </div>
