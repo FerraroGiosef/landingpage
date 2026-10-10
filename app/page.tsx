@@ -89,6 +89,7 @@ export default function LandingPage() {
     <div style={{ background: '#F4F6F8', fontFamily: 'Inter, -apple-system, sans-serif', color: '#2C3E50', minHeight: '100vh', overflowX: 'hidden' }}>
       <style>{`
         html { scroll-behavior: smooth; }
+        section[id] { scroll-margin-top: 72px; }
         @keyframes pm-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.3); } }
         .pm-nav-text { color: #A0AEC0; transition: color 0.15s ease; white-space: nowrap; }
         .pm-nav-text:hover { color: #0A1628; }
@@ -435,7 +436,7 @@ export default function LandingPage() {
 
 function SectionLabel({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
       <span style={{ fontSize: 11, fontWeight: 600, color: '#1B9BA8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{children}</span>
       <div style={{ flex: 1, height: 1, background: dark ? 'rgba(255,255,255,0.1)' : '#CBD5E0' }} />
     </div>
