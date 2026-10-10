@@ -121,7 +121,7 @@ export default function LandingPage() {
           <button className="pm-nav-text" onClick={() => scrollTo('for-restaurants')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, padding: 0, fontFamily: 'inherit' }}>
             For restaurants
           </button>
-          <button className="pm-nav-cta" onClick={() => scrollTo('waitlist-form')} onMouseEnter={(e) => (e.currentTarget.style.background = '#0C3A4E')} onMouseLeave={(e) => (e.currentTarget.style.background = '#1B5E7A')} style={{ background: '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 7, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s ease' }}>
+          <button className="pm-nav-cta" onClick={() => scrollTo('waitlist')} onMouseEnter={(e) => (e.currentTarget.style.background = '#0C3A4E')} onMouseLeave={(e) => (e.currentTarget.style.background = '#1B5E7A')} style={{ background: '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 7, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s ease' }}>
             Join waitlist
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function LandingPage() {
             </div>
 
             {/* Form card */}
-            <div id="waitlist-form" style={{ background: '#FFFFFF', border: '1px solid #CBD5E0', borderRadius: 10, padding: 14 }}>
+            <div id="waitlist" style={{ background: '#FFFFFF', border: '1px solid #CBD5E0', borderRadius: 10, padding: 14 }}>
               {submitted ? (
                 <div style={{ padding: '6px 2px' }}>
                   <div style={{ fontFamily: 'Georgia, serif', fontSize: 17, color: '#0A1628', marginBottom: 4 }}>You&apos;re on the list.</div>
