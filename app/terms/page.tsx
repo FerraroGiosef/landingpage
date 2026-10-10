@@ -1,6 +1,18 @@
 'use client';
+import Link from 'next/link';
 export default function TermsPage() {
   return (
+    <>
+      {/* Sticky back header */}
+      <div style={{ position: 'sticky', top: 0, background: '#FFFFFF', borderBottom: '0.5px solid #CBD5E0', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, zIndex: 100 }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#1B5E7A', textDecoration: 'none', fontSize: 14, fontWeight: 500 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B5E7A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back
+        </Link>
+        <span style={{ fontFamily: 'Georgia, serif', fontSize: 15, color: '#0A1628', fontWeight: 400 }}>PlateMatch</span>
+      </div>
     <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px', fontFamily: 'Inter, -apple-system, sans-serif', color: '#1A1614' }}>
       <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 400, marginBottom: 8 }}>Terms of Service</h1>
       <p style={{ fontSize: 13, color: '#8B7E71', marginBottom: 32 }}>Last updated: September 2026</p>
@@ -45,5 +57,6 @@ export default function TermsPage() {
         PlateMatch Ltd · London, UK · September 2026
       </div>
     </div>
+    </>
   );
 }

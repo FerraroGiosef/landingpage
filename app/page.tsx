@@ -101,7 +101,7 @@ export default function LandingPage() {
         .pm-h1 { font-size: clamp(28px, 8vw, 38px); }
         .pm-sub { font-size: clamp(13px, 3.5vw, 15px); }
         .pm-h2 { font-size: clamp(20px, 5.5vw, 23px); }
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .pm-section { padding: 28px 20px; }
           .pm-hero { padding: 28px 20px 36px; }
           .pm-nav-wrap { padding: 0 20px !important; }
@@ -269,10 +269,10 @@ export default function LandingPage() {
             <blockquote style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 15, color: '#0A1628', lineHeight: 1.6, borderLeft: '2px solid #1B9BA8', paddingLeft: 14, margin: '0 0 16px' }}>
               &ldquo;I have G6PD deficiency — a rare allergy to legumes that most London restaurants have never heard of.&rdquo;
             </blockquote>
-            <p style={{ fontSize: 13, color: '#2C3E50', lineHeight: 1.65, margin: '0 0 14px' }}>
+            <p style={{ fontSize: 13, color: '#2C3E50', lineHeight: 1.75, margin: '0 0 14px' }}>
               As an assistant manager in hospitality, I&apos;ve watched people with multiple allergies spend their evenings negotiating with the kitchen instead of enjoying their meal. I&apos;m building this app to give everyone the same freedom: choose a restaurant based on what you feel like eating, not based on what you can manage.
             </p>
-            <Link href="/story" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: '#1B5E7A', textDecoration: 'none' }}>
+            <Link href="/about" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: '#1B5E7A', textDecoration: 'none' }}>
               Read my full story
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12h14" />
@@ -408,7 +408,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#071020', padding: '28px 24px' }}>
+      <footer style={{ background: '#071020', paddingTop: 20, paddingBottom: 20, paddingLeft: 24, paddingRight: 24 }}>
         <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
           <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: 'rgba(255,255,255,0.35)', letterSpacing: '-0.2px' }}>{APP_NAME}</span>
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
@@ -417,7 +417,7 @@ export default function LandingPage() {
               { label: 'Privacy', href: '/privacy' },
               { label: 'Cookies', href: '/cookies' },
             ].map((l) => (
-              <Link key={l.href} href={l.href} style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', textDecoration: 'none' }}>
+              <Link key={l.href} href={l.href} style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', padding: '10px 4px', display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>
                 {l.label}
               </Link>
             ))}
