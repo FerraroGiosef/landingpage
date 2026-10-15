@@ -37,7 +37,7 @@ const RESTAURANT_POINTS = [
 function BgImage({ src, alt, fallback, priority = false, objectPosition = 'center' }: { src: string; alt: string; fallback: string; priority?: boolean; objectPosition?: string }) {
   const [failed, setFailed] = useState(false);
   return (
-    <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: fallback, overflow: 'hidden' }}>
+    <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: fallback, backgroundSize: 'cover', backgroundPosition: 'center', overflow: 'hidden' }}>
       {!failed && (
         <Image
           src={src}
@@ -117,14 +117,16 @@ export default function LandingPage() {
         .pm-section-label-line::after { content: ''; display: block; flex: 1; height: 1px; background: #CBD5E0; margin-left: 12px; }
         .pm-section-label-line-dark::after { content: ''; display: block; flex: 1; height: 1px; background: rgba(255,255,255,0.12); margin-left: 12px; }
         .pm-feature-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #CBD5E0; border-radius: 14px; overflow: hidden; margin-top: 24px; }
-        .pm-feature-col { background: #FFFFFF; padding: 18px 14px; }
+        .pm-feature-col { background: #FFFFFF; padding: 18px 16px; }
         @media (max-width: 768px) {
           .pm-section, .pm-section-sm { padding: 36px 20px; }
           .pm-nav-wrap { padding: 14px 20px !important; }
           .pm-nav-text { display: none !important; }
           .pm-nav-cta { padding: 8px 14px !important; font-size: 12px !important; }
           .pm-nav-links { gap: 10px !important; }
-          .pm-feature-strip { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 380px) {
+          .pm-feature-col { padding: 14px 10px; }
         }
       `}</style>
 
@@ -151,7 +153,7 @@ export default function LandingPage() {
           alt=""
           priority
           objectPosition="center 30%"
-          fallback="linear-gradient(135deg, #0C4A5C 0%, #0A1628 60%, #06101E 100%)"
+          fallback="linear-gradient(160deg, #0d2030 0%, #0a1628 50%, #071020 100%)"
         />
         {/* gradient overlay */}
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(10,22,40,0.10) 0%, rgba(10,22,40,0.55) 50%, rgba(10,22,40,0.96) 100%)' }} />
@@ -180,21 +182,19 @@ export default function LandingPage() {
               </div>
             ) : (
               <form onSubmit={handleHeroSubmit}>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 9 }}>
                   <input
                     className="pm-input-dark"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
-                    style={{ flex: '1 1 220px', minWidth: 0, background: 'rgba(255,255,255,0.18)', border: '0.5px solid rgba(255,255,255,0.32)', borderRadius: 8, padding: '12px 14px', fontSize: 13, color: 'rgba(255,255,255,0.95)', outline: 'none', fontFamily: 'inherit' }}
+                    style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,0.18)', border: '0.5px solid rgba(255,255,255,0.32)', borderRadius: 8, padding: '12px 14px', fontSize: 13, color: 'rgba(255,255,255,0.95)', outline: 'none', fontFamily: 'inherit' }}
                   />
                   <button
                     type="submit"
                     disabled={loading}
-                    onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#0C3A4E'; }}
-                    onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#1B5E7A'; }}
-                    style={{ background: loading ? '#A0AEC0' : '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 8, padding: '12px 20px', fontSize: 13, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'background 0.15s ease' }}
+                    style={{ background: loading ? '#A0AEC0' : '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 8, padding: '12px 16px', fontSize: 12, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0, transition: 'background 0.15s ease' }}
                   >
                     {loading ? 'Joining…' : 'Get early access'}
                   </button>
@@ -235,7 +235,7 @@ export default function LandingPage() {
         <BgImage
           src="/images/problem.jpg"
           alt=""
-          fallback="linear-gradient(135deg, #F4F0E8 0%, #FFFFFF 100%)"
+          fallback="linear-gradient(160deg, rgba(244,246,248,0.98) 0%, rgba(235,240,245,0.95) 100%)"
         />
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.93)' }} />
         <div className="pm-container" style={{ position: 'relative', zIndex: 2 }}>
@@ -301,7 +301,7 @@ export default function LandingPage() {
         <BgImage
           src="/images/group.jpg"
           alt=""
-          fallback="linear-gradient(135deg, #0A1628 0%, #06101E 100%)"
+          fallback="linear-gradient(160deg, #0d2030 0%, #0a1628 60%, #071020 100%)"
         />
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'rgba(10,22,40,0.84)' }} />
         <div className="pm-container" style={{ position: 'relative', zIndex: 2 }}>
@@ -395,21 +395,19 @@ export default function LandingPage() {
             </div>
           ) : (
             <form onSubmit={handleCtaSubmit} style={{ maxWidth: 440, margin: '0 auto' }}>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 9 }}>
                 <input
                   className="pm-input"
                   type="email"
                   value={emailCta}
                   onChange={(e) => setEmailCta(e.target.value)}
                   placeholder="your@email.com"
-                  style={{ flex: '1 1 220px', minWidth: 0, background: '#F4F6F8', border: '1px solid #CBD5E0', borderRadius: 9, padding: '14px 16px', fontSize: 13, color: '#0A1628', outline: 'none', fontFamily: 'inherit' }}
+                  style={{ flex: 1, minWidth: 0, background: '#F4F6F8', border: '1px solid #CBD5E0', borderRadius: 9, padding: '14px 16px', fontSize: 13, color: '#0A1628', outline: 'none', fontFamily: 'inherit' }}
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#0C3A4E'; }}
-                  onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#1B5E7A'; }}
-                  style={{ background: loading ? '#A0AEC0' : '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 9, padding: '14px 22px', fontSize: 13, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'background 0.15s ease' }}
+                  style={{ background: loading ? '#A0AEC0' : '#1B5E7A', color: '#FFFFFF', border: 'none', borderRadius: 9, padding: '14px 18px', fontSize: 12, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0, transition: 'background 0.15s ease' }}
                 >
                   {loading ? 'Joining…' : 'Get my access'}
                 </button>
@@ -428,7 +426,7 @@ export default function LandingPage() {
         <BgImage
           src="/images/restaurant.jpg"
           alt=""
-          fallback="linear-gradient(135deg, #1E2D42 0%, #0A1628 100%)"
+          fallback="linear-gradient(160deg, #0a1628 0%, #071020 100%)"
         />
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'rgba(10,22,40,0.88)' }} />
         <div className="pm-container" style={{ position: 'relative', zIndex: 2 }}>
@@ -490,13 +488,11 @@ function SectionLabel({ children, dark = false }: { children: React.ReactNode; d
 function FeatureCol({ tag, n, title, desc, badge }: { tag: string; n: string; title: string; desc: string; badge: string }) {
   return (
     <div className="pm-feature-col">
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 9, color: '#1B9BA8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{tag}</span>
-        <span style={{ fontFamily: 'Georgia, serif', fontSize: 11, color: '#CBD5E0' }}>{n}</span>
-      </div>
-      <div style={{ fontSize: 12, fontWeight: 600, color: '#0A1628', marginBottom: 4 }}>{title}</div>
-      <p style={{ fontSize: 11, color: '#4A5568', lineHeight: 1.5, margin: '0 0 10px' }}>{desc}</p>
-      <span style={{ display: 'inline-block', background: '#F4F6F8', border: '1px solid #CBD5E0', borderRadius: 99, padding: '3px 8px', fontSize: 9, color: '#4A5568', fontWeight: 500 }}>
+      <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#1B9BA8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{tag}</span>
+      <span style={{ display: 'block', fontFamily: 'Georgia, serif', fontSize: 13, color: '#CBD5E0', marginBottom: 8 }}>{n}</span>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#0A1628', lineHeight: 1.35, marginBottom: 7 }}>{title}</div>
+      <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.55, margin: '0 0 10px' }}>{desc}</p>
+      <span style={{ display: 'inline-block', background: '#F4F6F8', border: '0.5px solid #CBD5E0', borderRadius: 99, padding: '4px 10px', fontSize: 10, color: '#4A5568', fontWeight: 500, whiteSpace: 'nowrap' }}>
         {badge}
       </span>
     </div>
