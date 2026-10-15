@@ -150,7 +150,7 @@ export default function LandingPage() {
       {/* ── HERO ── */}
       <section style={{ minHeight: 590, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
         <BgImage
-          src="/images/hero.jpg"
+          src="/images/alex-haney-CAhjZmVk5H4-unsplash.jpg"
           alt=""
           priority
           objectPosition="center 30%"
@@ -234,7 +234,7 @@ export default function LandingPage() {
       {/* ── HOW IT WORKS — BEFORE / AFTER ── */}
       <section id="how-it-works" className="pm-section" style={{ background: '#FFFFFF', position: 'relative', overflow: 'hidden' }}>
         <BgImage
-          src="/images/problem.jpg"
+          src="/images/jessie-mccall-guXX_Wm-wnY-unsplash.jpg"
           alt=""
           fallback="linear-gradient(160deg, rgba(244,246,248,0.98) 0%, rgba(235,240,245,0.95) 100%)"
         />
@@ -300,7 +300,7 @@ export default function LandingPage() {
       {/* ── GROUP MATCH ── */}
       <section className="pm-section" style={{ position: 'relative', overflow: 'hidden' }}>
         <BgImage
-          src="/images/group.jpg"
+          src="/images/taylor-heery-KZfUMAgVPCg-unsplash.jpg"
           alt=""
           fallback="linear-gradient(160deg, #0d2030 0%, #0a1628 60%, #071020 100%)"
         />
@@ -425,7 +425,7 @@ export default function LandingPage() {
       {/* ── FOR RESTAURANTS ── */}
       <section id="for-restaurants" className="pm-section" style={{ position: 'relative', overflow: 'hidden' }}>
         <BgImage
-          src="/images/restaurant.jpg"
+          src="/images/jay-wennington-N_Y88TWmGwA-unsplash.jpg"
           alt=""
           fallback="linear-gradient(160deg, #0a1628 0%, #071020 100%)"
         />
