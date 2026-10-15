@@ -124,8 +124,6 @@ export default function LandingPage() {
           .pm-nav-text { display: none !important; }
           .pm-nav-cta { padding: 8px 14px !important; font-size: 12px !important; }
           .pm-nav-links { gap: 10px !important; }
-        }
-        @media (max-width: 380px) {
           .pm-feature-col { padding: 14px 10px; }
         }
       `}</style>
@@ -488,7 +486,7 @@ function SectionLabel({ children, dark = false }: { children: React.ReactNode; d
 function FeatureCol({ tag, n, title, desc, badge }: { tag: string; n: string; title: string; desc: string; badge: string }) {
   return (
     <div className="pm-feature-col">
-      <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#1B9BA8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{tag}</span>
+      <span style={{ display: 'block', fontSize: 10, color: '#1B9BA8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{tag}</span>
       <span style={{ display: 'block', fontFamily: 'Georgia, serif', fontSize: 13, color: '#CBD5E0', marginBottom: 8 }}>{n}</span>
       <div style={{ fontSize: 13, fontWeight: 600, color: '#0A1628', lineHeight: 1.35, marginBottom: 7 }}>{title}</div>
       <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.55, margin: '0 0 10px' }}>{desc}</p>
