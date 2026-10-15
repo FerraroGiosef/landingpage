@@ -116,8 +116,8 @@ export default function LandingPage() {
         .pm-input-dark::placeholder { color: rgba(255,255,255,0.5); }
         .pm-section-label-line::after { content: ''; display: block; flex: 1; height: 1px; background: #CBD5E0; margin-left: 12px; }
         .pm-section-label-line-dark::after { content: ''; display: block; flex: 1; height: 1px; background: rgba(255,255,255,0.12); margin-left: 12px; }
-        .pm-feature-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #CBD5E0; border-radius: 14px; overflow: hidden; margin-top: 24px; }
-        .pm-feature-col { background: #FFFFFF; padding: 18px 16px; }
+        .pm-feature-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #CBD5E0; border-radius: 14px; overflow: hidden; margin-top: 24px; width: 100%; }
+        .pm-feature-col { background: #FFFFFF; padding: 18px 16px; min-width: 0; word-wrap: break-word; overflow-wrap: break-word; }
         @media (max-width: 768px) {
           .pm-section, .pm-section-sm { padding: 36px 20px; }
           .pm-nav-wrap { padding: 14px 20px !important; }
@@ -125,6 +125,9 @@ export default function LandingPage() {
           .pm-nav-cta { padding: 8px 14px !important; font-size: 12px !important; }
           .pm-nav-links { gap: 10px !important; }
           .pm-feature-col { padding: 14px 10px; }
+        }
+        @media (max-width: 480px) {
+          .pm-feature-col { padding: 12px 8px; }
         }
       `}</style>
 
@@ -236,7 +239,7 @@ export default function LandingPage() {
           fallback="linear-gradient(160deg, rgba(244,246,248,0.98) 0%, rgba(235,240,245,0.95) 100%)"
         />
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.93)' }} />
-        <div className="pm-container" style={{ position: 'relative', zIndex: 2 }}>
+        <div className="pm-container" style={{ position: 'relative', zIndex: 2, maxWidth: '100%', overflow: 'hidden' }}>
           <SectionLabel>How it works</SectionLabel>
 
           {/* BEFORE */}
@@ -485,12 +488,12 @@ function SectionLabel({ children, dark = false }: { children: React.ReactNode; d
 
 function FeatureCol({ tag, n, title, desc, badge }: { tag: string; n: string; title: string; desc: string; badge: string }) {
   return (
-    <div className="pm-feature-col">
+    <div className="pm-feature-col" style={{ overflow: 'hidden', wordBreak: 'break-word' }}>
       <span style={{ display: 'block', fontSize: 10, color: '#1B9BA8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{tag}</span>
       <span style={{ display: 'block', fontFamily: 'Georgia, serif', fontSize: 13, color: '#CBD5E0', marginBottom: 8 }}>{n}</span>
       <div style={{ fontSize: 13, fontWeight: 600, color: '#0A1628', lineHeight: 1.35, marginBottom: 7 }}>{title}</div>
       <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.55, margin: '0 0 10px' }}>{desc}</p>
-      <span style={{ display: 'inline-block', background: '#F4F6F8', border: '0.5px solid #CBD5E0', borderRadius: 99, padding: '4px 10px', fontSize: 10, color: '#4A5568', fontWeight: 500, whiteSpace: 'nowrap' }}>
+      <span style={{ display: 'inline-block', background: '#F4F6F8', border: '0.5px solid #CBD5E0', borderRadius: 99, padding: '4px 10px', fontSize: 10, color: '#4A5568', fontWeight: 500, whiteSpace: 'nowrap', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {badge}
       </span>
     </div>
